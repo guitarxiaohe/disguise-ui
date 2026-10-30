@@ -1,0 +1,13 @@
+{
+  "label": "自动翻译：",
+  "all": "其他所有",
+  "from": "请选择来源语言",
+  "to": "请选择目标语言",
+  "translate": "翻译",
+  "polish": "精翻",
+  "pending": "{command}：{from} → {to}，接口暂未接入",
+  "mockCopied": "模拟翻译：已将源文复制到 {targets}",
+  "loading": "翻译中…",
+  "completed": "翻译完成",
+  "failed": "翻译失败"
+}

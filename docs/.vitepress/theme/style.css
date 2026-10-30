@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@source '../../../src/**/*.{vue,ts}';
+@source '../../**/*.{vue,md}';
+
+:root {
+  --vp-c-brand-1: #409eff;
+  --vp-c-brand-2: #66b1ff;
+  --vp-c-brand-3: #337ecc;
+  --vp-c-brand-soft: rgb(64 158 255 / 14%);
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #409eff, #79bbff);
+  --vp-layout-max-width: 1540px;
+}
+
+.dark {
+  --vp-c-brand-1: #79bbff;
+  --vp-c-brand-2: #409eff;
+  --vp-c-brand-3: #337ecc;
+}
+
+.VPDoc.has-aside .content-container,
+.VPDoc:not(.has-sidebar) .container {
+  max-width: 100% !important;
+}
+
+.VPDoc .content {
+  max-width: 1080px !important;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  font-size: 14px;
+}
+
+.vp-doc th,
+.vp-doc td {
+  white-space: normal;
+}
+
+.vp-doc h2 {
+  border-top: 0;
+  margin-top: 36px;
+}
+
+.demo-page {
+  min-height: 420px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-size: 12px;
+  font-weight: 600;
+}

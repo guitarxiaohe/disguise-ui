@@ -1,0 +1,253 @@
+/* Vue scoped 样式需要使用 :deep 穿透 ElTableV2 内部节点。 */
+/* stylelint-disable selector-pseudo-class-no-unknown */
+
+/******************************** table-entity 样式 ********************************/
+
+.table-entity {
+  width: 100%;
+}
+
+.table-entity__viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--el-bg-color, #fff);
+}
+
+.table-entity__viewport :deep(.el-table-v2__header),
+.table-entity__viewport :deep(.el-table-v2__header-row),
+.table-entity__viewport :deep(.el-table-v2__header-cell) {
+  background: var(--el-fill-color-light);
+  border-bottom: none;
+}
+
+/******************************** 列分割线 ********************************/
+
+.table-entity__viewport :deep(.el-table-v2__header-cell) {
+  font-weight: 600;
+  color: var(--el-text-color-secondary);
+}
+
+
+.table-entity__viewport :deep(.el-table-v2__row) {
+  border-bottom: none;
+}
+
+.table-entity__drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--el-text-color-placeholder);
+  touch-action: none;
+  cursor: grab;
+}
+
+.table-entity--row-dragging .table-entity__drag-handle {
+  cursor: grabbing;
+}
+
+.table-entity__viewport :deep(.el-table-v2__row.table-entity__row--lift) {
+  z-index: 5;
+  background: var(--el-bg-color, #fff);
+  box-shadow: 0 10px 24px rgb(15 23 42 / 16%);
+}
+
+.table-entity__viewport :deep(.el-table-v2__row-cell) {
+  box-sizing: border-box;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+// 行高超过 40 时，单元格默认是垂直居中。普通文本列被撑满后看起来贴顶，
+// 自定义内容仍居中，所以同一行会对不齐。高行统一改为顶部对齐。
+.table-entity--large-row .table-entity__viewport :deep(.el-table-v2__row-cell) {
+  align-items: flex-start;
+}
+
+// 斑马纹（隔行变色）
+.table-entity__viewport :deep(.el-table-v2__row:nth-child(even)) {
+  background: var(--el-fill-color-lighter, #fafafa);
+}
+
+.table-entity__viewport :deep(.el-table-v2__row:hover) {
+  background: var(--color-bg-hover);
+}
+
+:deep(.table-entity__list-expand) {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  white-space: normal;
+}
+
+:deep(.table-entity__col-text),
+:deep(.table-entity__col-slot) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-entity--large-row .table-entity__viewport :deep(.table-entity__col-text),
+.table-entity--large-row
+  .table-entity__viewport
+  :deep(.table-entity__col-slot) {
+  height: 100%;
+}
+
+.table-entity__pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
+:deep(.sel-index) {
+  display: inline-block;
+  width: 100%;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+:deep(.sel-radio) {
+  box-sizing: border-box;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  border: 1px solid var(--el-border-color);
+  border-radius: 50%;
+  transition:
+    border-color 0.15s,
+    border-width 0.15s;
+}
+
+:deep(.sel-radio:hover),
+:deep(.sel-radio--checked) {
+  border-color: var(--el-color-primary);
+}
+
+:deep(.sel-radio--checked) {
+  background-color: #fff;
+  border-width: 4px;
+}
+
+/* 操作列 */
+.table-entity__viewport :deep(.table-entity__actions) {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.table-entity__viewport :deep(.table-entity__sort-icons) {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 9px;
+  height: 13px;
+  line-height: 0;
+  color: var(--el-text-color-placeholder);
+}
+
+.table-entity__viewport :deep(.table-entity__sort-arrow--asc),
+.table-entity__viewport :deep(.table-entity__sort-arrow--desc) {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+.table-entity__viewport :deep(.table-entity__sort-arrow--asc) {
+  border-bottom: 5px solid currentcolor;
+}
+
+.table-entity__viewport :deep(.table-entity__sort-arrow--desc) {
+  border-top: 5px solid currentcolor;
+}
+
+/******************************** 工具栏 ********************************/
+
+.table-entity__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.table-entity__toolbar-left,
+.table-entity__toolbar-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.table-entity__settings-btn {
+  font-size: 14px;
+}
+
+/******************************** 列宽拖拽 ********************************/
+
+// 在原生 header-cell 右侧绘制可拖拽竖线
+.table-entity__viewport :deep(.el-table-v2__header-cell) {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 1px;
+    height: 16px;
+    cursor: col-resize;
+    content: '';
+    background: var(--el-border-color, #dcdfe6);
+    border-radius: 1px;
+    transform: translateY(-50%);
+    transition:
+      background-color 0.15s,
+      width 0.15s,
+      height 0.15s;
+  }
+
+  &:last-child::after {
+    display: none;
+  }
+
+  // &:hover::after {
+  //   width: 3px;
+  //   height: 100%;
+  //   background: var(--el-color-primary);
+  // }
+}
+
+// 拖拽跟随竖线
+.table-entity__resize-line {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  width: 2px;
+  pointer-events: none;
+  background: var(--el-color-primary);
+}
+
+// 表格视口在拖拽时也显示 col-resize 光标
+.table-entity__viewport--resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/******************************** 列设置弹窗样式覆写 ********************************/
+
+.table-entity__settings-popover {
+  padding: 0 !important;
+}

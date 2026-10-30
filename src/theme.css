@@ -1,0 +1,30 @@
+:root {
+  --primary: 212 100% 45%;
+  --primary-foreground: 0 0% 98%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --card: 0 0% 100%;
+  --border: 240 5.9% 90%;
+  --color-text-primary: var(--el-text-color-primary);
+  --color-text-secondary: var(--el-text-color-secondary);
+  --color-text-placeholder: var(--el-text-color-placeholder);
+  --color-bg-hover: var(--el-fill-color-light);
+  --color-bg-card: var(--el-bg-color);
+  --color-bg-page: var(--el-bg-color-page);
+  --color-border: var(--el-border-color);
+  --color-border-light: var(--el-border-color-lighter);
+  --color-danger: var(--el-color-danger);
+  --color-success: var(--el-color-success);
+  --color-primary: var(--el-color-primary);
+  --color-primary-bg: var(--el-color-primary-light-9);
+  --color-primary-light: var(--el-color-primary-light-3);
+  --color-gender-male-text: var(--el-color-primary);
+  --color-gender-female-text: var(--el-color-danger);
+  --spacing-sm: 8px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 999px;
+  --font-size-sm: 13px;
+  --font-size-xs: 12px;
+  --shadow-sm: var(--el-box-shadow-light);
+  --transition-fast: 0.2s;
+}

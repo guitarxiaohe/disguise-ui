@@ -1,0 +1,13 @@
+{
+  "label": "Auto translate:",
+  "all": "All other languages",
+  "from": "Select source language",
+  "to": "Select target language",
+  "translate": "Translate",
+  "polish": "Polish",
+  "pending": "{command}: {from} -> {to}; translation API is not connected yet",
+  "mockCopied": "Mock translation: source content copied to {targets}",
+  "loading": "Translating...",
+  "completed": "Translation completed",
+  "failed": "Translation failed"
+}
