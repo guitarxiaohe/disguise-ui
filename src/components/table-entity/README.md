@@ -122,7 +122,7 @@ const columns = [
 
 `picture` / `file` 可通过 `maxPreviewCount` 控制最多展示数量（默认 3），超出显示 `+N`。
 
-内置单元格支持通过 `cellProps`（或兼容写法 `props`）透传属性；`picture` 的属性会继续传给 `ImageList`，例如：
+内置单元格支持通过 `cellProps`（或兼容写法 `props`）透传属性；`picture` 的属性会继续传给 `ImagesView`，例如：
 
 ```ts
 {

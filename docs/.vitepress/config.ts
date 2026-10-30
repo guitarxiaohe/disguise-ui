@@ -77,6 +77,7 @@ export default defineConfig({
           text: '数据展示',
           items: [
             { text: 'TableEntity 表格', link: '/components/table-entity' },
+            { text: 'ImagesView 图片预览', link: '/components/images-view' },
             { text: 'DictTag 字典标签', link: '/components/dict-tag' },
             { text: 'BaseCard 卡片', link: '/components/base-card' },
           ],

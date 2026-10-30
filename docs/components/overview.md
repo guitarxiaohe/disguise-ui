@@ -25,6 +25,7 @@
 | 组件 | 说明 |
 | --- | --- |
 | [TableEntity](/components/table-entity) | 虚拟化表格，带选择、分页、操作列和内置单元格 |
+| [ImagesView](/components/images-view) | 叠放缩略图，悬停看大图，点击全屏预览 |
 | [DictTag](/components/dict-tag) | 按字典编码显示彩色标签 |
 | [BaseCard](/components/base-card) | 统一卡片容器 |
 

@@ -30,7 +30,7 @@ import cellsSource from './demos/table-entity-cells.vue?raw'
 | type | 说明 |
 | --- | --- |
 | `dict` | 配合 `dictCode` 展示字典标签 |
-| `picture` | 缩略图，点击预览 |
+| `picture` | 缩略图，点击预览，底层是 [ImagesView](/components/images-view) |
 | `file` | 附件图标 |
 | `avatar` | 读取行上的用户字段展示头像信息 |
 | `listExpand` | 超过条数后折叠 |

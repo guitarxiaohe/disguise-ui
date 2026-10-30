@@ -12,6 +12,8 @@ export {
 export type * from './components/drawer-form-page/index.type.js';
 export { default as DisguiseIcon } from './components/disguise-icon/index.vue';
 export { default as ImageUpload } from './components/image-upload/index.vue';
+export { default as ImagesView } from './components/images-view/index.vue';
+export type { ImagesViewProps } from './components/images-view/index.vue';
 export { default as ImportDialog } from './components/import-dialog/index';
 export type * from './components/import-dialog/index.type.js';
 export { default as PictureUpload } from './components/picture-upload/picture-upload.vue';

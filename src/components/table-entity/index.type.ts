@@ -32,7 +32,7 @@ export type ColumnsItem = {
   dictType?: string;
   /** 最多展示的缩略图 / 文件图标数量，type 为 picture 或 file 时使用，默认 3 */
   maxPreviewCount?: number;
-  /** 内置单元格组件透传属性，picture 会继续透传给 ImageList */
+  /** 内置单元格组件透传属性，picture 会继续透传给 ImagesView */
   cellProps?: Record<string, any>;
   /** 兼容使用 props 作为内置单元格透传配置 */
   props?: Record<string, any>;

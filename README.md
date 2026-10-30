@@ -4,7 +4,7 @@
 
 ## 包含
 
-`CrudPage`、`TableEntity`、`SchemaForm`、`SearchForm`、`DrawerFormPage`、`AsyncSelect`、`DictTag`、`ImportDialog`、`ImageUpload`、`PictureUpload`、`RichTextEditor`、`BaseCard`、`DisguiseIcon`。
+`CrudPage`、`TableEntity`、`SchemaForm`、`SearchForm`、`DrawerFormPage`、`AsyncSelect`、`DictTag`、`ImportDialog`、`ImageUpload`、`ImagesView`、`PictureUpload`、`RichTextEditor`、`BaseCard`、`DisguiseIcon`。
 
 业务实体（商品、部门、用户）没有打进包。远程下拉用 `registerEntity` 自己注册。
 

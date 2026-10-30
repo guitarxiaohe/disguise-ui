@@ -183,7 +183,7 @@ async function translate(command: TranslateCommand = 'translate') {
           field.type === 'text' || field.type === 'textarea',
       },
     ]"
-    v-loading="field.type === 'rich-text' && translating"
+    v-loading="translating"
     :element-loading-text="
       t('product-management.attribute.translation.loading')
     "

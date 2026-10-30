@@ -5,17 +5,17 @@ import { Loading, Picture } from '@element-plus/icons-vue';
 import { ElEmpty, ElIcon, ElImage, ElTooltip } from 'element-plus';
 
 defineOptions({
-  name: 'ImagePreview',
+  name: 'ImagesView',
 });
 
-const props = withDefaults(defineProps<ImageListProps>(), {
+const props = withDefaults(defineProps<ImagesViewProps>(), {
   images: () => [],
   size: 80,
   maxStack: 3,
   offset: 6,
 });
 
-export interface ImageListProps {
+export interface ImagesViewProps {
   /** 图片地址数组 */
   images?: string[];
   /** 单张缩略图尺寸（像素） */

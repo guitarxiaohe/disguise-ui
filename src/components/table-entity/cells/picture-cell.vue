@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ImageListProps } from '@/components/images-view/index.vue';
+import type { ImagesViewProps } from '@/components/images-view/index.vue';
 
 import { computed, useAttrs } from 'vue';
 
-import ImageList from '@/components/images-view/index.vue';
+import ImagesView from '@/components/images-view/index.vue';
 
 /**
  * 图片类型单元格组件
@@ -18,8 +18,8 @@ interface Props {
   urls: string[];
   /** 最多展示的缩略图数量 */
   maxPreviewCount?: number;
-  /** ImageList 的属性，可覆盖透传到图片列表容器 */
-  imageListProps?: Partial<Omit<ImageListProps, 'images'>>;
+  /** ImagesView 的属性，可覆盖透传到图片列表容器 */
+  imageListProps?: Partial<Omit<ImagesViewProps, 'images'>>;
 }
 
 defineOptions({ inheritAttrs: false });
@@ -44,7 +44,7 @@ const imageListAttrs = computed(() => ({
 <template>
   <div class="picture-cell flex">
     <template v-if="displayUrls.length > 0">
-      <ImageList v-bind="imageListAttrs" :images="displayUrls" />
+      <ImagesView v-bind="imageListAttrs" :images="displayUrls" />
     </template>
     <span v-else>-</span>
   </div>
