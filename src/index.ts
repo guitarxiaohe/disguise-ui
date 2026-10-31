@@ -1,6 +1,7 @@
 import './theme.css';
 
 export { default as AsyncSelect } from './components/async-select/async-select.vue';
+export type * from './components/async-select/async-select.type.js';
 export { default as BaseCard } from './components/card/index.vue';
 export { CrudPage } from './components/crud-page/index.js';
 export type * from './components/crud-page/index.type.js';
@@ -19,6 +20,11 @@ export type * from './components/import-dialog/index.type.js';
 export { default as PictureUpload } from './components/picture-upload/picture-upload.vue';
 export { default as RichTextEditor } from './components/rich-text-editor/index.vue';
 export { registerSchemaFormComponents, SchemaForm } from './components/schema-form/index.js';
+export type {
+  SchemaFormComponent,
+  SchemaFormComponentConfig,
+  SchemaFormComponentRegistration,
+} from './components/schema-form/index.js';
 export type * from './components/schema-form/schema-form.type.js';
 export { SearchForm } from './components/search-form/index.js';
 export type * from './components/search-form/index.type.js';
@@ -31,4 +37,7 @@ export type {
   EntityFetchResult,
 } from './entities/index';
 export { setupDisguise } from './setup';
-export type { DisguiseOptions } from './setup';
+export type {
+  DisguiseOptions,
+  DisguiseOptions as SetupDisguiseOptions,
+} from './setup';

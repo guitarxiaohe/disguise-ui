@@ -1,6 +1,7 @@
 import type { Component, VNode } from 'vue';
 
 import type {
+  DrawerFormPageApi,
   DrawerFormPageProps,
   DrawerFormValues,
 } from '../drawer-form-page/index.type';
@@ -17,7 +18,7 @@ import type {
 import type {
   ColumnsItem,
   TableEntityActionName,
-  TableEntlty,
+  TableEntityProps,
 } from '../table-entity/index.type';
 
 type CrudPageMeta = {
@@ -120,7 +121,7 @@ export type CrudPageToolbarAction = {
 
 export type CrudPageProps = {
   fields?: CrudPageItem[];
-  data?: TableEntlty['data'];
+  data?: TableEntityProps['data'];
   rowKey?: string;
   actions?: TableEntityActionName[];
   /** 追加到新增、删除、导入、导出之后的工具栏按钮 */
@@ -141,7 +142,9 @@ export type CrudPageProps = {
   defaultValues?: CrudPageRecord;
   confirmDelete?: boolean;
   deleteConfirmText?: ((row: CrudPageRecord) => string) | string;
-  tableProps?: Partial<Omit<TableEntlty, 'columns' | 'data' | 'rowKey'>>;
+  tableProps?: Partial<
+    Omit<TableEntityProps, 'columns' | 'data' | 'rowKey'>
+  >;
   searchFormProps?: CrudPageSearchFormProps;
   drawerProps?: Partial<
     Omit<
@@ -157,4 +160,17 @@ export type CrudPageProps = {
   exportConfig?: ExportConfig | undefined;
   /** 编辑或查看时，可从服务端补充详情字段 */
   resolveFormValues?: CrudPageFormValuesResolver;
+};
+
+/** CrudPage 通过模板 ref 暴露的方法与抽屉 API。 */
+export type CrudPageExpose = {
+  clearSelection: () => void | undefined;
+  close: () => void;
+  drawerApi: DrawerFormPageApi<DrawerFormValues>;
+  getSearchValues: () => SearchFormValues;
+  getSelectedRows: () => CrudPageRecord[];
+  openCreate: () => Promise<void>;
+  openEdit: (row: CrudPageRecord) => Promise<void>;
+  openView: (row: CrudPageRecord) => Promise<void>;
+  reload: (page?: number) => Promise<void>;
 };

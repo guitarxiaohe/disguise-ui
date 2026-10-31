@@ -9,7 +9,7 @@ import type {
   TableEntityRowKey,
   TableEntityRowSortPayload,
   TableEntitySortOrder,
-  TableEntlty,
+  TableEntityProps,
 } from './index.type';
 
 import {
@@ -52,7 +52,7 @@ import { moveTableRow, useRowDrag } from './composables/use-row-drag';
 import { useTableSelection } from './composables/use-table-selection';
 import { applyColumnSlots } from './utils/column-slots';
 import { listExpandColumnKey, listExpandStateKey } from './utils/list-expand';
-const props = withDefaults(defineProps<TableEntlty>(), {
+const props = withDefaults(defineProps<TableEntityProps>(), {
   height: 630,
   rowHeight: 40,
   cache: 1,

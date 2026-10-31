@@ -61,18 +61,24 @@ export type TableEntityChangePayload = {
   sortOrder?: TableEntitySortOrder;
 };
 export type TableEntityQueryParams = Record<string, any>;
-export type TableEntityDataResult = {
-  rows: Record<string, any>[];
+export type TableEntityRecord = Record<string, any>;
+
+export type TableEntityDataResult<
+  TRecord extends TableEntityRecord = TableEntityRecord,
+> = {
+  rows: TRecord[];
   total: number;
 };
-export type TableEntityDataFetcher = (params: {
+export type TableEntityDataFetcher<
+  TRecord extends TableEntityRecord = TableEntityRecord,
+> = (params: {
   current_page: number;
   page?: number;
   per_page: number;
   query?: TableEntityQueryParams;
   sortField?: string;
   sortOrder?: TableEntitySortOrder;
-}) => Promise<TableEntityDataResult>;
+}) => Promise<TableEntityDataResult<TRecord>>;
 
 /** ****************************** 列宽拖拽 ********************************/
 
@@ -138,9 +144,11 @@ export type TableEntityImportDialogConfig = Omit<
   'modelValue'
 >;
 
-export type TableEntlty = {
+export type TableEntityProps<
+  TRecord extends TableEntityRecord = TableEntityRecord,
+> = {
   columns?: ColumnsItem[];
-  data?: Record<string, any>[] | TableEntityDataFetcher;
+  data?: TRecord[] | TableEntityDataFetcher<TRecord>;
   height?: number;
   rowHeight?: number;
   /** 虚拟列表在可视区外预渲染的行数，值越小滚动渲染压力越低 */
@@ -182,7 +190,7 @@ export type TableEntlty = {
    */
   rowDragHandle?: string;
   /** 返回 true 的行不可拖动，也不能作为放置目标 */
-  rowDragDisabled?: (row: Record<string, any>) => boolean;
+  rowDragDisabled?: (row: TRecord) => boolean;
   /** 是否允许拖拽调整列宽，默认 false */
   resizable?: boolean;
   /** 列宽最小值，默认 50 */
@@ -194,20 +202,27 @@ export type TableEntlty = {
   importDialog?: TableEntityImportDialogConfig;
 };
 
-export type TableEntityRowSortPayload = {
+/** @deprecated 请使用 TableEntityProps。 */
+export type TableEntlty = TableEntityProps;
+
+export type TableEntityRowSortPayload<
+  TRecord extends TableEntityRecord = TableEntityRecord,
+> = {
   /** 当前拖动层级内的新位置；树形表格为同级数组中的位置 */
   newIndex: number;
   /** 当前拖动层级内的原位置；树形表格为同级数组中的位置 */
   oldIndex: number;
   /** 树形表格重排后的完整树；非树形表格为当前数据行 */
-  rows: Record<string, any>[];
+  rows: TRecord[];
   /** 树形表格被排序节点的父节点 key；根节点排序时为 null */
   parentRowKey?: TableEntityRowKey | null;
 };
 
-export type TableEntityExpose = {
+export type TableEntityExpose<
+  TRecord extends TableEntityRecord = TableEntityRecord,
+> = {
   clearSelection: () => void;
-  getSelectedRows: () => Record<string, any>[];
+  getSelectedRows: () => TRecord[];
   getSelectedCount: () => number;
   setSelectedKeys: (keys: any[]) => void;
   openImport: () => boolean;
