@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/vue-3';
+import type {
+  RichTextEditorProps,
+  RichTextTool,
+  RichTextToolContext,
+  RichTextToolPredicate,
+} from './index.type';
 
 import { computed, ref, watch } from 'vue';
 
@@ -65,12 +71,7 @@ type TableCommand =
   | 'insertTable';
 
 const props = withDefaults(
-  defineProps<{
-    editable?: boolean;
-    maxHeight?: string;
-    modelValue?: string;
-    placeholder?: string;
-  }>(),
+  defineProps<RichTextEditorProps<Record<string, unknown>>>(),
   {
     editable: true,
     maxHeight: '400px',
@@ -162,6 +163,64 @@ const editor = useEditor({
 });
 
 const editingDisabled = computed(() => !props.editable);
+
+function getCurrentValue() {
+  return sourceMode.value
+    ? sourceValue.value
+    : (editor.value?.getHTML() ?? props.modelValue);
+}
+
+function updateValue(value: string) {
+  sourceValue.value = value;
+  if (!editor.value || editor.value.getHTML() === value) return;
+  editor.value.commands.setContent(value, { emitUpdate: true });
+}
+
+const richTextToolContext = computed<
+  RichTextToolContext<Record<string, unknown>>
+>(() => {
+  void editorVersion.value;
+  return {
+    ...(props.toolContext ?? {}),
+    editable: props.editable,
+    editor: editor.value as Editor,
+    getValue: getCurrentValue,
+    updateValue,
+    value: getCurrentValue(),
+  };
+});
+
+function resolveToolPredicate(
+  predicate: RichTextToolPredicate<Record<string, unknown>> | undefined,
+  fallback: boolean,
+) {
+  if (typeof predicate === 'function') {
+    return predicate(richTextToolContext.value);
+  }
+  return predicate ?? fallback;
+}
+
+const resolvedRichTextTools = computed(() => {
+  void editorVersion.value;
+  return (props.richTextTools ?? [])
+    .filter((tool) => resolveToolPredicate(tool.visible, true))
+    .map((tool, index) => ({ index, tool }))
+    .sort(
+      (left, right) =>
+        (left.tool.order ?? 0) - (right.tool.order ?? 0) ||
+        left.index - right.index,
+    )
+    .map(({ tool }) => tool);
+});
+
+function isToolDisabled(tool: RichTextTool<Record<string, unknown>>) {
+  return editingDisabled.value || resolveToolPredicate(tool.disabled, false);
+}
+
+async function runRichTextTool(tool: RichTextTool<Record<string, unknown>>) {
+  if (!('onClick' in tool) || !tool.onClick || isToolDisabled(tool)) return;
+  await tool.onClick(richTextToolContext.value);
+}
 
 const blockType = computed<BlockType>({
   get() {
@@ -680,6 +739,31 @@ defineExpose({ editor, clearFormat });
       >
         <slot name="toolbar-append"></slot>
       </div>
+      <template v-for="tool in resolvedRichTextTools" :key="tool.key">
+        <div
+          v-if="tool.component"
+          class="rich-text-toolbar-extension"
+          :title="tool.label"
+          @mousedown.stop
+        >
+          <component
+            :is="tool.component"
+            v-bind="tool.props"
+            :context="richTextToolContext"
+            :disabled="isToolDisabled(tool)"
+          />
+        </div>
+        <button
+          v-else
+          type="button"
+          :title="tool.label"
+          :disabled="isToolDisabled(tool)"
+          @click="runRichTextTool(tool)"
+        >
+          <component v-if="tool.icon" :is="tool.icon" :size="17" />
+          <span v-else>{{ tool.label }}</span>
+        </button>
+      </template>
     </div>
 
     <textarea
@@ -768,6 +852,12 @@ defineExpose({ editor, clearFormat });
 
     &:active {
       transform: translateY(1px);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
     }
   }
 

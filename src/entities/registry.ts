@@ -7,6 +7,8 @@ export type EntityFetchParams = {
   page: number;
   per_page: number;
   params?: Record<string, any>;
+  /** AsyncSelect 回显已选项时传入，接口应按 valueKey 对应字段过滤。 */
+  selectedValues?: Array<number | string>;
 };
 
 export type EntityFetchResult = {
@@ -43,9 +45,7 @@ export function getEntity(key: string): EntityDefinition | undefined {
 
 /** ****************************** 工具 ********************************/
 
-/**
- * 全量接口转分页结果：接口一次性返回全部数据时，在前端完成关键词过滤与分页。
- */
+/** @deprecated 远程实体应由接口按 page/per_page 分页；仅保留给纯本地数据。 */
 export function paginateLocally(
   rows: Record<string, any>[],
   { keyword, page, per_page }: EntityFetchParams,

@@ -21,6 +21,8 @@ export type {
   SchemaFormMode,
   SchemaFormProps,
   SchemaFormSlotProps,
+  SchemaRichTextEditorProps,
+  SchemaRichTextToolContext,
   TranslateCommand,
   TranslateConfig,
   TranslateHandlerContext,

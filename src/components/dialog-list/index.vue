@@ -7,7 +7,7 @@ import { useVbenModal } from '@/runtime/modal';
 
 import TableEntlty from '@/components/table-entity/index.vue';
 import { Search } from '@element-plus/icons-vue';
-import { useQuery } from '@tanstack/vue-query';
+import { keepPreviousData, useQuery } from '@tanstack/vue-query';
 
 import { $t as t } from '@/runtime/i18n';
 
@@ -103,6 +103,9 @@ const { data: queryData, isFetching: loading } = useQuery({
       params: props.filterParams,
     }),
   enabled: computed(() => props.visible),
+  // 翻页请求期间保留上一页的 total。若中间短暂变成 0，ElPagination
+  // 会把受控页码修正为 1，从而造成“翻页后页码被重置”。
+  placeholderData: keepPreviousData,
   staleTime: 5 * 60 * 1000,
   refetchOnMount: false,
   refetchOnReconnect: false,
@@ -139,6 +142,7 @@ function onSearch() {
 }
 
 function onPageChange(p: number) {
+  if (p === page.value) return;
   page.value = p;
 }
 

@@ -1,4 +1,5 @@
 import type { FormItemRule } from 'element-plus';
+import type { RichTextEditorProps } from '../rich-text-editor/index.type';
 
 import type {
   SchemaFormComponent,
@@ -44,9 +45,11 @@ export type FieldOptionsResolver = (ctx: FieldContext) => FieldOption[];
 export type FieldPropsContext = FieldContext & {
   updateValue: (value: any) => void;
 };
-export type FieldPropsResolver = (
+export type FieldPropsResolver<
+  TProps extends Record<string, any> = Record<string, any>,
+> = (
   ctx: FieldPropsContext,
-) => Record<string, any>;
+) => TProps;
 
 export type TranslateLanguage = { code: string; label: string };
 export type TranslateCommand = 'polish' | 'translate';
@@ -112,7 +115,9 @@ export type FieldType =
 
 /** ****************************** 字段 ********************************/
 
-type BaseField = {
+type BaseField<
+  TProps extends Record<string, any> = Record<string, any>,
+> = {
   /** 覆盖内置控件，或配合 type: 'component' 使用注册的自定义组件 */
   component?: SchemaFormComponent | SchemaFormComponentConfig | string;
   /** 只读态是否附带复制按钮，默认跟随 readonly */
@@ -129,7 +134,7 @@ type BaseField = {
   newRow?: boolean;
   placeholder?: string;
   /** 透传给底层控件的额外属性 */
-  props?: FieldPropsResolver | Record<string, any>;
+  props?: FieldPropsResolver<TProps> | TProps;
   prop: string;
   /** 渲染为纯文本而非输入控件 */
   readonly?: boolean;
@@ -144,6 +149,25 @@ type BaseField = {
   translateConfig?: TranslateConfig;
 };
 
+/** SchemaForm 为富文本工具补充的表单上下文。 */
+export type SchemaRichTextToolContext = {
+  /** 当前字段元数据。 */
+  field: ResolvedField;
+  /** 当前整张表单的最新值。 */
+  formData: Record<string, any>;
+  /** 弹窗或异步操作完成后获取最新表单值。 */
+  getFormData: () => Record<string, any>;
+  /** 多语言富文本当前正在编辑的语言代码。 */
+  language?: string;
+  mode: SchemaFormMode;
+};
+
+/** type: 'rich-text' 字段 props 的完整类型。 */
+export type SchemaRichTextEditorProps = Omit<
+  RichTextEditorProps<SchemaRichTextToolContext>,
+  'modelValue' | 'toolContext'
+>;
+
 export type ApiFieldOptions = {
   entityKey: string;
   labelKey?: string;
@@ -154,8 +178,9 @@ export type ApiFieldOptions = {
   valueKey?: string;
 };
 
-export type SchemaFormField = BaseField &
-  (
+export type SchemaFormField = (
+  | (BaseField &
+      (
     | {
         apiOptions: ApiFieldOptions;
         optionSource?: 'api';
@@ -188,14 +213,16 @@ export type SchemaFormField = BaseField &
           | 'listExpand'
           | 'number'
           | 'picture'
-          | 'rich-text'
           | 'slot'
           | 'switch'
           | 'text'
           | 'textarea'
           | 'upload';
-      }
-  ) & { label: string };
+      }))
+  | (BaseField<SchemaRichTextEditorProps> & {
+      type: 'rich-text';
+    })
+) & { label: string };
 
 /** Omit 作用在联合类型上会丢掉各分支特有字段，分组子项必须按成员展开 */
 type DistributiveOmit<T, K extends PropertyKey> = T extends any

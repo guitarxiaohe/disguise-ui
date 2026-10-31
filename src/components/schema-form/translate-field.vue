@@ -116,6 +116,16 @@ function getLanguageValue(language: string): number | string | undefined {
     : undefined;
 }
 
+function richTextToolContext(language: string) {
+  return {
+    field: props.field,
+    formData: props.context.values,
+    getFormData: () => props.context.values,
+    language,
+    mode: props.context.mode,
+  };
+}
+
 async function translate(command: TranslateCommand = 'translate') {
   if (disabled.value || !sourceLanguage.value || !targetLanguage.value) return;
 
@@ -205,6 +215,7 @@ async function translate(command: TranslateCommand = 'translate') {
         :placeholder="placeholder || activeLanguageLabel"
         :editable="!disabled && inputProps.editable !== false"
         :max-height="inputProps.maxHeight ?? '220px'"
+        :tool-context="richTextToolContext(activeLanguage)"
         @update:model-value="updateLanguageValue(activeLanguage, $event)"
       >
         <template #toolbar-append>
@@ -253,6 +264,7 @@ async function translate(command: TranslateCommand = 'translate') {
           :placeholder="placeholder || language.label"
           :editable="!disabled && inputProps.editable !== false"
           :max-height="inputProps.maxHeight ?? '220px'"
+          :tool-context="richTextToolContext(language.code)"
           @update:model-value="updateLanguageValue(language.code, $event)"
         />
         <ElInput

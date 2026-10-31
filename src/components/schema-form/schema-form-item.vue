@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AttachmentData } from '@/components/file-upload/file-upload.type';
+import type { AsyncSelectFetchParams } from '@/components/async-select/async-select.type';
 
 import type { FieldContext, ResolvedField } from './schema-form.type';
 
@@ -215,7 +216,14 @@ const customComponentListeners = computed(() => {
 
 const richTextProps = computed(() => ({
   ...resolvedProps.value,
-  editable: !props.disabled && resolvedProps.value?.editable !== false,
+  editable:
+    !props.disabled && !props.readonly && resolvedProps.value?.editable !== false,
+  toolContext: {
+    field: props.field,
+    formData: context.value.values,
+    getFormData: () => context.value.values,
+    mode: context.value.mode,
+  },
 }));
 
 /** async-select 需要的取数与展示配置来自实体注册表，字段可局部覆盖 */
@@ -242,11 +250,7 @@ function update(value: any) {
   emit('update:modelValue', value);
 }
 
-function fetchEntity(params: {
-  keyword?: string;
-  page: number;
-  per_page: number;
-}) {
+function fetchEntity(params: AsyncSelectFetchParams) {
   const definition = entity.value;
   if (!definition) return Promise.resolve({ items: [], total: 0 });
   return definition.fetch({ ...params, params: apiOptions.value?.params });
@@ -307,8 +311,7 @@ function fetchStaticOptions(params: {
       v-else-if="readonly && field.type === 'rich-text'"
       :model-value="modelValue"
       :placeholder="placeholder"
-      :editable="false"
-      v-bind="resolvedProps"
+      v-bind="richTextProps"
     />
 
     <span

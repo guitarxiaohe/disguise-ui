@@ -2,8 +2,8 @@
 import type { ColumnsItem } from '@/components/table-entity/index.type';
 
 import type {
+  AsyncSelectDataFetcher,
   AsyncSelectFetchParams,
-  AsyncSelectFetchResult,
   SelectVal,
 } from './async-select.type';
 
@@ -37,7 +37,7 @@ const props = withDefaults(
     modelValue: SelectVal;
     multiple?: boolean;
     /** 数据获取函数，支持分页 + 搜索 */
-    fetcher?: (p: AsyncSelectFetchParams) => Promise<AsyncSelectFetchResult>;
+    fetcher?: AsyncSelectDataFetcher;
     /** 固定选项。传入后使用本地选项，不启用异步加载。 */
     options?: OptionItem[];
     /** 字典编码；未配置 fetcher 时自动使用缓存字典选项 */
@@ -258,7 +258,9 @@ async function loadPage(
       allItems.value.push(...items);
     }
     currentPage.value = page;
-    hasMore.value = items.length >= props.perPage;
+    // 远程数据源必须以接口返回的 total 判断是否还有下一页，避免最后一页
+    // 恰好等于 perPage 时继续请求，也避免接口不足一页时提前停止。
+    hasMore.value = page * props.perPage < Number(result.total ?? 0);
   } finally {
     loadingMore.value = false;
   }
@@ -295,8 +297,14 @@ watch(
     const options = await loadMissingSelectedOptions({
       activeValues: values,
       selectedValues: selectedOpts.value.map((item) => item.value),
-      loadRows: () =>
-        props.fetcher!({ page: 1, per_page: 9999 }).then((r) => r.items ?? []),
+      loadRows: (selectedValues) =>
+        props
+          .fetcher!({
+            page: 1,
+            per_page: Math.max(selectedValues.length, 1),
+            selectedValues,
+          })
+          .then((r) => r.items ?? []),
       resolveValue,
       toOption: toOpt,
     });

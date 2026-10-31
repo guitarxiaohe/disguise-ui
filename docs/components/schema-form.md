@@ -68,3 +68,52 @@ import linkageSource from './demos/schema-form-linkage.vue?raw'
 | `loading` | `boolean` | `false` | 加载遮罩 |
 
 查看态只要传 `mode="view"`，schema 不用改。
+
+## 富文本自定义工具
+
+`rich-text` 字段的 `props.richTextTools` 具有完整类型推导。除编辑器上下文外，工具还会收到当前字段、表单模式和整张表单的数据；该能力同样适用于 `CrudPage` 的表单字段。
+
+~~~ts
+import type { SchemaFormItem } from 'disguise-ui'
+import { PackagePlus } from 'lucide-vue-next'
+
+const schema: SchemaFormItem[] = [
+  {
+    prop: 'content',
+    type: 'rich-text',
+    label: '商品详情',
+    span: 24,
+    props: {
+      maxHeight: '320px',
+      richTextTools: [
+        {
+          key: 'insert-product',
+          label: '插入商品',
+          icon: PackagePlus,
+          visible: ({ mode }) => mode !== 'view',
+          onClick: ({ editor, getFormData }) => {
+            const product = getFormData().product
+            editor
+              .chain()
+              .focus()
+              .insertContent('<p>' + (product?.name ?? '未选择商品') + '</p>')
+              .run()
+          },
+        },
+      ],
+    },
+  },
+]
+~~~
+
+Schema 场景额外提供以下上下文：
+
+| 名称 | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `ResolvedField` | 当前字段元数据 |
+| `formData` | `Record<string, any>` | 本次渲染时的整张表单值 |
+| `getFormData` | `() => Record<string, any>` | 获取最新的整张表单值 |
+| `mode` | `'create'\| 'edit'\| 'view'` | 当前表单模式 |
+| `language` | `string\| undefined` | 多语言富文本当前语言代码 |
+
+若工具需要打开弹窗或执行异步任务，请在真正提交时调用 `getFormData()`，避免使用已经过期的 `formData` 快照。

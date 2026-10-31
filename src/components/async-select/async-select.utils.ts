@@ -8,7 +8,7 @@ export interface LoadMissingSelectedOptionsParams<
 > {
   activeValues: Array<number | string>;
   selectedValues: Array<number | string>;
-  loadRows: () => Promise<Row[]>;
+  loadRows: (missingValues: Array<number | string>) => Promise<Row[]>;
   resolveValue: (row: Row) => number | string;
   toOption: (row: Row) => Option;
 }
@@ -35,7 +35,7 @@ export async function loadMissingSelectedOptions<
   }
 
   const missingValueSet = new Set(missingValues.map(String));
-  const rows = await loadRows();
+  const rows = await loadRows(missingValues);
   const options: Option[] = [];
 
   for (const row of rows) {

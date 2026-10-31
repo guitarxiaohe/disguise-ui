@@ -1,4 +1,5 @@
 export type {
+  AsyncSelectDataFetcher,
   AsyncSelectFetchParams,
   AsyncSelectFetchResult,
 } from './async-select.type';

@@ -53,7 +53,7 @@ setupDisguise({
 `registerEntity` 把一个业务键映射到取数函数，供 `async-select` 使用：
 
 ```ts
-import { paginateLocally, registerEntity } from 'disguise-ui';
+import { registerEntity } from 'disguise-ui';
 
 registerEntity({
   key: 'dept',
@@ -62,12 +62,17 @@ registerEntity({
   subtitleKey: 'leader',
   columns: [{ title: '部门名称', dataKey: 'name', key: 'name' }],
   fetch: async (params) => {
-    const rows = await fetchDeptList();
-    return paginateLocally(rows, params, ['name']);
+    const result = await fetchDeptList({
+      page: params.page,
+      pageSize: params.per_page,
+      keyword: params.keyword,
+      ids: params.selectedValues,
+    });
+    return { items: result.list, total: result.total };
   },
 });
 ```
 
-接口本身分页时，直接透传 `page` / `per_page`；一次性返回全量时用 `paginateLocally` 做前端过滤和切片。
+远程实体应直接透传 `page` / `per_page`，并返回当前页数据和总数；不要先请求全量数据再在前端过滤和切片。
 
 这份文档站就是按上面的方式注入了一套本地 mock：字典、部门和上传都走内存数据，所以示例可以离线交互。

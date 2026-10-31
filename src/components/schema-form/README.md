@@ -292,9 +292,15 @@ export function createRoleEntity(): EntityDefinition {
     valueKey: 'roleId',
     labelKey: 'roleName',
     columns: [{ key: 'roleName', dataKey: 'roleName', title: '角色名称' }],
-    fetch: async (params) => {
-      const rows = await fetchRoleList(params.params);
-      return paginateLocally(rows, params, ['roleName']);
+    fetch: async ({ page, per_page, keyword, selectedValues, params }) => {
+      const result = await fetchRoleList({
+        ...params,
+        page,
+        pageSize: per_page,
+        keyword,
+        roleIds: selectedValues,
+      });
+      return { items: result.list, total: result.total };
     },
   };
 }
@@ -302,7 +308,7 @@ export function createRoleEntity(): EntityDefinition {
 
 导出工厂函数而不是常量，是因为列标题用了 `$t()`，需要等 i18n 初始化后再求值。`setupEntities()` 在 `bootstrap.ts` 里 `setupI18n(app)` 之后调用。
 
-接口本身分页时直接在 `fetch` 里透传 `page` / `pageSize`；接口一次性返回全量时用 `paginateLocally` 在前端切片和过滤。
+`fetch` 应把 `page` / `per_page` 传给接口，并返回当前页数据及总数。`selectedValues` 用于按主键补齐已选项回显，接口应据此过滤，避免请求全量数据。
 
 ## 只读与详情态
 

@@ -52,8 +52,14 @@ registerEntity({
   key: 'dept',
   labelKey: 'name',
   valueKey: 'id',
-  fetch: async ({ keyword, page, per_page }) => {
-    return { items: [], total: 0 };
+  fetch: async ({ keyword, page, per_page, selectedValues }) => {
+    const result = await getDeptList({
+      page,
+      pageSize: per_page,
+      keyword,
+      ids: selectedValues,
+    });
+    return { items: result.list, total: result.total };
   },
 });
 ```
