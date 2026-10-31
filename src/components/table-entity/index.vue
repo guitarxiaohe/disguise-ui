@@ -48,7 +48,7 @@ import ColumnSettingsPanel from './components/ColumnSettingsPanel.vue';
 import { useColumnFixed } from './composables/use-column-fixed';
 import { useColumnResize } from './composables/use-column-resize';
 import { useColumnSettings } from './composables/use-column-settings';
-import { useRowDrag } from './composables/use-row-drag';
+import { moveTableRow, useRowDrag } from './composables/use-row-drag';
 import { useTableSelection } from './composables/use-table-selection';
 import { applyColumnSlots } from './utils/column-slots';
 import { listExpandColumnKey, listExpandStateKey } from './utils/list-expand';
@@ -441,27 +441,151 @@ function handleImportError(error: Error | ImportDialogSubmitResult) {
 const actionColumnKey = '__actions__';
 const dragColumnKey = '__drag__';
 const dragHandleClass = 'table-entity__drag-handle';
+const rootTreeParent = Symbol('table-entity-root-parent');
 
-const rowDragEnabled = computed(() => props.rowDraggable && !props.tree);
-const { onPointerDown: onRowPointerDown } = useRowDrag({
+const rowDragEnabled = computed(() => props.rowDraggable);
+const rowDragRows = computed(() =>
+  props.tree && resolvedExpandColumnKey.value
+    ? flattenTreeRows(tableData.value, resolvedExpandedRowKeys.value)
+    : props.tree
+      ? tableData.value
+      : dataList.value,
+);
+const treeParentByKey = computed(() => {
+  const parentByKey = new Map<unknown, unknown>();
+  const rowKey = props.rowKey ?? 'id';
+  const childrenKey = props.treeChildrenKey ?? 'children';
+
+  function visit(rows: Record<string, any>[], parentKey: unknown) {
+    for (const row of rows) {
+      const key = row[rowKey];
+      parentByKey.set(key, parentKey);
+      const children = row[childrenKey];
+      if (Array.isArray(children)) visit(children, key);
+    }
+  }
+
+  visit(dataList.value, rootTreeParent);
+  return parentByKey;
+});
+
+function reorderTreeSiblings(
+  rows: Record<string, any>[],
+  fromKey: unknown,
+  toKey: unknown,
+  rowKey: string,
+  childrenKey: string,
+  parentKey: TableEntityRowKey | null = null,
+): null | {
+  newIndex: number;
+  oldIndex: number;
+  parentRowKey: TableEntityRowKey | null;
+  rows: Record<string, any>[];
+} {
+  const oldIndex = rows.findIndex((row) => row[rowKey] === fromKey);
+  const newIndex = rows.findIndex((row) => row[rowKey] === toKey);
+  if (oldIndex >= 0 && newIndex >= 0 && oldIndex !== newIndex) {
+    return {
+      newIndex,
+      oldIndex,
+      parentRowKey: parentKey,
+      rows: moveTableRow(rows, oldIndex, newIndex),
+    };
+  }
+
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    const children = row[childrenKey];
+    if (!Array.isArray(children)) continue;
+
+    const result = reorderTreeSiblings(
+      children,
+      fromKey,
+      toKey,
+      rowKey,
+      childrenKey,
+      row[rowKey] ?? null,
+    );
+    if (!result) continue;
+
+    return {
+      ...result,
+      rows: rows.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [childrenKey]: result.rows } : item,
+      ),
+    };
+  }
+
+  return null;
+}
+
+const {
+  draggingIndex: rowDraggingIndex,
+  onPointerDown: onRowPointerDown,
+  overIndex: rowDragOverIndex,
+} = useRowDrag({
+  canDrop: (source, target) => {
+    if (!props.tree) return true;
+    const rowKey = props.rowKey ?? 'id';
+    const parents = treeParentByKey.value;
+    const sourceKey = source[rowKey];
+    const targetKey = target[rowKey];
+    return (
+      sourceKey != null &&
+      targetKey != null &&
+      parents.has(sourceKey) &&
+      parents.has(targetKey) &&
+      parents.get(sourceKey) === parents.get(targetKey)
+    );
+  },
   getHandle: () => props.rowDragHandle || `.${dragHandleClass}`,
   getRoot: () => tableViewportRef.value,
   getRowHeight: () => props.rowHeight,
-  getRowKey: () => props.rowKey ?? 'id',
-  getRows: () => dataList.value,
+  getRows: () => rowDragRows.value,
   isEnabled: () => rowDragEnabled.value,
+  isTree: () => props.tree,
   isRowDisabled: (row) => props.rowDragDisabled?.(row) ?? false,
-  onSort: (payload) => emit('rowSort', payload),
-  setRows: (rows) => {
-    dataList.value = rows;
+  moveRows: (source, target, fromIndex, toIndex) => {
+    if (!props.tree) {
+      const rows = moveTableRow(dataList.value, fromIndex, toIndex);
+      if (rows === dataList.value) return null;
+      dataList.value = rows;
+      return { newIndex: toIndex, oldIndex: fromIndex, rows };
+    }
+
+    const rowKey = props.rowKey ?? 'id';
+    const result = reorderTreeSiblings(
+      dataList.value,
+      source[rowKey],
+      target[rowKey],
+      rowKey,
+      props.treeChildrenKey ?? 'children',
+    );
+    if (!result) return null;
+    dataList.value = result.rows;
+    return result;
   },
+  onSort: (payload) => emit('rowSort', payload),
 });
 
-function dragRowClass({ rowData }: { rowData: Record<string, any> }) {
+function dragRowClass({
+  rowData,
+  rowIndex,
+}: {
+  rowData: Record<string, any>;
+  rowIndex: number;
+}) {
   if (!rowDragEnabled.value) return '';
   const classes: string[] = [];
   if (props.rowDragDisabled?.(rowData)) {
     classes.push('table-entity__row--drag-disabled');
+  }
+  if (
+    rowDraggingIndex.value != null &&
+    rowDragOverIndex.value === rowIndex &&
+    rowDragOverIndex.value !== rowDraggingIndex.value
+  ) {
+    classes.push('table-entity__row--drop-target');
   }
   return classes.join(' ');
 }

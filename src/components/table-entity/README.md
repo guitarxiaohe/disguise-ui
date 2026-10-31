@@ -40,6 +40,9 @@ const data = ref([
 | `selectedKeys` | `any[]` | `[]` | 已选行 key 数组（v-model） |
 | `tree` | `boolean` | `false` | 是否展示为树形表格 |
 | `treeChildrenKey` | `string` | `'children'` | 子节点字段名 |
+| `rowDraggable` | `boolean` | `false` | 显示拖拽把手并允许行排序；树形模式只允许同级节点排序，不会改变父子关系 |
+| `rowDragHandle` | `string` | — | 自定义拖拽把手 CSS 选择器；默认自动添加拖拽列 |
+| `rowDragDisabled` | `(row) => boolean` | — | 返回 `true` 时该节点不能拖动，也不能作为放置目标 |
 | `expandColumnKey` | `string` | — | 树形展开按钮所在列 key，默认第一列 |
 | `expandedRowKeys` | `TableEntityRowKey[]` | — | 展开行 keys（受控） |
 | `defaultExpandedRowKeys` | `TableEntityRowKey[]` | `[]` | 默认展开行 keys |
@@ -89,6 +92,7 @@ const columns = [
 | `update:selectedKeys` | `any[]` | 选中 keys 变化 |
 | `expanded-rows-change` | `TableEntityRowKey[]` | 展开行变化 |
 | `row-expand` | `{ expanded, rowData, rowIndex, rowKey }` | 单行展开/折叠 |
+| `row-sort` | `{ oldIndex, newIndex, rows, parentRowKey? }` | 拖拽排序完成；树模式的索引属于同级数组，`rows` 为重排后的完整树，根节点排序时 `parentRowKey` 为 `null` |
 | `page-change` | `number` | 页码变化 |
 | `update:current_page` | `number` | 当前页变化 |
 | `update:per_page` | `number` | 每页条数变化 |
@@ -352,4 +356,4 @@ tableRef.value?.reload(); // 重新加载数据
 />
 ```
 
-数据需包含 `children` 字段（可通过 `treeChildrenKey` 自定义）。
+数据需包含 `children` 字段（可通过 `treeChildrenKey` 自定义）。设置 `rowDraggable` 后可拖动节点；仅能在同一父节点的同级范围内调整顺序，拖动不会改变节点层级。`row-sort` 事件返回新的完整树，可赋回数据源。

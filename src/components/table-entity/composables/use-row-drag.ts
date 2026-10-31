@@ -3,15 +3,24 @@ import type { TableEntityRowSortPayload } from '../index.type';
 import { nextTick, onUnmounted, ref } from 'vue';
 
 type RowDragOptions = {
+  canDrop: (
+    source: Record<string, any>,
+    target: Record<string, any>,
+  ) => boolean;
   getHandle: () => string | undefined;
   getRoot: () => HTMLElement | undefined;
   getRowHeight: () => number;
-  getRowKey: () => string;
   getRows: () => Record<string, any>[];
   isEnabled: () => boolean;
+  isTree: () => boolean;
   isRowDisabled: (row: Record<string, any>) => boolean;
+  moveRows: (
+    source: Record<string, any>,
+    target: Record<string, any>,
+    fromIndex: number,
+    toIndex: number,
+  ) => TableEntityRowSortPayload | null;
   onSort: (payload: TableEntityRowSortPayload) => void;
-  setRows: (rows: Record<string, any>[]) => void;
 };
 
 function readRowIndex(row: HTMLElement, rowHeight: number) {
@@ -26,11 +35,11 @@ function readRowIndex(row: HTMLElement, rowHeight: number) {
 }
 
 function listRows(root: HTMLElement) {
-  return [
-    ...root.querySelectorAll<HTMLElement>(
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
       '.el-table-v2__body .el-table-v2__row',
     ),
-  ];
+  );
 }
 
 function clearRowMotion(root: HTMLElement | undefined) {
@@ -71,11 +80,21 @@ export function useRowDrag(options: RowDragOptions) {
   let previousCursor = '';
   let previousUserSelect = '';
 
-  function nearestEnabled(index: number, delta: number) {
+  function nearestEnabled(
+    index: number,
+    delta: number,
+    source: Record<string, any>,
+  ) {
     const rows = options.getRows();
     if (index < 0 || index >= rows.length) return null;
     const row = rows[index];
-    if (row && !options.isRowDisabled(row)) return index;
+    if (
+      row &&
+      !options.isRowDisabled(row) &&
+      options.canDrop(source, row)
+    ) {
+      return index;
+    }
     const preferred = delta >= 0 ? -1 : 1;
     for (let step = 1; step < rows.length; step += 1) {
       const forward = index + preferred * step;
@@ -86,7 +105,8 @@ export function useRowDrag(options: RowDragOptions) {
         forwardRow &&
         forward >= 0 &&
         forward < rows.length &&
-        !options.isRowDisabled(forwardRow)
+        !options.isRowDisabled(forwardRow) &&
+        options.canDrop(source, forwardRow)
       ) {
         return forward;
       }
@@ -94,7 +114,8 @@ export function useRowDrag(options: RowDragOptions) {
         backwardRow &&
         backward >= 0 &&
         backward < rows.length &&
-        !options.isRowDisabled(backwardRow)
+        !options.isRowDisabled(backwardRow) &&
+        options.canDrop(source, backwardRow)
       ) {
         return backward;
       }
@@ -117,6 +138,15 @@ export function useRowDrag(options: RowDragOptions) {
         row.style.zIndex = '5';
         row.style.transition = 'none';
         row.style.transform = `translateY(${deltaY}px)`;
+        continue;
+      }
+      // Tree descendants are interleaved with their parent siblings in the
+      // rendered list, so applying a flat-list shift would suggest reparenting.
+      if (options.isTree()) {
+        row.classList.remove('table-entity__row--lift');
+        row.style.zIndex = '';
+        row.style.transition = '';
+        row.style.transform = '';
         continue;
       }
       let shift = 0;
@@ -191,7 +221,9 @@ export function useRowDrag(options: RowDragOptions) {
     const raw = from + Math.round(deltaY / Math.max(rowHeight, 1));
     const max = options.getRows().length - 1;
     const clamped = Math.max(0, Math.min(max, raw));
-    const next = nearestEnabled(clamped, deltaY);
+    const source = options.getRows()[from];
+    if (!source) return;
+    const next = nearestEnabled(clamped, deltaY, source);
     if (next != null) overIndex.value = next;
     if (moved) applyMotion(deltaY);
   }
@@ -201,6 +233,7 @@ export function useRowDrag(options: RowDragOptions) {
     const to = overIndex.value;
     const didMove = moved;
     const root = options.getRoot();
+    const rows = options.getRows();
     const before =
       root && from != null && to != null && from !== to
         ? snapshotTops(root)
@@ -215,10 +248,12 @@ export function useRowDrag(options: RowDragOptions) {
       document.addEventListener('click', swallowClick, true);
     }
     if (!before || !root || from == null || to == null || from === to) return;
-    const rows = moveTableRow(options.getRows(), from, to);
-    if (rows === options.getRows()) return;
-    options.setRows(rows);
-    options.onSort({ newIndex: to, oldIndex: from, rows });
+    const source = rows[from];
+    const target = rows[to];
+    if (!source || !target) return;
+    const result = options.moveRows(source, target, from, to);
+    if (!result) return;
+    options.onSort(result);
     await nextTick();
     playFlip(root, before);
   }

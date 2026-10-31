@@ -174,7 +174,7 @@ export type TableEntlty = {
   actions?: TableEntityActionName[];
   /** 自定义操作按钮，追加到内置按钮之后 */
   pushActions?: TableEntityPushAction[];
-  /** 是否允许拖拽行排序，默认 false。树形表格不生效 */
+  /** 是否允许拖拽行排序，默认 false。树形表格仅允许同级节点互换顺序 */
   rowDraggable?: boolean;
   /**
    * 拖拽把手选择器，限定在行内部。
@@ -195,9 +195,14 @@ export type TableEntlty = {
 };
 
 export type TableEntityRowSortPayload = {
+  /** 当前拖动层级内的新位置；树形表格为同级数组中的位置 */
   newIndex: number;
+  /** 当前拖动层级内的原位置；树形表格为同级数组中的位置 */
   oldIndex: number;
+  /** 树形表格重排后的完整树；非树形表格为当前数据行 */
   rows: Record<string, any>[];
+  /** 树形表格被排序节点的父节点 key；根节点排序时为 null */
+  parentRowKey?: TableEntityRowKey | null;
 };
 
 export type TableEntityExpose = {
