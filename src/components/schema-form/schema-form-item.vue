@@ -11,6 +11,7 @@ import { formatDate, formatDateTime } from '@/runtime/utils';
 import DictTag from '@/components/dict-tag/index.vue';
 import { getEntity } from '@/entities';
 import {
+  ElCascader,
   ElCheckbox,
   ElCheckboxGroup,
   ElDatePicker,
@@ -427,6 +428,16 @@ function fetchStaticOptions(params: {
       @update:model-value="update"
     />
 
+    <ElCascader
+      v-else-if="field.type === 'cascader'"
+      :model-value="modelValue"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      filterable
+      v-bind="resolvedProps"
+      @update:model-value="update"
+    />
+
     <AsyncSelect
       v-else-if="field.type === 'select'"
       :model-value="modelValue"
@@ -521,6 +532,7 @@ function fetchStaticOptions(params: {
   }
 
   :deep(.el-select),
+  :deep(.el-cascader),
   :deep(.el-input),
   :deep(.el-input-number),
   :deep(.el-date-editor) {

@@ -1,4 +1,4 @@
-import type { FormItemRule } from 'element-plus';
+import type { CascaderComponentProps, FormItemRule } from 'element-plus';
 import type { RichTextEditorProps } from '../rich-text-editor/index.type';
 
 import type {
@@ -97,6 +97,7 @@ export type TranslateConfig = {
 
 export type FieldType =
   | 'async-select'
+  | 'cascader'
   | 'checkbox'
   | 'component'
   | 'date'
@@ -168,6 +169,12 @@ export type SchemaRichTextEditorProps = Omit<
   'modelValue' | 'toolContext'
 >;
 
+/** type: 'cascader' 字段 props 的完整类型。 */
+export type SchemaCascaderProps = Omit<
+  CascaderComponentProps,
+  'modelValue'
+>;
+
 export type ApiFieldOptions = {
   entityKey: string;
   labelKey?: string;
@@ -219,6 +226,9 @@ export type SchemaFormField = (
           | 'textarea'
           | 'upload';
       }))
+  | (BaseField<SchemaCascaderProps> & {
+      type: 'cascader';
+    })
   | (BaseField<SchemaRichTextEditorProps> & {
       type: 'rich-text';
     })

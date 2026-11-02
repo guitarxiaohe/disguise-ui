@@ -24,6 +24,7 @@ import {
 } from 'vue';
 
 import { useAccess } from '@/runtime/access';
+import { getPaginationConfig } from '@/runtime/context';
 
 import ImportDialog from '@/components/import-dialog/index';
 import { Lock, Rank, Refresh, Setting } from '@element-plus/icons-vue';
@@ -52,6 +53,7 @@ import { moveTableRow, useRowDrag } from './composables/use-row-drag';
 import { useTableSelection } from './composables/use-table-selection';
 import { applyColumnSlots } from './utils/column-slots';
 import { listExpandColumnKey, listExpandStateKey } from './utils/list-expand';
+
 const props = withDefaults(defineProps<TableEntityProps>(), {
   height: 630,
   rowHeight: 40,
@@ -130,26 +132,14 @@ const ACTION_LABEL_MAP: Record<
   delete: { label: t('components.tableEntity.delete'), type: 'danger' },
 };
 const total = ref(0);
-const DEFAULT_PAGE_SIZES: number[] = [10, 50, 300, 400, 800, 1000];
-
-function resolvePageSizes(raw: string | undefined): number[] {
-  if (!raw) return [...DEFAULT_PAGE_SIZES];
-
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [...DEFAULT_PAGE_SIZES];
-
-    const normalized = parsed
+const paginationConfig = getPaginationConfig();
+const pageSizes = computed(() => {
+  const normalized = (paginationConfig.value.pageSizes ?? [])
       .map((item) => Number(item))
       .filter((item) => Number.isFinite(item) && item > 0);
 
-    return normalized.length > 0 ? normalized : [...DEFAULT_PAGE_SIZES];
-  } catch {
-    return [...DEFAULT_PAGE_SIZES];
-  }
-}
-
-const pageSizes = resolvePageSizes(import.meta.env.VITE_PAGE_SIZES);
+  return normalized.length > 0 ? normalized : [10, 20, 50, 100];
+});
 
 const slots = useSlots();
 const { hasAccessByCodes } = useAccess();
@@ -1214,8 +1204,7 @@ defineExpose({
         :current-page="pagination.current_page"
         :page-size="pagination.per_page"
         :total="resolvedTotal"
-        layout="total, sizes, prev, pager, next, jumper"
-        background
+        v-bind="paginationConfig"
         :page-sizes="pageSizes"
         @size-change="handleSizeChange"
         @current-change="onPageChange"

@@ -5,6 +5,7 @@ export type * from './components/async-select/async-select.type.js';
 export { default as BaseCard } from './components/card/index.vue';
 export { CrudPage } from './components/crud-page/index.js';
 export type * from './components/crud-page/index.type.js';
+export { default as DialogList } from './components/dialog-list/index.vue';
 export { default as DictTag } from './components/dict-tag/index.vue';
 export {
   DrawerFormPage,
@@ -12,6 +13,8 @@ export {
 } from './components/drawer-form-page/index.js';
 export type * from './components/drawer-form-page/index.type.js';
 export { default as DisguiseIcon } from './components/disguise-icon/index.vue';
+export { default as FileUpload } from './components/file-upload/file-upload.vue';
+export type * from './components/file-upload/file-upload.type.js';
 export { default as ImageUpload } from './components/image-upload/index.vue';
 export { default as ImagesView } from './components/images-view/index.vue';
 export type { ImagesViewProps } from './components/images-view/index.vue';
@@ -31,6 +34,7 @@ export { SearchForm } from './components/search-form/index.js';
 export type * from './components/search-form/index.type.js';
 export type * from './components/table-entity/index.type.js';
 export { default as TableEntity } from './components/table-entity/index.vue';
+export { default as UserAvatarInfo } from './components/user-avatar-info/index.vue';
 export { getEntity, paginateLocally, registerEntity } from './entities/index';
 export type {
   EntityDefinition,
@@ -41,4 +45,5 @@ export { setupDisguise } from './setup';
 export type {
   DisguiseOptions,
   DisguiseOptions as SetupDisguiseOptions,
+  PaginationConfig,
 } from './setup';

@@ -13,6 +13,7 @@ import { $t as t } from '@/runtime/i18n';
 /** 选择类控件的提示语与校验时机与输入类不同 */
 const CHOICE_TYPES = new Set([
   'async-select',
+  'cascader',
   'checkbox',
   'date',
   'datetime',

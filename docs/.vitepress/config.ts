@@ -55,7 +55,10 @@ export default defineConfig({
       '/components/': [
         {
           text: 'Overview',
-          items: [{ text: '组件总览', link: '/components/overview' }],
+          items: [
+            { text: '组件总览', link: '/components/overview' },
+            { text: '完整 API', link: '/components/api-reference' },
+          ],
         },
         {
           text: '页面',
@@ -71,6 +74,8 @@ export default defineConfig({
             { text: 'PictureUpload 图片上传', link: '/components/picture-upload' },
             { text: 'ImageUpload 头像上传', link: '/components/image-upload' },
             { text: 'RichTextEditor 富文本', link: '/components/rich-text-editor' },
+            { text: 'FileUpload 文件上传', link: '/components/file-upload' },
+            { text: 'DialogList 弹窗列表', link: '/components/dialog-list' },
           ],
         },
         {
@@ -80,6 +85,7 @@ export default defineConfig({
             { text: 'ImagesView 图片预览', link: '/components/images-view' },
             { text: 'DictTag 字典标签', link: '/components/dict-tag' },
             { text: 'BaseCard 卡片', link: '/components/base-card' },
+            { text: 'UserAvatarInfo 用户头像', link: '/components/user-avatar-info' },
           ],
         },
         {

@@ -37,6 +37,7 @@ import linkageSource from './demos/schema-form-linkage.vue?raw'
 | `text` | `ElInput` | 带 clearable |
 | `textarea` | `ElInput` | 多行 |
 | `number` | `ElInputNumber` | 数字 |
+| `cascader` | `ElCascader` | 默认开启 `filterable`，其他属性通过 `props` 透传 |
 | `select` / `radio` / `checkbox` | 对应 Element 控件 | 需要 `options` 或 `dictCode` |
 | `switch` | `ElSwitch` | 开关 |
 | `date` / `datetime` | `ElDatePicker` | 日期 / 日期时间 |

@@ -10,4 +10,4 @@ export function setupDisguise(options: DisguiseOptions = {}) {
   configureDisguise(options);
 }
 
-export type { DisguiseOptions } from './runtime/context';
+export type { DisguiseOptions, PaginationConfig } from './runtime/context';

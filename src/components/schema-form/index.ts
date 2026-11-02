@@ -15,6 +15,7 @@ export type {
   FieldOptionsResolver,
   FieldPropsContext,
   FieldPropsResolver,
+  SchemaCascaderProps,
   SchemaFormField,
   SchemaFormGroup,
   SchemaFormItem,

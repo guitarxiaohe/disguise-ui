@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'vue';
+
 import { ref } from 'vue';
 
 import type { DictValueItem } from './dict';
@@ -18,7 +20,13 @@ export interface UploadFileResult {
   url: string;
   cache_url?: string;
 }
-
+export interface PaginationConfig {
+  layout?: string;
+  background?: boolean;
+  pageSizes?: number[];
+  /** 分页条数下拉菜单的样式；默认层级高于 DialogList 弹窗 */
+  popperStyle?: CSSProperties;
+}
 export interface DisguiseOptions {
   /** 组件内置文案语言，默认 zh-CN */
   locale?: string;
@@ -41,6 +49,9 @@ export interface DisguiseOptions {
   getAccessToken?: () => string;
   /** BaseCard 阴影 */
   cardShadow?: 'always' | 'hover' | 'never';
+
+  /** TableEntity 分页器的全局配置 */
+  paginationConfig?: PaginationConfig;
 }
 
 const locale = ref('zh-CN');
@@ -48,6 +59,12 @@ const messages = ref<Record<string, Record<string, unknown>>>({});
 const accessChecker = ref<(codes: string[]) => boolean>(() => true);
 const accessTokenReader = ref<() => string>(() => '');
 const cardShadow = ref<'always' | 'hover' | 'never'>('hover');
+const paginationConfig = ref<PaginationConfig>({
+  layout: 'total, sizes, prev, pager, next, jumper',
+  background: true,
+  pageSizes: [10, 20, 50, 100],
+  popperStyle: { zIndex: 4000 },
+});
 
 let requestClient: DisguiseRequestClient | null = null;
 let dictLoader: DisguiseOptions['fetchAllDictData'];
@@ -67,6 +84,12 @@ export function configureDisguise(options: DisguiseOptions) {
   if (options.hasAccess) accessChecker.value = options.hasAccess;
   if (options.getAccessToken) accessTokenReader.value = options.getAccessToken;
   if (options.cardShadow) cardShadow.value = options.cardShadow;
+  if (options.paginationConfig) {
+    paginationConfig.value = {
+      ...paginationConfig.value,
+      ...options.paginationConfig,
+    };
+  }
 }
 
 export function getLocale() {
@@ -103,4 +126,7 @@ export function getAccessToken() {
 
 export function getCardShadow() {
   return cardShadow;
+}
+export function getPaginationConfig() {
+  return paginationConfig;
 }

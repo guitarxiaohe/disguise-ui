@@ -108,6 +108,7 @@ formRef.value?.clearValidate(); // 清除校验状态
 | `text`         | `ElInput`         | 带 clearable                      |
 | `textarea`     | `ElInput`         | 多行，默认 4 行                   |
 | `number`       | `ElInputNumber`   |                                   |
+| `cascader`     | `ElCascader`      | 默认开启筛选，所有属性通过 `props` 透传 |
 | `select`       | `ElSelect`        | 需要 `options` 或 `dictCode`      |
 | `radio`        | `ElRadioGroup`    | 同上                              |
 | `checkbox`     | `ElCheckboxGroup` | 同上，值为数组                    |
@@ -122,7 +123,7 @@ formRef.value?.clearValidate(); // 清除校验状态
 | `slot`         | 自定义            | 插槽名为 `prop`                   |
 | `group`        | 容器              | 一个 label 下并排多个控件，见下节 |
 
-未内置的类型有：富文本、级联选择、日期区间、纯时间、密码框。这些暂时用 `slot` 接。
+未内置的类型有：日期区间、纯时间、密码框。这些暂时用 `slot` 接。
 
 ## 自定义组件
 
