@@ -14,11 +14,13 @@ const props = withDefaults(
     max?: number;
     /** 「查看全部 N 个{unit}」中的单位 */
     unit?: string;
+    html?:boolean;
   }>(),
   {
     expanded: false,
     max: 2,
     unit: '',
+    html: false,
   },
 );
 
@@ -50,7 +52,9 @@ function onToggle(event: MouseEvent) {
       :key="`${index}-${item}`"
       class="list-expand-cell__item"
     >
-      {{ index + 1 }}. {{ item }}
+    <span > {{ index + 1 }}.</span>
+      <span v-if="html" v-html="item"></span>
+      <span v-else>{{ item }}</span>
     </div>
     <button
       v-if="collapsible"

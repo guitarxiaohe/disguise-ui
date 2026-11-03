@@ -113,6 +113,7 @@ function renderBuiltinCell(
         unit: cellProps.unit,
         expanded: listExpand?.expandedKeys.has(stateKey) ?? false,
         onToggle: () => listExpand?.onToggle(stateKey),
+        html: cellProps.html ?? false,
       });
     }
     default: {

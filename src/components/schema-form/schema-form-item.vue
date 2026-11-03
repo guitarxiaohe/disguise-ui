@@ -232,6 +232,11 @@ const apiOptions = computed(() => props.field.apiOptions);
 const entity = computed(() =>
   apiOptions.value ? getEntity(apiOptions.value.entityKey) : undefined,
 );
+const apiParams = computed(() => {
+  const params = apiOptions.value?.params;
+  return typeof params === 'function' ? params(context.value) : params;
+});
+const apiParamsKey = computed(() => JSON.stringify(apiParams.value ?? {}));
 
 const asyncSelectProps = computed(() => {
   const definition = entity.value;
@@ -254,7 +259,7 @@ function update(value: any) {
 function fetchEntity(params: AsyncSelectFetchParams) {
   const definition = entity.value;
   if (!definition) return Promise.resolve({ items: [], total: 0 });
-  return definition.fetch({ ...params, params: apiOptions.value?.params });
+  return definition.fetch({ ...params, params: apiParams.value });
 }
 
 /** static / dict 选项在本地分页与搜索，供 AsyncSelect 使用 */
@@ -508,6 +513,7 @@ function fetchStaticOptions(params: {
         field.type === 'async-select' &&
         (asyncSelectProps || field.optionSource === 'dict')
       "
+      :key="apiParamsKey"
       :model-value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"

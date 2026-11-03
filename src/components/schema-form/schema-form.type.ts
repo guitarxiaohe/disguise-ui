@@ -179,8 +179,8 @@ export type ApiFieldOptions = {
   entityKey: string;
   labelKey?: string;
   multiple?: boolean;
-  /** 附加查询条件 */
-  params?: Record<string, any>;
+  /** 附加查询条件；函数形态可读取当前模式与实时表单值 */
+  params?: ((ctx: FieldContext) => Record<string, any>) | Record<string, any>;
   subtitleKey?: string;
   valueKey?: string;
 };
