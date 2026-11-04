@@ -57,12 +57,46 @@ import source from './demos/crud-page-basic.vue?raw'
 | `data` | `Record[] \| TableEntityDataFetcher` | `[]` | 表格数据或取数函数 |
 | `rowKey` | `string` | `'id'` | 行唯一标识 |
 | `actions` | `TableEntityActionName[]` | 按处理函数推导 | 行内按钮 |
+| `pushToolbarActions` | `CrudPageToolbarAction[]` | `[]` | 追加工具栏操作 |
+| `createTitle` / `editTitle` / `viewTitle` | `string` | 新增 / 编辑 / 详情 | 抽屉标题 |
+| `addButtonText` | `string` | `'新增'` | 新增按钮文案 |
 | `permissionCode` | `string` | — | 按钮权限前缀 |
 | `showImport` | `boolean` | `true` | 是否显示导入 |
 | `showExport` | `boolean` | `true` | 是否显示导出 |
-| `tableProps` | `Partial<TableEntlty>` | `{}` | 透传给表格 |
+| `importUrl` | `string \| ImportDialogUrlConfig` | — | 导入接口配置 |
+| `exportUrl` | `string` | — | 导出接口地址 |
+| `defaultValues` | `Record<string, any>` | `{}` | 新增默认值 |
+| `confirmDelete` | `boolean` | `true` | 删除前是否确认 |
+| `deleteConfirmText` | `string \| (row) => string` | 内置文案 | 删除确认文案 |
+| `tableProps` | `Partial<TableEntityProps>` | `{}` | 透传给表格 |
 | `drawerProps` | `Partial<DrawerFormPageProps>` | `{}` | 透传给抽屉 |
 | `searchFormProps` | `CrudPageSearchFormProps` | `{}` | 搜索表单布局 |
+| `onCreate` / `onUpdate` | `Function` | — | 新增、更新处理函数 |
+| `onDelete` / `onBatchDelete` | `Function` | — | 单行、批量删除处理函数 |
+| `exportConfig` | `ExportConfig` | — | 自定义导出配置 |
+| `resolveFormValues` | `(mode, row?) => Record \| Promise<Record>` | — | 打开表单前补充数据 |
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `action` | `{ action, row }` | 表格行操作 |
+| `rowSort` | `TableEntityRowSortPayload` | 行拖动完成 |
+| `toolbarAction` | `action: string` | 点击追加的普通工具栏按钮 |
+
+## Slots
+
+| 名称 | 插槽参数 | 说明 |
+| --- | --- | --- |
+| `prepend` | — | 搜索区之前的内容 |
+| `search` | `{ values, search, reset }` | 完整接管搜索区域 |
+| `buttons` | `{ selectedRows }` | 完整接管工具栏按钮 |
+| `{dataKey}Col` | `{ row, value, cellData, column, rowIndex }` | 自定义表格列 |
+| `actionsCol` | 同列插槽 | 完整接管操作列 |
+| `{fieldProp}` | `{ field, value, disabled, updateValue }` | 自定义搜索和抽屉字段 |
+| `header` | `{ fullscreen, title, toggleFullscreen }` | 抽屉头部 |
+| `footer` | `{ cancel, submit, submitting }` | 抽屉底部 |
+| `default` | — | 追加到抽屉表单之后 |
 
 ## 暴露方法
 

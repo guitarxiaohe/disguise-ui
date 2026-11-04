@@ -29,7 +29,31 @@ import source from './demos/async-select-basic.vue?raw'
 | `labelKey` | `string` | — | 标签字段 |
 | `multiple` | `boolean` | `false` | 多选 |
 | `columns` | `ColumnsItem[]` | `[]` | 弹窗列表列 |
+| `subtitleKey` | `string` | `''` | 下拉选项副标题字段 |
+| `placeholder` | `string` | 内置文案 | 占位文字 |
+| `disabled` | `boolean` | `false` | 是否禁用 |
+| `dialogTitle` | `string` | 内置文案 | 选择弹窗标题 |
 | `perPage` | `number` | `20` | 下拉请求及弹窗列表的每页条数 |
+
+未列出的属性会继续透传给 Element Plus `ElSelectV2`。
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:modelValue` | `value: SelectVal` | 选中值变化；使用 `v-model` 时自动绑定 |
+| `change` | `value, rows` | 从弹窗确认选择后触发，同时返回选中行 |
+
+## Slots
+
+该组件暂无对外插槽；选中标签与下拉选项使用组件内置布局。
+
+## 暴露方法
+
+| 名称 | 说明 |
+| --- | --- |
+| `reload()` | 强制重新请求远程第一页 |
+| `allItems` | 当前已加载的原始选项引用 |
 
 ## 服务端分页
 

@@ -2,6 +2,19 @@
 
 支持单文件、多文件、上传进度、预览、下载和删除。实际上传通过 `setupDisguise({ uploadFile })` 注入。
 
+<script setup>
+import Basic from './demos/file-upload-basic.vue'
+import source from './demos/file-upload-basic.vue?raw'
+</script>
+
+## 基础用法
+
+<ClientOnly>
+  <DemoBlock :source="source">
+    <Basic />
+  </DemoBlock>
+</ClientOnly>
+
 ## Props
 
 | 名称 | 类型 | 默认值 | 说明 |
@@ -31,3 +44,7 @@
 | `remove` | `file` | 删除文件 |
 | `preview` | `file` | 预览文件 |
 | `download` | `file` | 下载文件 |
+
+## Slots
+
+该组件暂无插槽。

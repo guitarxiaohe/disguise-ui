@@ -141,6 +141,7 @@ type BaseField<
   readonly?: boolean;
   /** 自动生成必填规则，与 rules 合并 */
   required?: FieldCondition;
+  /** validator 的第四个参数为当前 SchemaForm 的全量表单值 */
   rules?: FormItemRule[];
   /** 24 栅格占位，默认按表单的 columns 均分 */
   span?: number;

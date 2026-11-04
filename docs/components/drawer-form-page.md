@@ -117,6 +117,8 @@ api.open({ mode: 'view', title: '商品详情', values: row });
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `title` | `string` | `''` | 抽屉标题 |
+| `modelValue` | `boolean` | `false` | 抽屉显隐，支持 `v-model` |
+| `breadcrumb` | `string` | — | 标题上方路径文字 |
 | `mode` | `'create' \| 'edit' \| 'view'` | `'create'` | 表单模式 |
 | `schema` | `SchemaFormItem[]` | `[]` | 字段元数据 |
 | `formValues` | `Record` | `{}` | 表单值 |
@@ -135,6 +137,31 @@ api.open({ mode: 'view', title: '商品详情', values: row });
 | `submitting` | `boolean` | `false` | 提交中 |
 | `disabled` | `boolean` | `false` | 整表禁用 |
 | `schemaFormProps` | 布局属性 | `{}` | 透传给 SchemaForm |
+| `destroyOnClose` | `boolean` | `false` | 关闭后是否销毁内容 |
+| `closeOnClickModal` | `boolean` | `true` | 点击遮罩是否关闭 |
+| `closeOnPressEscape` | `boolean` | `true` | Esc 是否关闭 |
+| `appendToBody` | `boolean` | `true` | 是否挂载到 body |
+| `lockScroll` | `boolean` | `true` | 是否锁定页面滚动 |
+| `drawerProps` | `Record<string, any>` | `{}` | 透传给 `ElDrawer` |
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:modelValue` | `visible` | 抽屉显隐变化 |
+| `update:formValues` | `values` | 表单值变化 |
+| `update:fullscreen` | `fullscreen` | 全屏状态变化 |
+| `submit` | `values` | 校验通过后提交 |
+| `cancel` / `open` / `closed` | — | 取消、打开、关闭完成 |
+
+## Slots
+
+| 名称 | 插槽参数 | 说明 |
+| --- | --- | --- |
+| `header` | `{ fullscreen, title, toggleFullscreen }` | 自定义头部 |
+| `footer` | `{ cancel, submit, submitting }` | 自定义底部 |
+| `default` | — | 追加到表单后的正文 |
+| `{fieldProp}` | `{ field, value, disabled, updateValue }` | 自定义字段 |
 
 ## 暴露方法
 

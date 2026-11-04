@@ -20,6 +20,18 @@ import source from './demos/image-upload-basic.vue?raw'
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `modelValue` | `string` | `''` | 图片 URL |
-| `width` / `height` | `number` | `96` | 预览尺寸 |
+| `width` | `number` | `96` | 预览宽度，单位 px |
+| `height` | `number` | `96` | 预览高度，单位 px |
 | `maxSize` | `number` | `5` | 大小限制，单位 MB |
 | `accept` | `string[]` | PNG / JPEG / SVG / WebP | 允许的 MIME |
+| `disabled` | `boolean` | `false` | 是否禁用上传和删除 |
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:modelValue` | `url: string` | 上传或删除后更新图片 URL；使用 `v-model` 时自动绑定 |
+
+## Slots
+
+该组件暂无插槽。

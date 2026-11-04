@@ -28,6 +28,25 @@ import source from './demos/rich-text-editor-basic.vue?raw'
 | `richTextTools` | `RichTextTool[]` | `[]` | 追加到内置工具栏末尾的自定义工具 |
 | `toolContext` | `object` | `{}` | 为工具补充业务上下文；通常由 `SchemaForm` 自动注入 |
 
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:modelValue` | `html: string` | 编辑器内容变化；使用 `v-model` 时自动绑定 |
+
+## Slots
+
+| 名称 | 插槽参数 | 说明 |
+| --- | --- | --- |
+| `toolbar-append` | — | 在内置工具栏末尾、`richTextTools` 之前插入任意工具内容 |
+
+## 暴露方法
+
+| 名称 | 说明 |
+| --- | --- |
+| `editor` | 当前 Tiptap `Editor` 实例引用 |
+| `clearFormat()` | 清除当前选区的格式 |
+
 ## 自定义工具栏工具
 
 `richTextTools` 支持按钮工具和自定义组件工具。按钮工具使用 `onClick`，自定义组件工具使用 `component`，两者不能同时配置。`key` 是必填的唯一标识，`order` 只控制自定义工具之间的顺序。

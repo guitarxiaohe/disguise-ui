@@ -23,3 +23,13 @@ import source from './demos/disguise-icon-basic.vue?raw'
 | --- | --- | --- | --- |
 | `icon` | `string` | `''` | 图标名 |
 | `className` | `string` | `'disguiseicon'` | 类名前缀 |
+
+未列出的属性和事件监听器会透传给 Element Plus `ElIcon`。
+
+## Events
+
+该组件暂无自定义事件；传入的监听器会由 `ElIcon` 接收。
+
+## Slots
+
+该组件暂无自定义插槽。图标内容由 `icon` 与 `className` 生成的字体类名决定。

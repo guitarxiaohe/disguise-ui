@@ -9,7 +9,7 @@ import type {
   SchemaFormProps,
 } from './schema-form.type';
 
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 import { ElCol, ElForm, ElFormItem, ElRow } from 'element-plus';
 
@@ -155,7 +155,21 @@ async function validate() {
   try {
     await formRef.value.validate();
     return true;
-  } catch {
+  } catch (invalidFields) {
+    const failedProps = new Set(
+      invalidFields && typeof invalidFields === 'object'
+        ? Object.keys(invalidFields)
+        : [],
+    );
+    const firstFailedProp =
+      visibleFields.value.find((field) => failedProps.has(field.prop))?.prop ??
+      failedProps.values().next().value;
+
+    if (firstFailedProp) {
+      await nextTick();
+      formRef.value?.scrollToField(firstFailedProp);
+    }
+
     return false;
   }
 }

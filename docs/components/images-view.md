@@ -25,3 +25,13 @@ import source from './demos/images-view-basic.vue?raw'
 | `size` | `number` | `80` | 单张缩略图边长，单位像素 |
 | `maxStack` | `number` | `3` | 最多叠放多少层，其余图片仍可在全屏预览里看到 |
 | `offset` | `number` | `6` | 每一层相对上一层的偏移，单位像素 |
+
+## Events
+
+该组件暂无自定义事件。点击缩略图会直接打开 Element Plus 图片预览器。
+
+## Slots
+
+| 名称 | 插槽参数 | 说明 |
+| --- | --- | --- |
+| `empty` | — | `images` 为空时的内容，默认显示“暂无图片” |

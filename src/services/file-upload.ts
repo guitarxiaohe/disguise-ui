@@ -18,9 +18,17 @@ export async function uploadFile(
   options?: UploadFileParams,
 ): Promise<AttachmentData> {
   onProgress?.(0);
+  // 文件传输完成不等于后端已经处理成功。接口 Promise 返回前最多展示 99%，
+  // 避免进度条先到 100% 后仍在等待后端响应。
+  const handleUploadingProgress = (percent: number) => {
+    const normalizedPercent = Number.isFinite(percent)
+      ? Math.round(percent)
+      : 0;
+    onProgress?.(Math.max(0, Math.min(99, normalizedPercent)));
+  };
   const result = await uploadFileApi(file, {
     ...options,
-    onProgress,
+    onProgress: handleUploadingProgress,
   });
   onProgress?.(100);
 

@@ -63,12 +63,72 @@ import linkageSource from './demos/schema-form-linkage.vue?raw'
 | `schema` | `SchemaFormItem[]` | `[]` | 字段元数据 |
 | `mode` | `'create' \| 'edit' \| 'view'` | `'create'` | 影响显隐与只读 |
 | `columns` | `number` | `1` | 栅格列数 |
+| `underline` | `boolean` | `false` | 输入控件是否只显示下边框 |
+| `labelAlign` | `'center' \| 'left' \| 'right'` | — | 标签文字对齐 |
+| `itemGap` | `number \| string` | `30` | 表单项纵向间距 |
+| `groupGap` | `number \| string` | `0` | 分组额外上下间距 |
+| `labelGap` | `number \| string` | `20` | 标签与控件间距 |
 | `labelWidth` | `number \| string` | `'auto'` | 标签宽度 |
 | `labelPosition` | `'left' \| 'right' \| 'top'` | `'top'` | 标签位置 |
 | `disabled` | `boolean` | `false` | 整体禁用 |
 | `loading` | `boolean` | `false` | 加载遮罩 |
 
 查看态只要传 `mode="view"`，schema 不用改。
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:modelValue` | `values: Record<string, any>` | 字段值变化；使用 `v-model` 时自动绑定 |
+
+## Slots
+
+字段使用动态插槽：插槽名等于字段 `prop`，参数如下。
+
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| `field` | `ResolvedField` | 解析后的字段配置 |
+| `value` | `any` | 当前字段值 |
+| `disabled` | `boolean` | 合并表单、分组与字段后的禁用状态 |
+| `updateValue` | `(value: any) => void` | 更新当前字段值 |
+
+## Schema 字段属性
+
+| 名称 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `type` | `FieldType` | — | 控件类型 |
+| `prop` | `string` | — | 表单字段名，同时也是动态插槽名 |
+| `label` | `string` | — | 字段标签 |
+| `component` | `Component \| string \| config` | — | 覆盖内置控件或使用已注册组件 |
+| `defaultValue` | `any` | — | 初始化和重置时使用的默认值 |
+| `disabled` | `boolean \| (context) => boolean` | `false` | 是否禁用 |
+| `hidden` | `boolean \| (context) => boolean` | `false` | 是否隐藏；隐藏字段不会出现在 `getValues()` 中 |
+| `hideOnCreate` / `hideOnEdit` | `boolean` | `false` | 在对应模式隐藏 |
+| `readonly` | `boolean` | `false` | 是否以纯文本呈现 |
+| `copyable` | `boolean` | 跟随 `readonly` | 只读态是否显示复制按钮 |
+| `required` | `boolean \| (context) => boolean` | `false` | 是否必填 |
+| `rules` | `FormItemRule[]` | `[]` | Element Plus 校验规则 |
+| `placeholder` | `string` | 自动生成 | 占位文字 |
+| `props` | `Record \| (context) => Record` | `{}` | 透传给底层控件的属性 |
+| `span` | `number` | 按列数均分 | 24 栅格占位 |
+| `newRow` | `boolean` | `false` | 是否强制另起一行 |
+| `tip` | `string` | — | 控件下方提示 |
+| `translateConfig` | `TranslateConfig` | — | 多语言编辑配置 |
+| `options` | `FieldOption[] \| (context) => FieldOption[]` | — | 静态或动态选项 |
+| `dictCode` | `string` | — | 字典选项编码 |
+| `optionSource` | `'static' \| 'dict' \| 'api'` | 按字段推断 | 选项来源 |
+| `apiOptions` | `ApiFieldOptions` | — | 远程选择配置 |
+
+`type: 'group'` 使用 `children` 存放子字段，还支持 `anchor`、`description`、`disabled`、`hidden`、`span`、`newRow` 和 `tip`。
+
+## 暴露方法
+
+| 名称 | 说明 |
+| --- | --- |
+| `validate()` | 校验并返回 `Promise<boolean>`，失败时滚动到首个错误字段 |
+| `clearValidate()` | 清除校验状态 |
+| `resetFields()` | 重置字段 |
+| `getValues()` | 获取当前可见字段值，自动排除隐藏字段 |
 
 ## 富文本自定义工具
 

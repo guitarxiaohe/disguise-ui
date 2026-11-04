@@ -110,5 +110,27 @@ export function resolveRules(
           },
     );
   }
-  return rules;
+  // Element Plus 会为每个 FormItem 单独创建校验器，因此 validator 的
+  // 第四个参数默认只包含当前字段。这里统一替换为 SchemaForm 的完整模型。
+  return rules.map((rule) => {
+    if (rule.asyncValidator) {
+      const asyncValidator = rule.asyncValidator;
+      return {
+        ...rule,
+        asyncValidator: (rule, value, callback, _source, options) =>
+          asyncValidator(rule, value, callback, context.values, options),
+      };
+    }
+
+    if (rule.validator) {
+      const validator = rule.validator;
+      return {
+        ...rule,
+        validator: (rule, value, callback, _source, options) =>
+          validator(rule, value, callback, context.values, options),
+      };
+    }
+
+    return rule;
+  });
 }

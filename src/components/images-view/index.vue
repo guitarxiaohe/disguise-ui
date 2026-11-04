@@ -131,6 +131,8 @@ const stackItemStyle = (index: number) => {
       </ElTooltip>
     </div>
 
-    <ElEmpty v-else description="暂无图片" :image-size="40" />
+   <slot v-else name="empty">
+     <ElEmpty  description="暂无图片" :image-size="40" />
+   </slot>
   </div>
 </template>

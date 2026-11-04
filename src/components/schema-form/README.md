@@ -86,7 +86,7 @@ formRef.value?.clearValidate(); // 清除校验状态
 | `placeholder` | `string` | 占位符，不传时按类型自动生成 |
 | `defaultValue` | `any` | 默认值，仅在字段 key 不存在时填充 |
 | `required` | `boolean` | 自动生成必填规则，与 `rules` 合并 |
-| `rules` | `FormItemRule[]` | Element Plus 校验规则 |
+| `rules` | `FormItemRule[]` | Element Plus 校验规则；`validator` 的第四个参数为全量表单值 |
 | `span` | `number` | 24 栅格占位，不传则按 `columns` 均分 |
 | `newRow` | `boolean` | 强制另起一行（可与 `span: 6` 等组合，不必占满 24） |
 | `readonly` | `boolean` | 渲染为纯文本而非输入控件 |

@@ -32,3 +32,21 @@ import source from './demos/dialog-list-basic.vue?raw'
 | `tableHeight` | `number` | `420` | 表格高度 |
 | `perPage` | `number` | `20` | 每页条数 |
 | `filterParams` | `Record<string, any>` | `{}` | 额外筛选条件 |
+
+## Events
+
+| 名称 | 参数 | 说明 |
+| --- | --- | --- |
+| `update:visible` | `visible: boolean` | 弹窗显隐变化；使用 `v-model:visible` 时自动绑定 |
+| `update:modelValue` | `value: any \| any[]` | 确认后的行主键值 |
+| `confirm` | `rows: Record<string, any>[]` | 点击确认时返回当前可取得的选中行 |
+
+## Slots
+
+该组件暂无插槽。
+
+## 暴露属性
+
+| 名称 | 说明 |
+| --- | --- |
+| `tableRef` | 内部 `TableEntity` 实例引用 |
