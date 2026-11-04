@@ -3,3 +3,5 @@ dist
 docs/.vitepress/cache
 docs/.vitepress/dist
 *.log
+.deploy
+docs/public/version.json

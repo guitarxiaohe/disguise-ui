@@ -1,0 +1,8 @@
+services:
+  docs:
+    build: .
+    image: disguise-ui-docs:local
+    container_name: disguise-ui-docs
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT:-3006}:80'
