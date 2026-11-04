@@ -1,4 +1,6 @@
 {
   "pleaseSelect": "Please select",
-  "close": "Close"
+  "close": "Close",
+  "cancel": "Cancel",
+  "confirm": "Confirm"
 }

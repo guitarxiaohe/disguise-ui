@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { AttachmentData } from '@/components/file-upload/file-upload.type';
 import type { UploadRequestOptions } from 'element-plus';
+import type { PictureUploadEmits, PictureUploadProps } from './picture-upload.type';
 
-import { computed, onBeforeUnmount, ref, toRefs, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, toRefs, watch } from 'vue';
 
 import { useFileUpload } from '@/components/file-upload/composables/use-file-upload';
 import { useMultipleFileUpload } from '@/components/file-upload/composables/use-multiple-file-upload';
@@ -17,40 +18,9 @@ import {
 } from 'element-plus';
 
 import { $t as t } from '@/runtime/i18n';
+import ImageCropDialog from './image-crop-dialog.vue';
 
 /** ****************************** 类型定义 ********************************/
-
-interface PictureUploadProps {
-  modelValue?: AttachmentData | AttachmentData[] | string | string[];
-  disabled?: boolean;
-  maxSize?: number;
-  accept?: string[];
-  width?: number;
-  height?: number;
-  showPreview?: boolean;
-  showDownload?: boolean;
-  showRemove?: boolean;
-  selected?: boolean;
-  errorMessage?: string;
-  /** OSS 保存目录，相对 attachment/v3 */
-  baseFolder?: string;
-  /** 是否给图片加中心水印 */
-  addWatermark?: boolean;
-  /** 最大图片数量，大于 1 时启用多图模式 */
-  maxCount?: number;
-}
-
-interface PictureUploadEmits {
-  (
-    e: 'update:modelValue',
-    value: AttachmentData | AttachmentData[] | string | string[] | undefined,
-  ): void;
-  (e: 'uploadSuccess', file: AttachmentData): void;
-  (e: 'uploadError', error: Error): void;
-  (e: 'remove', file: AttachmentData): void;
-  (e: 'preview', file: AttachmentData): void;
-  (e: 'download', file: AttachmentData): void;
-}
 
 /** ****************************** 组件入参 ********************************/
 
@@ -71,6 +41,22 @@ const props = withDefaults(defineProps<PictureUploadProps>(), {
 });
 
 const emit = defineEmits<PictureUploadEmits>();
+const slots = defineSlots<{
+  /** 自定义已上传图片；多图模式会为每张图片调用 */
+  picture?: (props: {
+    download: () => void;
+    file: AttachmentData;
+    index: number;
+    preview: () => void;
+    remove: () => void;
+    url: string;
+  }) => any;
+  /** 自定义上传中内容 */
+  loading?: (props: { progress: number }) => any;
+  /** 自定义空状态/上传触发器；default 作为兼容别名 */
+  placeholder?: (props: { multiple: boolean }) => any;
+  default?: (props: { multiple: boolean }) => any;
+}>();
 
 const { resolveImageUrl } = useImageUrl();
 const { accept, errorMessage, maxSize } = toRefs(props);
@@ -105,6 +91,11 @@ const toModelValue = (value: AttachmentData[] | undefined) => {
 const previewVisible = ref<boolean>(false);
 const localPreview = ref('');
 const remoteFailed = ref(false);
+const cropVisible = ref(false);
+const cropFile = ref<File>();
+type CropRequest = { file: File; resolve: (file: File | false) => void };
+const cropQueue: CropRequest[] = [];
+let activeCrop: CropRequest | undefined;
 
 const upload = useFileUpload({
   modelValue: computed(() => {
@@ -200,7 +191,11 @@ function onImageError() {
   }
 }
 
-onBeforeUnmount(revokeLocalPreview);
+onBeforeUnmount(() => {
+  revokeLocalPreview();
+  activeCrop?.resolve(false);
+  cropQueue.splice(0).forEach((request) => request.resolve(false));
+});
 
 const isEmpty = computed(() =>
   isMultiple.value
@@ -236,12 +231,103 @@ function handleUpload(options: UploadRequestOptions) {
   return upload.handleUpload(options);
 }
 
-function handleBeforeUpload(
+async function handleBeforeUpload(
   file: Parameters<NonNullable<typeof upload.beforeUpload>>[0],
 ) {
-  return isMultiple.value
-    ? multipleUpload.beforeUpload(file)
-    : upload.beforeUpload(file);
+  let finalFile: File = file;
+
+  if (props.crop?.enabled) {
+    if (!isAcceptedImage(file)) {
+      ElMessage.error(
+        t('components.fileUpload.typeNotAllowed', {
+          types: props.accept.join(', '),
+        }),
+      );
+      return false;
+    }
+    const croppedFile = await requestCrop(file);
+    if (!croppedFile) return false;
+    finalFile = croppedFile;
+  }
+
+  const dimensionError = await validateImageDimensions(finalFile);
+  if (dimensionError) {
+    ElMessage.error(dimensionError);
+    return false;
+  }
+
+  const validationResult = isMultiple.value
+    ? multipleUpload.beforeUpload(finalFile as typeof file)
+    : upload.beforeUpload(finalFile as typeof file);
+  if (validationResult === false) return false;
+  return finalFile;
+}
+
+function isAcceptedImage(file: File) {
+  return props.accept.length === 0 || props.accept.some((accepted) => {
+    if (accepted.startsWith('.')) {
+      return file.name.toLowerCase().endsWith(accepted.toLowerCase());
+    }
+    const pattern = accepted.toLowerCase().replace('*', '');
+    return file.type.toLowerCase().startsWith(pattern);
+  });
+}
+
+function requestCrop(file: File) {
+  return new Promise<File | false>((resolve) => {
+    cropQueue.push({ file, resolve });
+    showNextCrop();
+  });
+}
+
+function showNextCrop() {
+  if (activeCrop || cropQueue.length === 0) return;
+  activeCrop = cropQueue.shift();
+  cropFile.value = activeCrop?.file;
+  cropVisible.value = !!activeCrop;
+}
+
+function finishCrop(file: File | false) {
+  const request = activeCrop;
+  if (!request) return;
+  activeCrop = undefined;
+  cropVisible.value = false;
+  cropFile.value = undefined;
+  request.resolve(file);
+  void nextTick(showNextCrop);
+}
+
+async function validateImageDimensions(file: File) {
+  const limits = props.dimensions;
+  if (!limits) return '';
+  const url = URL.createObjectURL(file);
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const candidate = new Image();
+      candidate.onload = () => resolve(candidate);
+      candidate.onerror = () => reject(new Error(t('components.pictureUpload.readFailed')));
+      candidate.src = url;
+    });
+    const width = image.naturalWidth;
+    const height = image.naturalHeight;
+    if (limits.width !== undefined && width !== limits.width)
+      return t('components.pictureUpload.widthExact', { width: limits.width });
+    if (limits.height !== undefined && height !== limits.height)
+      return t('components.pictureUpload.heightExact', { height: limits.height });
+    if (limits.minWidth !== undefined && width < limits.minWidth)
+      return t('components.pictureUpload.widthMin', { width: limits.minWidth });
+    if (limits.minHeight !== undefined && height < limits.minHeight)
+      return t('components.pictureUpload.heightMin', { height: limits.minHeight });
+    if (limits.maxWidth !== undefined && width > limits.maxWidth)
+      return t('components.pictureUpload.widthMax', { width: limits.maxWidth });
+    if (limits.maxHeight !== undefined && height > limits.maxHeight)
+      return t('components.pictureUpload.heightMax', { height: limits.maxHeight });
+    return '';
+  } catch (error) {
+    return error instanceof Error ? error.message : t('components.pictureUpload.readFailed');
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 // 预览图片
@@ -330,14 +416,25 @@ function handleMultipleRemove(file: AttachmentData) {
           class="picture-upload__image-wrap"
           :style="containerStyle"
         >
+          <slot
+            v-if="slots.picture"
+            name="picture"
+            :file="file"
+            :url="multipleImageUrls[index]"
+            :index="index"
+            :preview="() => handleMultiplePreview(index)"
+            :download="() => handleMultipleDownload(file)"
+            :remove="() => handleMultipleRemove(file)"
+          ></slot>
           <img
+            v-else
             class="picture-upload__image"
             :src="multipleImageUrls[index]"
             alt=""
             referrerpolicy="no-referrer"
           />
           <button
-            v-if="props.showRemove && !props.disabled"
+            v-if="!slots.picture && props.showRemove && !props.disabled"
             type="button"
             class="picture-upload__remove"
             :aria-label="t('components.fileUpload.remove')"
@@ -345,7 +442,7 @@ function handleMultipleRemove(file: AttachmentData) {
           >
             <ElIcon :size="12"><Close /></ElIcon>
           </button>
-          <div class="picture-upload__actions">
+          <div v-if="!slots.picture" class="picture-upload__actions">
             <button
               v-if="props.showPreview"
               type="button"
@@ -372,11 +469,13 @@ function handleMultipleRemove(file: AttachmentData) {
           class="picture-upload__loading"
           :style="containerStyle"
         >
-          <ElProgress
-            type="circle"
-            :width="Math.min(props.width, props.height, 72)"
-            :percentage="multipleUpload.totalProgress.value"
-          />
+          <slot name="loading" :progress="multipleUpload.totalProgress.value">
+            <ElProgress
+              type="circle"
+              :width="Math.min(props.width, props.height, 72)"
+              :percentage="multipleUpload.totalProgress.value"
+            />
+          </slot>
         </div>
 
         <div
@@ -384,9 +483,13 @@ function handleMultipleRemove(file: AttachmentData) {
           class="picture-upload__placeholder"
           :style="containerStyle"
         >
-          <ElIcon class="picture-upload__placeholder-icon" :size="28">
-            <Plus />
-          </ElIcon>
+          <slot name="placeholder" :multiple="true">
+            <slot :multiple="true">
+              <ElIcon class="picture-upload__placeholder-icon" :size="28">
+                <Plus />
+              </ElIcon>
+            </slot>
+          </slot>
         </div>
       </div>
     </ElUpload>
@@ -407,11 +510,13 @@ function handleMultipleRemove(file: AttachmentData) {
         class="picture-upload__loading"
         :style="containerStyle"
       >
-        <ElProgress
-          type="circle"
-          :width="Math.min(props.width, props.height, 72)"
-          :percentage="upload.uploadProgress.value"
-        />
+        <slot name="loading" :progress="upload.uploadProgress.value">
+          <ElProgress
+            type="circle"
+            :width="Math.min(props.width, props.height, 72)"
+            :percentage="upload.uploadProgress.value"
+          />
+        </slot>
       </div>
 
       <!-------------------------- 图片内容 -------------------------->
@@ -420,7 +525,18 @@ function handleMultipleRemove(file: AttachmentData) {
         class="picture-upload__image-wrap"
         :style="containerStyle"
       >
+        <slot
+          v-if="slots.picture && upload.fileData.value"
+          name="picture"
+          :file="upload.fileData.value"
+          :url="imageUrl"
+          :index="0"
+          :preview="handlePreview"
+          :download="handleDownload"
+          :remove="handleRemove"
+        ></slot>
         <img
+          v-else
           class="picture-upload__image"
           :src="imageUrl"
           alt=""
@@ -429,7 +545,7 @@ function handleMultipleRemove(file: AttachmentData) {
         />
 
         <button
-          v-if="props.showRemove && !props.disabled"
+          v-if="!slots.picture && props.showRemove && !props.disabled"
           type="button"
           class="picture-upload__remove"
           :aria-label="t('components.fileUpload.remove')"
@@ -440,7 +556,7 @@ function handleMultipleRemove(file: AttachmentData) {
           </ElIcon>
         </button>
 
-        <div class="picture-upload__actions">
+        <div v-if="!slots.picture" class="picture-upload__actions">
           <button
             v-if="props.showPreview"
             type="button"
@@ -468,9 +584,13 @@ function handleMultipleRemove(file: AttachmentData) {
 
       <!-------------------------- 空状态 -------------------------->
       <div v-else class="picture-upload__placeholder" :style="containerStyle">
-        <ElIcon class="picture-upload__placeholder-icon" :size="28">
-          <Plus />
-        </ElIcon>
+        <slot name="placeholder" :multiple="false">
+          <slot :multiple="false">
+            <ElIcon class="picture-upload__placeholder-icon" :size="28">
+              <Plus />
+            </ElIcon>
+          </slot>
+        </slot>
       </div>
     </ElUpload>
 
@@ -480,6 +600,15 @@ function handleMultipleRemove(file: AttachmentData) {
       :url-list="isMultiple ? previewUrls : [imageUrl]"
       :initial-index="isMultiple ? previewIndex : 0"
       @close="previewVisible = false"
+    />
+
+    <ImageCropDialog
+      v-model="cropVisible"
+      :file="cropFile"
+      :crop="props.crop"
+      :dimensions="props.dimensions"
+      @confirm="finishCrop"
+      @cancel="finishCrop(false)"
     />
   </div>
 </template>

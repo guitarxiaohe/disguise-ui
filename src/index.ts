@@ -21,6 +21,7 @@ export type { ImagesViewProps } from './components/images-view/index.vue';
 export { default as ImportDialog } from './components/import-dialog/index';
 export type * from './components/import-dialog/index.type.js';
 export { default as PictureUpload } from './components/picture-upload/picture-upload.vue';
+export type * from './components/picture-upload/picture-upload.type.js';
 export { default as RichTextEditor } from './components/rich-text-editor/index.vue';
 export type * from './components/rich-text-editor/index.type.js';
 export { registerSchemaFormComponents, SchemaForm } from './components/schema-form/index.js';

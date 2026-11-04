@@ -115,7 +115,7 @@ formRef.value?.clearValidate(); // 清除校验状态
 | `switch`       | `ElSwitch`        |                                   |
 | `date`         | `ElDatePicker`    | 值格式 `YYYY-MM-DD`               |
 | `datetime`     | `ElDatePicker`    | 值格式 `YYYY-MM-DD HH:mm:ss`      |
-| `picture`      | `PictureUpload`   | 图片上传，配置走 `props` 透传     |
+| `picture`      | `PictureUpload`   | 图片上传，配置走 `props` 透传；支持 `crop` 裁剪与 `dimensions` 最终尺寸限制 |
 | `file`         | `FileUpload`      | 附件上传，配置走 `props` 透传     |
 | `upload`       | `FileUpload`      | 通用上传兼容类型，配置走 `props` 透传 |
 | `async-select` | `AsyncSelect`     | 需要 `apiOptions`                 |

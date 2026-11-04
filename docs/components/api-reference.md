@@ -205,6 +205,14 @@
 | `baseFolder` | `string` | `''` | OSS 相对保存目录 |
 | `addWatermark` | `boolean` | — | 是否添加中心水印 |
 | `maxCount` | `number` | `1` | 最大图片数 |
+| `crop` | `PictureCropOptions` | — | 上传前裁剪配置；支持开关、固定比例、结果格式和输出质量 |
+| `dimensions` | `PictureDimensionOptions` | — | 最终图片固定或最小/最大像素尺寸限制 |
+
+`PictureCropOptions`：`enabled?`、`aspectRatio?`、`aspectRatios?`、`mimeType?`、`quality?`。`aspectRatios` 的元素格式为 `{ label: string, value: number | null }`，其中 `null` 表示自由比例。
+
+`PictureDimensionOptions`：`width?`、`height?`、`minWidth?`、`minHeight?`、`maxWidth?`、`maxHeight?`。
+
+插槽：`placeholder`（或默认插槽）、`loading`、`picture`。详见 [PictureUpload](/components/picture-upload)。
 
 ## RichTextEditor
 

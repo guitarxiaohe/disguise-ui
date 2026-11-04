@@ -39,6 +39,10 @@ const props = withDefaults(defineProps<SchemaFormProps>(), {
 const model = defineModel<Record<string, any>>({ default: () => ({}) });
 
 const formRef = ref<FormInstance>();
+const scrollIntoViewOptions: ScrollIntoViewOptions = {
+  behavior: 'smooth',
+  block: 'center',
+};
 
 const entries = computed(() => props.schema as ResolvedEntry[]);
 
@@ -200,6 +204,7 @@ defineExpose({
       :model="model"
       :label-width="labelWidth"
       :label-position="effectiveLabelPosition"
+      :scroll-into-view-options="scrollIntoViewOptions"
     >
       <ElRow :gutter="16">
         <template

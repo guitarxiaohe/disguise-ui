@@ -75,6 +75,33 @@ import linkageSource from './demos/schema-form-linkage.vue?raw'
 
 查看态只要传 `mode="view"`，schema 不用改。
 
+`picture` 字段支持在 `props` 中配置 `crop` 与 `dimensions`，实现用户裁剪后再校验最终尺寸：
+
+~~~ts
+{
+  prop: 'cover',
+  label: '封面',
+  type: 'picture',
+  props: {
+    maxSize: 5,
+    accept: ['image/jpeg', 'image/png', 'image/webp'],
+    crop: {
+      enabled: true,
+      aspectRatio: 16 / 9,
+      aspectRatios: [
+        { label: '1:1', value: 1 },
+        { label: '4:3', value: 4 / 3 },
+        { label: '16:9', value: 16 / 9 },
+      ],
+      quality: 0.9,
+    },
+    dimensions: { width: 1600, height: 900 },
+  },
+}
+~~~
+
+完整配置见 [PictureUpload 图片上传](/components/picture-upload)。
+
 ## Events
 
 | 名称 | 参数 | 说明 |

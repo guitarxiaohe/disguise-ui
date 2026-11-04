@@ -196,5 +196,20 @@
     "remove": "Remove",
     "typeNotAllowed": "Only {types} is supported",
     "sizeLimitExceeded": "Image size cannot exceed {size}MB"
+  },
+  "pictureUpload": {
+    "cropTitle": "Crop image",
+    "cropHint": "Drag the crop area and resize it from the corners",
+    "resultSize": "Crop size",
+    "aspectRatio": "Aspect ratio",
+    "selectAspectRatio": "Crop ratio",
+    "cropFailed": "Failed to crop the image",
+    "readFailed": "Unable to read image dimensions",
+    "widthExact": "Image width must be {width}px",
+    "heightExact": "Image height must be {height}px",
+    "widthMin": "Image width must be at least {width}px",
+    "heightMin": "Image height must be at least {height}px",
+    "widthMax": "Image width must not exceed {width}px",
+    "heightMax": "Image height must not exceed {height}px"
   }
 }

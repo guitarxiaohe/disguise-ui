@@ -196,5 +196,20 @@
     "remove": "删除",
     "typeNotAllowed": "仅支持 {types} 格式",
     "sizeLimitExceeded": "图片大小不能超过 {size}MB"
+  },
+  "pictureUpload": {
+    "cropTitle": "裁剪图片",
+    "cropHint": "拖动裁剪框调整区域，拖动四角调整大小",
+    "resultSize": "裁剪尺寸",
+    "aspectRatio": "宽高比",
+    "selectAspectRatio": "裁剪比例",
+    "cropFailed": "图片裁剪失败",
+    "readFailed": "无法读取图片尺寸",
+    "widthExact": "图片宽度必须为 {width}px",
+    "heightExact": "图片高度必须为 {height}px",
+    "widthMin": "图片宽度不能小于 {width}px",
+    "heightMin": "图片高度不能小于 {height}px",
+    "widthMax": "图片宽度不能大于 {width}px",
+    "heightMax": "图片高度不能大于 {height}px"
   }
 }
