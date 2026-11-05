@@ -18,15 +18,22 @@ const columns: ColumnsItem[] = [
 ];
 
 async function fetcher({ page, per_page, keyword }: any) {
-  const filtered = rows.filter((item) => !keyword || item.name.includes(keyword));
+  const filtered = rows.filter(
+    (item) => !keyword || item.name.includes(keyword),
+  );
   const start = (page - 1) * per_page;
-  return { items: filtered.slice(start, start + per_page), total: filtered.length };
+  return {
+    items: filtered.slice(start, start + per_page),
+    total: filtered.length,
+  };
 }
 </script>
 
 <template>
   <ElButton type="primary" @click="visible = true">选择成员</ElButton>
-  <span style="margin-left: 12px">已选 ID：{{ selected.join(', ') || '无' }}</span>
+  <span style="margin-left: 12px"
+    >已选 ID：{{ selected.join(', ') || '无' }}</span
+  >
   <DialogList
     v-model:visible="visible"
     v-model="selected"

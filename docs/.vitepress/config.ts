@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
+  head: [['link', { rel: 'icon', href: '/favicon.svg' }]],
   lang: 'zh-CN',
   title: 'Disguise',
   description: 'Disguise：可独立使用的后台列表、表单和上传组件',
@@ -62,18 +63,29 @@ export default defineConfig({
         },
         {
           text: '页面',
-          items: [{ text: 'CrudPage 增删改查页', link: '/components/crud-page' }],
+          items: [
+            { text: 'CrudPage 增删改查页', link: '/components/crud-page' },
+          ],
         },
         {
           text: '数据录入',
           items: [
             { text: 'SchemaForm 元数据表单', link: '/components/schema-form' },
             { text: 'SearchForm 搜索表单', link: '/components/search-form' },
-            { text: 'DrawerFormPage 抽屉表单', link: '/components/drawer-form-page' },
+            {
+              text: 'DrawerFormPage 抽屉表单',
+              link: '/components/drawer-form-page',
+            },
             { text: 'AsyncSelect 远程选择', link: '/components/async-select' },
-            { text: 'PictureUpload 图片上传', link: '/components/picture-upload' },
+            {
+              text: 'PictureUpload 图片上传',
+              link: '/components/picture-upload',
+            },
             { text: 'ImageUpload 头像上传', link: '/components/image-upload' },
-            { text: 'RichTextEditor 富文本', link: '/components/rich-text-editor' },
+            {
+              text: 'RichTextEditor 富文本',
+              link: '/components/rich-text-editor',
+            },
             { text: 'FileUpload 文件上传', link: '/components/file-upload' },
             { text: 'DialogList 弹窗列表', link: '/components/dialog-list' },
           ],
@@ -85,16 +97,23 @@ export default defineConfig({
             { text: 'ImagesView 图片预览', link: '/components/images-view' },
             { text: 'DictTag 字典标签', link: '/components/dict-tag' },
             { text: 'BaseCard 卡片', link: '/components/base-card' },
-            { text: 'UserAvatarInfo 用户头像', link: '/components/user-avatar-info' },
+            {
+              text: 'UserAvatarInfo 用户头像',
+              link: '/components/user-avatar-info',
+            },
           ],
         },
         {
           text: '反馈',
-          items: [{ text: 'ImportDialog 导入', link: '/components/import-dialog' }],
+          items: [
+            { text: 'ImportDialog 导入', link: '/components/import-dialog' },
+          ],
         },
         {
           text: '其他',
-          items: [{ text: 'DisguiseIcon 图标', link: '/components/disguise-icon' }],
+          items: [
+            { text: 'DisguiseIcon 图标', link: '/components/disguise-icon' },
+          ],
         },
       ],
     },
@@ -104,7 +123,9 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('../../src', import.meta.url)),
-        'disguise-ui': fileURLToPath(new URL('../../src/index.ts', import.meta.url)),
+        'disguise-ui': fileURLToPath(
+          new URL('../../src/index.ts', import.meta.url),
+        ),
       },
     },
     ssr: {

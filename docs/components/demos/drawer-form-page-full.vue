@@ -13,13 +13,18 @@ const [Drawer, api] = useDrawerFormPage({
   fullscreenColumns: 3,
   submitText: '保存',
   onSubmit: (values) => {
-    ElMessage.success(`已提交 ${values.name ?? ''}，共 ${Object.keys(values).length} 个字段`);
+    ElMessage.success(
+      `已提交 ${values.name ?? ''}，共 ${Object.keys(values).length} 个字段`,
+    );
   },
 });
 </script>
 
 <template>
-  <ElButton type="primary" @click="api.open({ values: { ...drawerFormSample } })">
+  <ElButton
+    type="primary"
+    @click="api.open({ values: { ...drawerFormSample } })"
+  >
     打开全量抽屉
   </ElButton>
   <Drawer>
@@ -34,7 +39,9 @@ const [Drawer, api] = useDrawerFormPage({
       <div style="display: flex; justify-content: flex-end; gap: 12px">
         <ElButton :disabled="submitting" @click="cancel">取消</ElButton>
         <ElButton @click="ElMessage.info('已存草稿')">存草稿</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submit">保存</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submit"
+          >保存</ElButton
+        >
       </div>
     </template>
   </Drawer>

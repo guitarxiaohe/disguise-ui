@@ -13,7 +13,12 @@ import { UserAvatarInfo } from 'disguise-ui';
       :work-years="4"
       job-level="高级工程师"
     />
-    <UserAvatarInfo name="李四" subtitle="设计中心" gender="female" :enable-drawer="false">
+    <UserAvatarInfo
+      name="李四"
+      subtitle="设计中心"
+      gender="female"
+      :enable-drawer="false"
+    >
       <template #avatar>李</template>
       <template #name><strong>李四（自定义名称）</strong></template>
     </UserAvatarInfo>

@@ -19,9 +19,9 @@ import source from './demos/disguise-icon-basic.vue?raw'
 
 ## Props
 
-| 名称 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `icon` | `string` | `''` | 图标名 |
+| 名称        | 类型     | 默认值           | 说明     |
+| ----------- | -------- | ---------------- | -------- |
+| `icon`      | `string` | `''`             | 图标名   |
 | `className` | `string` | `'disguiseicon'` | 类名前缀 |
 
 未列出的属性和事件监听器会透传给 Element Plus `ElIcon`。

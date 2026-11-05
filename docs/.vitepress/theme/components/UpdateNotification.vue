@@ -49,11 +49,17 @@ onUnmounted(() => {
   <ClientOnly>
     <el-dialog v-model="visible" title="🎉 文档站已更新" width="520px">
       <div class="update-meta">
-        <el-tag size="small" type="info">版本：{{ versionInfo?.version }}</el-tag>
+        <el-tag size="small" type="info"
+          >版本：{{ versionInfo?.version }}</el-tag
+        >
         <span>{{ versionInfo?.branch }} · {{ versionInfo?.hash }}</span>
       </div>
       <div class="release-notes">
-        <p v-for="note in versionInfo?.releaseNotes" :key="note" class="note-item">
+        <p
+          v-for="note in versionInfo?.releaseNotes"
+          :key="note"
+          class="note-item"
+        >
           {{ note }}
         </p>
       </div>

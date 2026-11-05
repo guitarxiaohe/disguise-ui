@@ -26,10 +26,12 @@ npm install @tiptap/vue-3 @tiptap/starter-kit @tiptap/extension-color @tiptap/ex
 import 'element-plus/dist/index.css';
 import 'disguise-ui/style.css';
 ```
-## 注意！！！！！！！！
-###  disguise-ui 内部用到的 Element Plus 组件样式。包只带自己的 style.css，不带这些样式；本项目按需引入，扫不到 node_modules。
 
-``` ts
+## 注意！！！！！！！！
+
+### disguise-ui 内部用到的 Element Plus 组件样式。包只带自己的 style.css，不带这些样式；本项目按需引入，扫不到 node_modules。
+
+```ts
 import 'element-plus/es/components/button/style/css';
 import 'element-plus/es/components/card/style/css';
 import 'element-plus/es/components/cascader/style/css';
@@ -65,13 +67,10 @@ import 'element-plus/es/components/upload/style/css';
 import 'element-plus/es/components/calendar/style/css';
 ```
 
-
-
-
 部分展示组件使用了 Tailwind 工具类。使用方需要把构建产物加进 Tailwind 扫描范围：
 
 ```js
-content: ['./node_modules/disguise-ui/dist/**/*.js']
+content: ['./node_modules/disguise-ui/dist/**/*.js'];
 ```
 
 文档站已经配置了 Tailwind，所以这里的示例会按组件真实样式渲染。

@@ -8,7 +8,13 @@ import { DisguiseIcon } from 'disguise-ui';
     <DisguiseIcon icon="user" />
     <DisguiseIcon icon="setting" :style="{ color: '#409eff' }" />
   </div>
-  <p style="margin: 12px 0 0; font-size: 13px; color: var(--el-text-color-secondary)">
+  <p
+    style="
+      margin: 12px 0 0;
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+    "
+  >
     组件只拼接 `disguiseicon-{icon}` 类名。图标字体样式需要使用方自己引入。
   </p>
 </template>

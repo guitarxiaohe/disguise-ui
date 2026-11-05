@@ -27,10 +27,10 @@ import source from './demos/base-card-basic.vue?raw'
 
 ## Slots
 
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 卡片正文 |
-| `header` | 卡片标题区域 |
-| `footer` | 卡片底部区域 |
+| 名称      | 插槽参数 | 说明         |
+| --------- | -------- | ------------ |
+| `default` | —        | 卡片正文     |
+| `header`  | —        | 卡片标题区域 |
+| `footer`  | —        | 卡片底部区域 |
 
 除此之外，当前 Element Plus `ElCard` 支持的具名插槽也会按原名称、原参数透传。

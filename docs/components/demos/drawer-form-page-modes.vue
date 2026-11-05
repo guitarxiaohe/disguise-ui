@@ -25,12 +25,24 @@ const [Drawer, api] = useDrawerFormPage({
       新增
     </ElButton>
     <ElButton
-      @click="api.open({ mode: 'edit', title: '编辑商品', values: { ...drawerFormSample } })"
+      @click="
+        api.open({
+          mode: 'edit',
+          title: '编辑商品',
+          values: { ...drawerFormSample },
+        })
+      "
     >
       编辑
     </ElButton>
     <ElButton
-      @click="api.open({ mode: 'view', title: '商品详情', values: { ...drawerFormSample } })"
+      @click="
+        api.open({
+          mode: 'view',
+          title: '商品详情',
+          values: { ...drawerFormSample },
+        })
+      "
     >
       查看
     </ElButton>

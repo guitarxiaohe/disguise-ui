@@ -12,7 +12,10 @@ export function setupDocsRuntime() {
     fetchAllDictData: async () => mockDictData,
     uploadFile: async (file, options) => {
       options?.onProgress?.(100);
-      return { url: URL.createObjectURL(file), cache_url: URL.createObjectURL(file) };
+      return {
+        url: URL.createObjectURL(file),
+        cache_url: URL.createObjectURL(file),
+      };
     },
   });
 
@@ -26,6 +29,7 @@ export function setupDocsRuntime() {
       { title: '部门名称', dataKey: 'name', key: 'name', width: 180 },
       { title: '负责人', dataKey: 'leader', key: 'leader', width: 120 },
     ],
-    fetch: async (params) => paginateLocally(mockDepartments, params, ['name', 'leader']),
+    fetch: async (params) =>
+      paginateLocally(mockDepartments, params, ['name', 'leader']),
   });
 }

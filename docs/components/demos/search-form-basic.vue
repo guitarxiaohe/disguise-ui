@@ -17,7 +17,14 @@ const schema: SchemaFormItem[] = [
     dictCode: 'sys_status',
   },
   { prop: 'createTime', label: '创建日期', type: 'date' },
-  { prop: 'job', label: '岗位', type: 'select', optionSource: 'dict', dictCode: 'sys_job', defaultValue: null },
+  {
+    prop: 'job',
+    label: '岗位',
+    type: 'select',
+    optionSource: 'dict',
+    dictCode: 'sys_job',
+    defaultValue: null,
+  },
 ];
 </script>
 

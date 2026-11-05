@@ -5,6 +5,10 @@
 <script setup>
 import Basic from './demos/picture-upload-basic.vue'
 import source from './demos/picture-upload-basic.vue?raw'
+import Crop from './demos/picture-upload-crop.vue'
+import cropSource from './demos/picture-upload-crop.vue?raw'
+import Custom from './demos/picture-upload-custom.vue'
+import customSource from './demos/picture-upload-custom.vue?raw'
 </script>
 
 ## 基础用法
@@ -28,7 +32,13 @@ import source from './demos/picture-upload-basic.vue?raw'
 
 未开启裁剪时，`dimensions` 和 `maxSize` 直接校验原图。`accept` 始终用于限制可选图片格式。
 
-~~~vue
+<ClientOnly>
+  <DemoBlock :source="cropSource">
+    <Crop />
+  </DemoBlock>
+</ClientOnly>
+
+```vue
 <PictureUpload
   v-model="cover"
   :accept="['image/jpeg', 'image/png', 'image/webp']"
@@ -49,13 +59,13 @@ import source from './demos/picture-upload-basic.vue?raw'
     height: 900,
   }"
 />
-~~~
+```
 
 当 `dimensions.width` 和 `dimensions.height` 同时设置时，裁剪框会自动采用对应宽高比，用户仍可选择保留区域，确认后输出为指定尺寸。
 
 如果只要求尺寸范围：
 
-~~~vue
+```vue
 <PictureUpload
   v-model="detailImage"
   :crop="{ enabled: true }"
@@ -66,15 +76,44 @@ import source from './demos/picture-upload-basic.vue?raw'
     maxHeight: 1800,
   }"
 />
-~~~
+```
 
 裁剪窗口会实时显示当前结果尺寸，尺寸不符合限制时会显示原因并禁止确认。
+
+### 裁剪窗口（ImageCropDialog）
+
+裁剪窗口由组件内部的 `ImageCropDialog` 渲染（`src/components/picture-upload/image-crop-dialog.vue`，不单独导出），公开接口如下。
+
+Props：
+
+| 名称         | 类型                      | 默认值 | 说明                                   |
+| ------------ | ------------------------- | ------ | -------------------------------------- |
+| `modelValue` | `boolean`                 | —      | 弹窗显隐，通常用 `v-model` 绑定        |
+| `file`       | `File`                    | —      | 待裁剪的原始图片文件                   |
+| `crop`       | `PictureCropOptions`      | —      | 裁剪配置，见上方 `PictureCropOptions`  |
+| `dimensions` | `PictureDimensionOptions` | —      | 结果尺寸限制，用于锁定宽高比并实时校验 |
+
+Events：
+
+| 名称                | 参数             | 说明                                                                    |
+| ------------------- | ---------------- | ----------------------------------------------------------------------- |
+| `update:modelValue` | `value: boolean` | 显隐变化                                                                |
+| `confirm`           | `file: File`     | 用户确认裁剪，参数为裁剪后的新文件（按 `mimeType`、`quality` 重新编码） |
+| `cancel`            | —                | 用户取消；取消后本次上传被放弃                                          |
+
+行为细节：`dimensions.width` 与 `dimensions.height` 同时存在时按其比例锁定裁剪框，此时比例选择按钮被禁用；确认时若结果尺寸不满足 `dimensions` 限制则按钮禁用。窗口内文案走 `components.pictureUpload.*` 与 `common.cancel` / `common.confirm`。
 
 ## 自定义展示
 
 可分别定制空状态、上传状态和已上传图片。`picture` 插槽提供预览、下载和删除方法；使用该插槽后，组件不会再叠加内置操作按钮。
 
-~~~vue
+<ClientOnly>
+  <DemoBlock :source="customSource">
+    <Custom />
+  </DemoBlock>
+</ClientOnly>
+
+```vue
 <PictureUpload v-model="cover">
   <template #placeholder>
     <div class="custom-upload-trigger">上传封面</div>
@@ -91,88 +130,105 @@ import source from './demos/picture-upload-basic.vue?raw'
     </div>
   </template>
 </PictureUpload>
-~~~
+```
 
 ## Props
 
-| 名称 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `modelValue` | `string \| string[] \| AttachmentData \| AttachmentData[]` | `''` | 图片值 |
-| `maxCount` | `number` | `1` | 最大数量 |
-| `maxSize` | `number` | `5` | 大小限制，单位 MB |
-| `accept` | `string[]` | `['image/*']` | 允许的图片 MIME 类型或扩展名 |
-| `disabled` | `boolean` | `false` | 是否禁用 |
-| `width` | `number` | `96` | 预览宽度，单位 px |
-| `height` | `number` | `96` | 预览高度，单位 px |
-| `showPreview` | `boolean` | `true` | 预览 |
-| `showDownload` | `boolean` | `true` | 是否显示下载按钮 |
-| `showRemove` | `boolean` | `true` | 是否显示删除按钮 |
-| `selected` | `boolean` | `false` | 是否显示选中边框 |
-| `errorMessage` | `string` | `''` | 错误状态文字 |
-| `baseFolder` | `string` | `''` | 上传目录 |
-| `addWatermark` | `boolean` | — | 是否加水印 |
-| `crop` | `PictureCropOptions` | — | 上传前裁剪配置；`enabled: true` 时打开裁剪窗口 |
-| `dimensions` | `PictureDimensionOptions` | — | 裁剪后或原图的最终像素尺寸限制 |
+| 名称           | 类型                                                       | 默认值        | 说明                                                 |
+| -------------- | ---------------------------------------------------------- | ------------- | ---------------------------------------------------- |
+| `modelValue`   | `string \| string[] \| AttachmentData \| AttachmentData[]` | `''`          | 图片值；为数组时进入多图模式                         |
+| `maxCount`     | `number`                                                   | `1`           | 最大图片数；大于 1 或 `v-model` 为数组时启用多图模式 |
+| `maxSize`      | `number`                                                   | `5`           | 大小限制，单位 MB                                    |
+| `accept`       | `string[]`                                                 | `['image/*']` | 允许的图片 MIME 类型或扩展名                         |
+| `disabled`     | `boolean`                                                  | `false`       | 是否禁用                                             |
+| `width`        | `number`                                                   | `96`          | 预览宽度，单位 px                                    |
+| `height`       | `number`                                                   | `96`          | 预览高度，单位 px                                    |
+| `showPreview`  | `boolean`                                                  | `true`        | 预览                                                 |
+| `showDownload` | `boolean`                                                  | `true`        | 是否显示下载按钮                                     |
+| `showRemove`   | `boolean`                                                  | `true`        | 是否显示删除按钮                                     |
+| `selected`     | `boolean`                                                  | `false`       | 是否显示选中边框                                     |
+| `errorMessage` | `string`                                                   | `''`          | 错误状态文字                                         |
+| `baseFolder`   | `string`                                                   | `''`          | OSS 保存目录，相对 `attachment/v3`                   |
+| `addWatermark` | `boolean`                                                  | —             | 是否给图片加中心水印                                 |
+| `crop`         | `PictureCropOptions`                                       | —             | 上传前裁剪配置；`enabled: true` 时打开裁剪窗口       |
+| `dimensions`   | `PictureDimensionOptions`                                  | —             | 裁剪后或原图的最终像素尺寸限制                       |
 
 ### PictureCropOptions
 
-| 名称 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `enabled` | `boolean` | `false` | 是否需要裁剪 |
-| `aspectRatio` | `number` | — | 固定裁剪框宽高比，例如 `1`、`4 / 3`、`16 / 9`；不传时自由裁剪 |
-| `aspectRatios` | `PictureCropAspectRatioOption[]` | `[]` | 允许用户在裁剪窗口切换的比例；`value: null` 表示自由比例 |
-| `mimeType` | `'image/jpeg' \| 'image/png' \| 'image/webp'` | 沿用原图支持的格式 | 裁剪结果格式 |
-| `quality` | `number` | `0.9` | JPEG/WebP 输出质量，范围 `0～1` |
+| 名称           | 类型                                          | 默认值             | 说明                                                          |
+| -------------- | --------------------------------------------- | ------------------ | ------------------------------------------------------------- |
+| `enabled`      | `boolean`                                     | `false`            | 是否需要裁剪                                                  |
+| `aspectRatio`  | `number`                                      | —                  | 固定裁剪框宽高比，例如 `1`、`4 / 3`、`16 / 9`；不传时自由裁剪 |
+| `aspectRatios` | `PictureCropAspectRatioOption[]`              | `[]`               | 允许用户在裁剪窗口切换的比例；`value: null` 表示自由比例      |
+| `mimeType`     | `'image/jpeg' \| 'image/png' \| 'image/webp'` | 沿用原图支持的格式 | 裁剪结果格式                                                  |
+| `quality`      | `number`                                      | `0.9`              | JPEG/WebP 输出质量，范围 `0～1`                               |
 
 比例选项格式：
 
-~~~ts
+```ts
 type PictureCropAspectRatioOption = {
-  label: string
-  value: number | null
-}
-~~~
+  label: string;
+  value: number | null;
+};
+```
 
 `aspectRatio` 是默认选中的比例，`aspectRatios` 是用户可以切换的比例列表，两者可以同时使用。若配置了固定的 `dimensions.width` 和 `dimensions.height`，最终尺寸已经决定唯一宽高比，因此比例选择会被锁定；需要允许用户切换多个比例时，应使用最小/最大尺寸范围，而不是固定宽高。
 
 ### PictureDimensionOptions
 
-| 名称 | 类型 | 说明 |
-| --- | --- | --- |
-| `width` | `number` | 最终图片固定宽度，px |
-| `height` | `number` | 最终图片固定高度，px |
-| `minWidth` | `number` | 最终图片最小宽度，px |
+| 名称        | 类型     | 说明                 |
+| ----------- | -------- | -------------------- |
+| `width`     | `number` | 最终图片固定宽度，px |
+| `height`    | `number` | 最终图片固定高度，px |
+| `minWidth`  | `number` | 最终图片最小宽度，px |
 | `minHeight` | `number` | 最终图片最小高度，px |
-| `maxWidth` | `number` | 最终图片最大宽度，px |
+| `maxWidth`  | `number` | 最终图片最大宽度，px |
 | `maxHeight` | `number` | 最终图片最大高度，px |
 
 固定尺寸与范围限制可以组合使用；同一维度设置了固定值时，以固定值为准。
 
 ## Events
 
-| 名称 | 参数 | 说明 |
-| --- | --- | --- |
-| `update:modelValue` | `value` | 图片值变化 |
-| `uploadSuccess` | `file: AttachmentData` | 上传成功 |
-| `uploadError` | `error: Error` | 上传失败 |
-| `remove` | `file: AttachmentData` | 删除图片 |
-| `preview` | `file: AttachmentData` | 预览图片 |
-| `download` | `file: AttachmentData` | 下载图片 |
+| 名称                | 参数                   | 说明       |
+| ------------------- | ---------------------- | ---------- |
+| `update:modelValue` | `value`                | 图片值变化 |
+| `uploadSuccess`     | `file: AttachmentData` | 上传成功   |
+| `uploadError`       | `error: Error`         | 上传失败   |
+| `remove`            | `file: AttachmentData` | 删除图片   |
+| `preview`           | `file: AttachmentData` | 预览图片   |
+| `download`          | `file: AttachmentData` | 下载图片   |
 
 ## Slots
 
-| 名称 | 参数 | 说明 |
-| --- | --- | --- |
-| `placeholder` | `{ multiple: boolean }` | 自定义空状态或上传触发器 |
-| `default` | `{ multiple: boolean }` | `placeholder` 的兼容别名 |
-| `loading` | `{ progress: number }` | 自定义上传中内容；多图模式为总进度 |
-| `picture` | `{ file, url, index, preview, download, remove }` | 自定义已上传图片；多图模式下每张图片调用一次 |
+| 名称          | 参数                                              | 说明                                         |
+| ------------- | ------------------------------------------------- | -------------------------------------------- |
+| `placeholder` | `{ multiple: boolean }`                           | 自定义空状态或上传触发器                     |
+| `default`     | `{ multiple: boolean }`                           | `placeholder` 的兼容别名                     |
+| `loading`     | `{ progress: number }`                            | 自定义上传中内容；多图模式为总进度           |
+| `picture`     | `{ file, url, index, preview, download, remove }` | 自定义已上传图片；多图模式下每张图片调用一次 |
 
 ## SchemaForm 元数据
 
-`type: 'picture'` 时，将配置放在字段的 `props` 中：
+`type: 'picture'` 渲染 `PictureUpload`，`modelValue` 由表单接管，`disabled`（表单禁用或只读）、`show-remove`（只读时隐藏）由 SchemaForm 自动设置，其余 PictureUpload 属性放在字段的 `props` 中（对象或 `({ mode, values, updateValue }) => props` 函数；`props` 中的同名属性会覆盖自动设置值）。
 
-~~~ts
+picture 字段可用的元数据（与 `SchemaFormField` 中 `type: 'picture'` 分支一致）：
+
+| 名称                                     | 类型                                   | 默认值  | 说明                                                                 |
+| ---------------------------------------- | -------------------------------------- | ------- | -------------------------------------------------------------------- |
+| `type`                                   | `'picture'`                            | —       | 固定值                                                               |
+| `prop`                                   | `string`                               | —       | 表单字段名                                                           |
+| `label`                                  | `string`                               | —       | 标签                                                                 |
+| `required`                               | `boolean \| (ctx) => boolean`          | `false` | 是否必填                                                             |
+| `disabled`                               | `boolean \| (ctx) => boolean`          | `false` | 是否禁用                                                             |
+| `hidden` / `hideOnCreate` / `hideOnEdit` | `boolean \| (ctx) => boolean`          | `false` | 显隐控制                                                             |
+| `readonly`                               | `boolean`                              | `false` | 只读态渲染表格 `PictureCell`（图片叠放预览）                         |
+| `props`                                  | `PictureUpload 属性 \| (ctx) => props` | `{}`    | 透传给 `PictureUpload`，如 `accept`、`maxSize`、`crop`、`dimensions` |
+
+`mode: 'view'` 或字段 `readonly: true` 时不渲染上传组件，改为用 `PictureCell` 展示已有图片，预览张数取 `props.maxPreviewCount ?? props.maxCount ?? 3`。
+
+配置示例：
+
+```ts
 {
   prop: 'cover',
   label: '封面图片',
@@ -198,4 +254,4 @@ type PictureCropAspectRatioOption = {
     },
   },
 }
-~~~
+```

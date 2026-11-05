@@ -41,5 +41,7 @@ async function submit() {
 
 <template>
   <SchemaForm ref="formRef" v-model="values" :schema="schema" :columns="2" />
-  <ElButton type="primary" style="margin-top: 8px" @click="submit">提交</ElButton>
+  <ElButton type="primary" style="margin-top: 8px" @click="submit"
+    >提交</ElButton
+  >
 </template>
