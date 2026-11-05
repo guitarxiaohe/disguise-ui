@@ -4,6 +4,8 @@ import { computed } from 'vue';
 import { Loading, Picture } from '@element-plus/icons-vue';
 import { ElEmpty, ElIcon, ElImage, ElTooltip } from 'element-plus';
 
+import { $t } from '@/runtime/i18n';
+
 defineOptions({
   name: 'ImagesView',
 });
@@ -131,8 +133,11 @@ const stackItemStyle = (index: number) => {
       </ElTooltip>
     </div>
 
-   <slot v-else name="empty">
-     <ElEmpty  description="暂无图片" :image-size="40" />
-   </slot>
+    <slot v-else name="empty">
+      <ElEmpty
+        :description="$t('components.imagesView.empty')"
+        :image-size="40"
+      />
+    </slot>
   </div>
 </template>

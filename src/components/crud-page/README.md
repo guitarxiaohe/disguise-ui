@@ -165,14 +165,14 @@ const fields: CrudPageField[] = [
 
 出现位置：
 
-| 配置 | 说明 |
-| --- | --- |
-| `table` | 默认出现在表格。对象会合并进列配置，例如 `width`、`cellRenderer`、`sortable` |
-| `table: false` | 不出现在表格 |
-| `form: false` | 不出现在抽屉表单 |
-| `search: true` | 复用字段配置生成搜索项 |
-| `search: { ... }` | 覆盖搜索字段；不在搜索字段白名单里的键会合并进控件 `props` |
-| `type: 'group'` | 只用于表单和搜索，不会生成表格列，且 `table` 只能为 `false` |
+| 配置              | 说明                                                                         |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `table`           | 默认出现在表格。对象会合并进列配置，例如 `width`、`cellRenderer`、`sortable` |
+| `table: false`    | 不出现在表格                                                                 |
+| `form: false`     | 不出现在抽屉表单                                                             |
+| `search: true`    | 复用字段配置生成搜索项                                                       |
+| `search: { ... }` | 覆盖搜索字段；不在搜索字段白名单里的键会合并进控件 `props`                   |
+| `type: 'group'`   | 只用于表单和搜索，不会生成表格列，且 `table` 只能为 `false`                  |
 
 搜索项不会继承表单上的 `hidden`、`readonly`、`required` 和 `rules`，需要在 `search` 对象里单独声明。
 
@@ -182,14 +182,14 @@ const fields: CrudPageField[] = [
 
 ## 提交与删除
 
-| 处理函数 | 调用时机 | 返回值 |
-| --- | --- | --- |
-| `onCreate(values)` | 新增提交 | 返回 `false` 时不提示成功、不关闭、不刷新 |
-| `onUpdate(values, row)` | 编辑提交。`values` 是原行数据与表单值的合并结果 | 同上 |
-| `onDelete(row)` | 行内删除；未配置 `onBatchDelete` 时，批量删除会逐行调用 | 返回 `false` 时中止后续删除 |
-| `onBatchDelete(rows)` | 批量删除，优先级高于逐行 `onDelete` | 返回 `false` 时不提示成功、不刷新 |
-| `resolveFormValues(mode, row)` | 编辑或查看打开前拉取详情，结果会合并进当前行并回填表单 | — |
-| `onExport()` | 点击导出，优先级高于 `exportUrl` | 返回 `false` 时不提示「导出任务已提交」 |
+| 处理函数                       | 调用时机                                                | 返回值                                    |
+| ------------------------------ | ------------------------------------------------------- | ----------------------------------------- |
+| `onCreate(values)`             | 新增提交                                                | 返回 `false` 时不提示成功、不关闭、不刷新 |
+| `onUpdate(values, row)`        | 编辑提交。`values` 是原行数据与表单值的合并结果         | 同上                                      |
+| `onDelete(row)`                | 行内删除；未配置 `onBatchDelete` 时，批量删除会逐行调用 | 返回 `false` 时中止后续删除               |
+| `onBatchDelete(rows)`          | 批量删除，优先级高于逐行 `onDelete`                     | 返回 `false` 时不提示成功、不刷新         |
+| `resolveFormValues(mode, row)` | 编辑或查看打开前拉取详情，结果会合并进当前行并回填表单  | —                                         |
+| `onExport()`                   | 点击导出，优先级高于 `exportUrl`                        | 返回 `false` 时不提示「导出任务已提交」   |
 
 抛出异常时，组件会提示对应的失败文案。
 
@@ -266,53 +266,53 @@ const fields: CrudPageField[] = [
 
 ## Props
 
-| 名称 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `fields` | `CrudPageField[]` | `[]` | 字段元数据 |
-| `data` | `Record[] \| TableEntityDataFetcher` | `[]` | 表格数据或取数函数 |
-| `rowKey` | `string` | `'id'` | 行唯一标识，新增时会从提交值中移除 |
-| `actions` | `TableEntityActionName[]` | 按处理函数推导 | 行内按钮：`view`、`edit`、`copy`、`delete` |
-| `pushToolbarActions` | `CrudPageToolbarAction[]` | `[]` | 追加到默认工具栏之后 |
-| `permissionCode` | `string` | `tableProps.permissionCode` | 按钮权限前缀 |
-| `showImport` | `boolean` | `true` | 是否显示导入按钮 |
-| `showExport` | `boolean` | `true` | 是否显示导出按钮 |
-| `createTitle` | `string` | `'新增'` | 新增抽屉标题 |
-| `editTitle` | `string` | `'编辑'` | 编辑抽屉标题 |
-| `viewTitle` | `string` | `'详情'` | 查看抽屉标题 |
-| `addButtonText` | `string` | `'新增'` | 新增按钮文字 |
-| `defaultValues` | `Record` | `{}` | 新增时合并进表单的默认值 |
-| `importUrl` | `string \| { api?: string; templateUrl?: string; templateMethod?: 'GET' \| 'POST' }` | — | 导入接口配置；字符串表示导入接口，对象可同时配置导入和模板下载接口 |
-| `exportUrl` | `string` | — | 导出接口，点击后下载文件 |
-| `confirmDelete` | `boolean` | `true` | 单行删除是否确认 |
-| `deleteConfirmText` | `string \| (row) => string` | `'确定要删除这条数据吗？'` | 单行删除确认文案 |
-| `searchFormProps` | `CrudPageSearchFormProps` | `{}` | 搜索表单布局。可设 `schema`、`columns`、`collapsedRows`、`labelWidth` 等 |
-| `tableProps` | `Partial<TableEntlty>` | `{}` | 透传给 `TableEntity`，不含 `columns`、`data`、`rowKey` |
-| `drawerProps` | `Partial<DrawerFormPageProps>` | `{}` | 透传给抽屉，不含 `schema`、`title`、`mode`、`formValues`、`modelValue` |
-| `onCreate` | `CrudPageCreateHandler` | — | 新增提交 |
-| `onUpdate` | `CrudPageUpdateHandler` | — | 编辑提交 |
-| `onDelete` | `CrudPageDeleteHandler` | — | 删除 |
-| `onBatchDelete` | `CrudPageBatchDeleteHandler` | — | 批量删除 |
-| `onExport` | `CrudPageToolbarHandler` | — | 自定义导出 |
-| `resolveFormValues` | `CrudPageFormValuesResolver` | — | 编辑或查看时补充详情 |
+| 名称                 | 类型                                                                                 | 默认值                      | 说明                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
+| `fields`             | `CrudPageField[]`                                                                    | `[]`                        | 字段元数据                                                               |
+| `data`               | `Record[] \| TableEntityDataFetcher`                                                 | `[]`                        | 表格数据或取数函数                                                       |
+| `rowKey`             | `string`                                                                             | `'id'`                      | 行唯一标识，新增时会从提交值中移除                                       |
+| `actions`            | `TableEntityActionName[]`                                                            | 按处理函数推导              | 行内按钮：`view`、`edit`、`copy`、`delete`                               |
+| `pushToolbarActions` | `CrudPageToolbarAction[]`                                                            | `[]`                        | 追加到默认工具栏之后                                                     |
+| `permissionCode`     | `string`                                                                             | `tableProps.permissionCode` | 按钮权限前缀                                                             |
+| `showImport`         | `boolean`                                                                            | `true`                      | 是否显示导入按钮                                                         |
+| `showExport`         | `boolean`                                                                            | `true`                      | 是否显示导出按钮                                                         |
+| `createTitle`        | `string`                                                                             | `'新增'`                    | 新增抽屉标题                                                             |
+| `editTitle`          | `string`                                                                             | `'编辑'`                    | 编辑抽屉标题                                                             |
+| `viewTitle`          | `string`                                                                             | `'详情'`                    | 查看抽屉标题                                                             |
+| `addButtonText`      | `string`                                                                             | `'新增'`                    | 新增按钮文字                                                             |
+| `defaultValues`      | `Record`                                                                             | `{}`                        | 新增时合并进表单的默认值                                                 |
+| `importUrl`          | `string \| { api?: string; templateUrl?: string; templateMethod?: 'GET' \| 'POST' }` | —                           | 导入接口配置；字符串表示导入接口，对象可同时配置导入和模板下载接口       |
+| `exportUrl`          | `string`                                                                             | —                           | 导出接口，点击后下载文件                                                 |
+| `confirmDelete`      | `boolean`                                                                            | `true`                      | 单行删除是否确认                                                         |
+| `deleteConfirmText`  | `string \| (row) => string`                                                          | `'确定要删除这条数据吗？'`  | 单行删除确认文案                                                         |
+| `searchFormProps`    | `CrudPageSearchFormProps`                                                            | `{}`                        | 搜索表单布局。可设 `schema`、`columns`、`collapsedRows`、`labelWidth` 等 |
+| `tableProps`         | `Partial<TableEntlty>`                                                               | `{}`                        | 透传给 `TableEntity`，不含 `columns`、`data`、`rowKey`                   |
+| `drawerProps`        | `Partial<DrawerFormPageProps>`                                                       | `{}`                        | 透传给抽屉，不含 `schema`、`title`、`mode`、`formValues`、`modelValue`   |
+| `onCreate`           | `CrudPageCreateHandler`                                                              | —                           | 新增提交                                                                 |
+| `onUpdate`           | `CrudPageUpdateHandler`                                                              | —                           | 编辑提交                                                                 |
+| `onDelete`           | `CrudPageDeleteHandler`                                                              | —                           | 删除                                                                     |
+| `onBatchDelete`      | `CrudPageBatchDeleteHandler`                                                         | —                           | 批量删除                                                                 |
+| `onExport`           | `CrudPageToolbarHandler`                                                             | —                           | 自定义导出                                                               |
+| `resolveFormValues`  | `CrudPageFormValuesResolver`                                                         | —                           | 编辑或查看时补充详情                                                     |
 
 ## Events
 
-| 事件 | 载荷 | 说明 |
-| --- | --- | --- |
-| `action` | `{ action: string, row }` | 行操作点击，内置操作也会触发 |
-| `toolbar-action` | `string` | 工具栏追加按钮的 `name`，或未配置导出方式时的 `export` |
+| 事件             | 载荷                      | 说明                                                   |
+| ---------------- | ------------------------- | ------------------------------------------------------ |
+| `action`         | `{ action: string, row }` | 行操作点击，内置操作也会触发                           |
+| `toolbar-action` | `string`                  | 工具栏追加按钮的 `name`，或未配置导出方式时的 `export` |
 
 ## 插槽
 
-| 插槽 | 说明 |
-| --- | --- |
-| `prepend` | 搜索表单上方的内容 |
-| `search` | 替换整个查询表单，作用域参数为 `values`、`search(values?)` 和 `reset(values?)` |
-| `buttons` | 替换整段默认工具栏 |
-| `{prop}Col` | 自定义表格列，作用域同 `TableEntity` |
-| `actionsCol` | 自定义操作列 |
-| `{prop}` | 字段 `type: 'slot'` 时的表单插槽，同时传给搜索表单和抽屉 |
-| `header` / `footer` / `default` | 传给抽屉 |
+| 插槽                            | 说明                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------ |
+| `prepend`                       | 搜索表单上方的内容                                                             |
+| `search`                        | 替换整个查询表单，作用域参数为 `values`、`search(values?)` 和 `reset(values?)` |
+| `buttons`                       | 替换整段默认工具栏                                                             |
+| `{prop}Col`                     | 自定义表格列，作用域同 `TableEntity`                                           |
+| `actionsCol`                    | 自定义操作列                                                                   |
+| `{prop}`                        | 字段 `type: 'slot'` 时的表单插槽，同时传给搜索表单和抽屉                       |
+| `header` / `footer` / `default` | 传给抽屉                                                                       |
 
 列插槽名以 `Col` 结尾；除 `search` 外，其余具名插槽按表单插槽转发给搜索表单和抽屉。
 

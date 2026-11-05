@@ -99,9 +99,7 @@ export type ExportConfig = {
 };
 
 export type CrudPageToolbarHandler = () =>
-  | boolean
-  | Promise<boolean | void>
-  | void;
+  boolean | Promise<boolean | void> | void;
 
 /** 工具栏追加按钮配置 */
 export type CrudPageToolbarAction = {
@@ -142,9 +140,7 @@ export type CrudPageProps = {
   defaultValues?: CrudPageRecord;
   confirmDelete?: boolean;
   deleteConfirmText?: ((row: CrudPageRecord) => string) | string;
-  tableProps?: Partial<
-    Omit<TableEntityProps, 'columns' | 'data' | 'rowKey'>
-  >;
+  tableProps?: Partial<Omit<TableEntityProps, 'columns' | 'data' | 'rowKey'>>;
   searchFormProps?: CrudPageSearchFormProps;
   drawerProps?: Partial<
     Omit<

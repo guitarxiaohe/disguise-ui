@@ -2,8 +2,6 @@ import type { Component } from 'vue';
 
 import { shallowReactive } from 'vue';
 
-
-
 export type SchemaFormComponent = Component;
 
 export type SchemaFormComponentConfig = {
@@ -14,8 +12,7 @@ export type SchemaFormComponentConfig = {
 };
 
 export type SchemaFormComponentRegistration =
-  | SchemaFormComponent
-  | SchemaFormComponentConfig;
+  SchemaFormComponent | SchemaFormComponentConfig;
 
 const componentRegistry = shallowReactive<
   Record<string, SchemaFormComponentRegistration>
@@ -54,10 +51,7 @@ export function registerSchemaFormComponents(
 
 export function resolveSchemaFormComponent(
   component:
-    | SchemaFormComponent
-    | SchemaFormComponentConfig
-    | string
-    | undefined,
+    SchemaFormComponent | SchemaFormComponentConfig | string | undefined,
 ): SchemaFormComponentConfig | undefined {
   if (!component) return undefined;
 

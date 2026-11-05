@@ -12,6 +12,8 @@ import { computed, nextTick, ref, useSlots, watch } from 'vue';
 import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 import { ElButton } from 'element-plus';
 
+import { $t as t } from '@/runtime/i18n';
+
 import {
   flattenFields,
   isFieldHidden,
@@ -110,9 +112,7 @@ function handleEnterKeydown(event: KeyboardEvent) {
   const target = event.target as HTMLElement | null;
   if (target?.tagName !== 'INPUT') return;
   if (
-    target.closest(
-      '.async-select, .el-select, .el-cascader, .el-date-editor',
-    )
+    target.closest('.async-select, .el-select, .el-cascader, .el-date-editor')
   ) {
     return;
   }
@@ -162,8 +162,8 @@ defineExpose({
       :disabled="disabled"
       :schema="displaySchema"
       :mode="mode"
-      label-align="left"
-      label-position="left"
+      :label-align="labelAlign"
+      :label-position="labelPosition"
       :label-width="labelWidth"
       :item-gap="12"
       @field-change="handleFieldChange"
@@ -178,8 +178,12 @@ defineExpose({
     </SchemaForm>
 
     <div v-if="showActions" class="search-form__actions">
-      <ElButton type="primary" native-type="submit">搜索</ElButton>
-      <ElButton native-type="button" @click="handleReset">重置</ElButton>
+      <ElButton type="primary" native-type="submit">
+        {{ t('components.searchForm.search') }}
+      </ElButton>
+      <ElButton native-type="button" @click="handleReset">
+        {{ t('components.searchForm.reset') }}
+      </ElButton>
       <ElButton
         v-if="shouldCollapse"
         link
@@ -188,7 +192,11 @@ defineExpose({
         :icon="expanded ? ArrowUp : ArrowDown"
         @click="expanded = !expanded"
       >
-        {{ expanded ? '收起' : '展开' }}
+        {{
+          expanded
+            ? t('components.searchForm.collapse')
+            : t('components.searchForm.expand')
+        }}
       </ElButton>
     </div>
   </form>

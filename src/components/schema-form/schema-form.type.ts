@@ -47,9 +47,7 @@ export type FieldPropsContext = FieldContext & {
 };
 export type FieldPropsResolver<
   TProps extends Record<string, any> = Record<string, any>,
-> = (
-  ctx: FieldPropsContext,
-) => TProps;
+> = (ctx: FieldPropsContext) => TProps;
 
 export type TranslateLanguage = { code: string; label: string };
 export type TranslateCommand = 'polish' | 'translate';
@@ -116,9 +114,7 @@ export type FieldType =
 
 /** ****************************** 字段 ********************************/
 
-type BaseField<
-  TProps extends Record<string, any> = Record<string, any>,
-> = {
+type BaseField<TProps extends Record<string, any> = Record<string, any>> = {
   /** 覆盖内置控件，或配合 type: 'component' 使用注册的自定义组件 */
   component?: SchemaFormComponent | SchemaFormComponentConfig | string;
   /** 只读态是否附带复制按钮，默认跟随 readonly */
@@ -171,10 +167,7 @@ export type SchemaRichTextEditorProps = Omit<
 >;
 
 /** type: 'cascader' 字段 props 的完整类型。 */
-export type SchemaCascaderProps = Omit<
-  CascaderComponentProps,
-  'modelValue'
->;
+export type SchemaCascaderProps = Omit<CascaderComponentProps, 'modelValue'>;
 
 export type ApiFieldOptions = {
   entityKey: string;
@@ -189,44 +182,45 @@ export type ApiFieldOptions = {
 export type SchemaFormField = (
   | (BaseField &
       (
-    | {
-        apiOptions: ApiFieldOptions;
-        optionSource?: 'api';
-        type: 'async-select';
-      }
-    | {
-        component: SchemaFormComponent | SchemaFormComponentConfig | string;
-        type: 'component';
-      }
-    | {
-        dictCode: string;
-        optionSource: 'dict';
-        type: 'async-select';
-      }
-    | {
-        dictCode: string;
-        optionSource: 'dict';
-        type: 'checkbox' | 'radio' | 'select';
-      }
-    | {
-        options: FieldOption[] | FieldOptionsResolver;
-        optionSource?: 'static';
-        type: 'checkbox' | 'radio' | 'select';
-      }
-    | {
-        type:
-          | 'date'
-          | 'datetime'
-          | 'file'
-          | 'listExpand'
-          | 'number'
-          | 'picture'
-          | 'slot'
-          | 'switch'
-          | 'text'
-          | 'textarea'
-          | 'upload';
-      }))
+        | {
+            apiOptions: ApiFieldOptions;
+            optionSource?: 'api';
+            type: 'async-select';
+          }
+        | {
+            component: SchemaFormComponent | SchemaFormComponentConfig | string;
+            type: 'component';
+          }
+        | {
+            dictCode: string;
+            optionSource: 'dict';
+            type: 'async-select';
+          }
+        | {
+            dictCode: string;
+            optionSource: 'dict';
+            type: 'checkbox' | 'radio' | 'select';
+          }
+        | {
+            options: FieldOption[] | FieldOptionsResolver;
+            optionSource?: 'static';
+            type: 'checkbox' | 'radio' | 'select';
+          }
+        | {
+            type:
+              | 'date'
+              | 'datetime'
+              | 'file'
+              | 'listExpand'
+              | 'number'
+              | 'picture'
+              | 'slot'
+              | 'switch'
+              | 'text'
+              | 'textarea'
+              | 'upload';
+          }
+      ))
   | (BaseField<SchemaCascaderProps> & {
       type: 'cascader';
     })

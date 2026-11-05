@@ -4,10 +4,10 @@ const props = withDefaults(
     price: string;
     oldPrice: string;
     unit?: string;
-   toFixed?: number;
+    toFixed?: number;
 
-   style?: Record<string, string>;
-   oldPriceStyle?: Record<string, string>;
+    style?: Record<string, string>;
+    oldPriceStyle?: Record<string, string>;
   }>(),
   {
     price: '',
@@ -16,8 +16,8 @@ const props = withDefaults(
      */
     oldPrice: '',
 
-    unit:'$',
-    toFixed:2,
+    unit: '$',
+    toFixed: 2,
     style: () => ({}),
     oldPriceStyle: () => ({}),
   },
@@ -36,10 +36,13 @@ const formatPrice = (val: string | number) => {
     <span class="text-[red]" :style="props.style">
       {{ formatPrice(price) }}
     </span>
-    <span v-if="oldPrice" class="ml-1 line-through" :style="props.oldPriceStyle">
+    <span
+      v-if="oldPrice"
+      class="ml-1 line-through"
+      :style="props.oldPriceStyle"
+    >
       {{ formatPrice(oldPrice) }}
     </span>
-
   </div>
 </template>
 

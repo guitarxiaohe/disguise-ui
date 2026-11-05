@@ -318,7 +318,12 @@ async function handleDownloadTemplate() {
       source: response.data,
     });
   } catch (error) {
-    ElMessage.error(getErrorMessage(error, '模板下载失败'));
+    ElMessage.error(
+      getErrorMessage(
+        error,
+        t('components.importDialog.templateDownloadError'),
+      ),
+    );
   }
 }
 
@@ -493,7 +498,7 @@ async function runParse(sheet?: string) {
   }
 
   if (!props.parseFile) {
-    ElMessage.error('未配置文件解析方法');
+    ElMessage.error(t('components.importDialog.parseFileMissing'));
     return;
   }
 
@@ -616,7 +621,7 @@ async function handleDirectImport() {
   }
 
   if (!props.api) {
-    ElMessage.error('未配置导入接口');
+    ElMessage.error(t('components.importDialog.apiMissing'));
     return;
   }
 
@@ -633,7 +638,7 @@ async function handleDirectImport() {
         mode: selectedMode.value,
       },
       {
-        onUploadProgress: (event) => {
+        onUploadProgress: (event: { loaded: number; total?: number }) => {
           if (!event.total) return;
           handleProgress(8 + Math.round((event.loaded / event.total) * 84));
         },
@@ -706,7 +711,7 @@ async function handleImport() {
 
   try {
     if (!props.submitImport) {
-      throw new Error('未配置导入方法');
+      throw new Error(t('components.importDialog.submitImportMissing'));
     }
 
     const submitResult = await props.submitImport({

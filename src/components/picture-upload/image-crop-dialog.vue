@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { PictureCropOptions, PictureDimensionOptions } from './picture-upload.type';
+import type {
+  PictureCropOptions,
+  PictureDimensionOptions,
+} from './picture-upload.type';
 
 import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { ElButton, ElDialog, ElMessage } from 'element-plus';
@@ -26,7 +29,12 @@ const imageRef = ref<HTMLImageElement>();
 const imageUrl = ref('');
 const working = ref(false);
 const selectedCropRatio = ref<number | null>();
-const imageSize = reactive({ height: 0, naturalHeight: 0, naturalWidth: 0, width: 0 });
+const imageSize = reactive({
+  height: 0,
+  naturalHeight: 0,
+  naturalWidth: 0,
+  width: 0,
+});
 const cropRect = reactive<CropRect>({ height: 0, width: 0, x: 0, y: 0 });
 let pointerOperation:
   | {
@@ -54,10 +62,18 @@ const aspectRatio = computed(() => {
 
 const selectedSize = computed(() => ({
   height: imageSize.height
-    ? Math.max(1, Math.round((cropRect.height / imageSize.height) * imageSize.naturalHeight))
+    ? Math.max(
+        1,
+        Math.round(
+          (cropRect.height / imageSize.height) * imageSize.naturalHeight,
+        ),
+      )
     : 0,
   width: imageSize.width
-    ? Math.max(1, Math.round((cropRect.width / imageSize.width) * imageSize.naturalWidth))
+    ? Math.max(
+        1,
+        Math.round((cropRect.width / imageSize.width) * imageSize.naturalWidth),
+      )
     : 0,
 }));
 
@@ -65,17 +81,24 @@ const resultSize = computed(() => {
   const selected = selectedSize.value;
   const exactWidth = props.dimensions?.width;
   const exactHeight = props.dimensions?.height;
-  if (exactWidth && exactHeight) return { height: exactHeight, width: exactWidth };
+  if (exactWidth && exactHeight)
+    return { height: exactHeight, width: exactWidth };
   if (exactWidth && selected.width) {
     return {
-      height: Math.max(1, Math.round((exactWidth / selected.width) * selected.height)),
+      height: Math.max(
+        1,
+        Math.round((exactWidth / selected.width) * selected.height),
+      ),
       width: exactWidth,
     };
   }
   if (exactHeight && selected.height) {
     return {
       height: exactHeight,
-      width: Math.max(1, Math.round((exactHeight / selected.height) * selected.width)),
+      width: Math.max(
+        1,
+        Math.round((exactHeight / selected.height) * selected.width),
+      ),
     };
   }
   return selected;
@@ -92,11 +115,15 @@ const dimensionError = computed(() => {
   if (limits.minWidth !== undefined && width < limits.minWidth)
     return t('components.pictureUpload.widthMin', { width: limits.minWidth });
   if (limits.minHeight !== undefined && height < limits.minHeight)
-    return t('components.pictureUpload.heightMin', { height: limits.minHeight });
+    return t('components.pictureUpload.heightMin', {
+      height: limits.minHeight,
+    });
   if (limits.maxWidth !== undefined && width > limits.maxWidth)
     return t('components.pictureUpload.widthMax', { width: limits.maxWidth });
   if (limits.maxHeight !== undefined && height > limits.maxHeight)
-    return t('components.pictureUpload.heightMax', { height: limits.maxHeight });
+    return t('components.pictureUpload.heightMax', {
+      height: limits.maxHeight,
+    });
   return '';
 });
 
@@ -173,7 +200,11 @@ function isSelectedRatio(value: number | null) {
   return selectedCropRatio.value === value;
 }
 
-function beginPointer(event: PointerEvent, mode: 'move' | 'resize', corner?: ResizeCorner) {
+function beginPointer(
+  event: PointerEvent,
+  mode: 'move' | 'resize',
+  corner?: ResizeCorner,
+) {
   event.preventDefault();
   event.stopPropagation();
   pointerOperation = {
@@ -195,14 +226,27 @@ function handlePointerMove(event: PointerEvent) {
   const dx = event.clientX - operation.startX;
   const dy = event.clientY - operation.startY;
   if (operation.mode === 'move') {
-    cropRect.x = clamp(operation.start.x + dx, 0, imageSize.width - operation.start.width);
-    cropRect.y = clamp(operation.start.y + dy, 0, imageSize.height - operation.start.height);
+    cropRect.x = clamp(
+      operation.start.x + dx,
+      0,
+      imageSize.width - operation.start.width,
+    );
+    cropRect.y = clamp(
+      operation.start.y + dy,
+      0,
+      imageSize.height - operation.start.height,
+    );
     return;
   }
   resizeCrop(operation.start, operation.corner ?? 'se', dx, dy);
 }
 
-function resizeCrop(start: CropRect, corner: ResizeCorner, dx: number, dy: number) {
+function resizeCrop(
+  start: CropRect,
+  corner: ResizeCorner,
+  dx: number,
+  dy: number,
+) {
   const minSize = 32;
   const west = corner.includes('w');
   const north = corner.includes('n');
@@ -218,7 +262,11 @@ function resizeCrop(start: CropRect, corner: ResizeCorner, dx: number, dy: numbe
       Math.abs(pointerX - anchorX),
       Math.abs(pointerY - anchorY) * aspectRatio.value,
     );
-    const width = clamp(desiredWidth, minSize, Math.min(maxWidth, maxHeight * aspectRatio.value));
+    const width = clamp(
+      desiredWidth,
+      minSize,
+      Math.min(maxWidth, maxHeight * aspectRatio.value),
+    );
     const height = width / aspectRatio.value;
     Object.assign(cropRect, {
       height,
@@ -231,8 +279,12 @@ function resizeCrop(start: CropRect, corner: ResizeCorner, dx: number, dy: numbe
 
   const x = west ? clamp(pointerX, 0, anchorX - minSize) : anchorX;
   const y = north ? clamp(pointerY, 0, anchorY - minSize) : anchorY;
-  const right = west ? anchorX : clamp(pointerX, anchorX + minSize, imageSize.width);
-  const bottom = north ? anchorY : clamp(pointerY, anchorY + minSize, imageSize.height);
+  const right = west
+    ? anchorX
+    : clamp(pointerX, anchorX + minSize, imageSize.width);
+  const bottom = north
+    ? anchorY
+    : clamp(pointerY, anchorY + minSize, imageSize.height);
   Object.assign(cropRect, { height: bottom - y, width: right - x, x, y });
 }
 
@@ -289,19 +341,28 @@ async function confirm() {
       width,
       height,
     );
-    const supportedType = ['image/jpeg', 'image/png', 'image/webp'].includes(source.type)
+    const supportedType = ['image/jpeg', 'image/png', 'image/webp'].includes(
+      source.type,
+    )
       ? source.type
       : 'image/png';
     const mimeType = props.crop?.mimeType ?? supportedType;
     const quality = clamp(props.crop?.quality ?? 0.9, 0, 1);
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
-        (result) => result ? resolve(result) : reject(new Error(t('components.pictureUpload.cropFailed'))),
+        (result) =>
+          result
+            ? resolve(result)
+            : reject(new Error(t('components.pictureUpload.cropFailed'))),
         mimeType,
         quality,
       );
     });
-    const extension = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[mimeType];
+    const extension = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    }[mimeType];
     const baseName = source.name.replace(/\.[^.]+$/, '');
     emit(
       'confirm',
@@ -343,7 +404,7 @@ async function confirm() {
             @pointerdown="beginPointer($event, 'move')"
           >
             <i
-              v-for="corner in (['nw', 'ne', 'sw', 'se'] as ResizeCorner[])"
+              v-for="corner in ['nw', 'ne', 'sw', 'se'] as ResizeCorner[]"
               :key="corner"
               class="picture-crop__handle"
               :class="`is-${corner}`"
@@ -353,8 +414,17 @@ async function confirm() {
         </div>
       </div>
       <div class="picture-crop__meta">
-        <span>{{ t('components.pictureUpload.resultSize') }}：{{ resultSize.width }} × {{ resultSize.height }} px</span>
-        <span v-if="aspectRatio">{{ t('components.pictureUpload.aspectRatio') }}：{{ aspectRatio.toFixed(2) }}</span>
+        <span
+          >{{ t('components.pictureUpload.resultSize') }}：{{
+            resultSize.width
+          }}
+          × {{ resultSize.height }} px</span
+        >
+        <span v-if="aspectRatio"
+          >{{ t('components.pictureUpload.aspectRatio') }}：{{
+            aspectRatio.toFixed(2)
+          }}</span
+        >
       </div>
       <div v-if="ratioOptions.length" class="picture-crop__ratios">
         <span class="picture-crop__ratios-label">
@@ -372,12 +442,21 @@ async function confirm() {
           {{ option.label }}
         </ElButton>
       </div>
-      <p v-if="dimensionError" class="picture-crop__error">{{ dimensionError }}</p>
-      <p v-else class="picture-crop__hint">{{ t('components.pictureUpload.cropHint') }}</p>
+      <p v-if="dimensionError" class="picture-crop__error">
+        {{ dimensionError }}
+      </p>
+      <p v-else class="picture-crop__hint">
+        {{ t('components.pictureUpload.cropHint') }}
+      </p>
     </div>
     <template #footer>
       <ElButton @click="cancel">{{ t('common.cancel') }}</ElButton>
-      <ElButton type="primary" :loading="working" :disabled="!!dimensionError" @click="confirm">
+      <ElButton
+        type="primary"
+        :loading="working"
+        :disabled="!!dimensionError"
+        @click="confirm"
+      >
         {{ t('common.confirm') }}
       </ElButton>
     </template>
@@ -458,10 +537,26 @@ async function confirm() {
   border-radius: 50%;
 }
 
-.picture-crop__handle.is-nw { top: -8px; left: -8px; cursor: nwse-resize; }
-.picture-crop__handle.is-ne { top: -8px; right: -8px; cursor: nesw-resize; }
-.picture-crop__handle.is-sw { bottom: -8px; left: -8px; cursor: nesw-resize; }
-.picture-crop__handle.is-se { right: -8px; bottom: -8px; cursor: nwse-resize; }
+.picture-crop__handle.is-nw {
+  top: -8px;
+  left: -8px;
+  cursor: nwse-resize;
+}
+.picture-crop__handle.is-ne {
+  top: -8px;
+  right: -8px;
+  cursor: nesw-resize;
+}
+.picture-crop__handle.is-sw {
+  bottom: -8px;
+  left: -8px;
+  cursor: nesw-resize;
+}
+.picture-crop__handle.is-se {
+  right: -8px;
+  bottom: -8px;
+  cursor: nwse-resize;
+}
 
 .picture-crop__meta {
   display: flex;
@@ -494,6 +589,10 @@ async function confirm() {
   text-align: center;
 }
 
-.picture-crop__hint { color: var(--el-text-color-secondary); }
-.picture-crop__error { color: var(--el-color-danger); }
+.picture-crop__hint {
+  color: var(--el-text-color-secondary);
+}
+.picture-crop__error {
+  color: var(--el-color-danger);
+}
 </style>

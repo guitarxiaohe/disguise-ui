@@ -122,21 +122,22 @@ const emit = defineEmits<{
 const importDialogVisible = ref(false);
 
 const settingsDrawerVisible = ref(false);
+/** label 存 i18n key，渲染时再 t()，保证切换语言后文案跟随刷新 */
 const ACTION_LABEL_MAP: Record<
   TableEntityActionName,
   { label: string; type: 'danger' | 'primary' }
 > = {
-  view: { label: t('components.tableEntity.view'), type: 'primary' },
-  edit: { label: t('components.tableEntity.edit'), type: 'primary' },
-  copy: { label: t('components.tableEntity.copy'), type: 'primary' },
-  delete: { label: t('components.tableEntity.delete'), type: 'danger' },
+  view: { label: 'components.tableEntity.view', type: 'primary' },
+  edit: { label: 'components.tableEntity.edit', type: 'primary' },
+  copy: { label: 'components.tableEntity.copy', type: 'primary' },
+  delete: { label: 'components.tableEntity.delete', type: 'danger' },
 };
 const total = ref(0);
 const paginationConfig = getPaginationConfig();
 const pageSizes = computed(() => {
   const normalized = (paginationConfig.value.pageSizes ?? [])
-      .map((item) => Number(item))
-      .filter((item) => Number.isFinite(item) && item > 0);
+    .map((item) => Number(item))
+    .filter((item) => Number.isFinite(item) && item > 0);
 
   return normalized.length > 0 ? normalized : [10, 20, 50, 100];
 });
@@ -274,6 +275,10 @@ const columnSettings = useColumnSettings(businessColumns);
 /** ****************************** 列冻结（左固定/右固定） ********************************/
 
 const columnFixed = useColumnFixed(businessColumns);
+/** 顶层别名让模板自动解包，避免 columnFixed.orderedItems.value 的类型错误 */
+const columnFixedItems = columnFixed.orderedItems;
+const setColumnFixed = columnFixed.setFixed;
+const resetColumnFixed = columnFixed.reset;
 
 function resetColumnSettings() {
   columnSettings.reset();
@@ -604,7 +609,7 @@ const dragColumn = computed<ColumnsItem>(() => ({
     if (props.rowDragDisabled?.(rowData)) return null;
     return h(
       'span',
-      { class: dragHandleClass, title: '拖拽排序' },
+      { class: dragHandleClass, title: t('components.tableEntity.dragSort') },
       h(ElIcon, { size: 16 }, () => h(Rank)),
     );
   },
@@ -1125,12 +1130,12 @@ defineExpose({
         >
           <ColumnSettingsPanel
             :settings="columnSettings.orderedSettings.value"
-            :fixed-items="columnFixed.orderedItems.value"
+            :fixed-items="columnFixedItems"
             @toggle="columnSettings.toggleColumn"
             @set-header-align="columnSettings.setHeaderAlign"
             @set-content-align="columnSettings.setContentAlign"
             @set-width="columnSettings.setWidth"
-            @set-fixed="columnFixed.setFixed"
+            @set-fixed="setColumnFixed"
             @reset="resetColumnSettings"
             @update:settings="columnSettings.reorderSettings"
           />
@@ -1153,9 +1158,9 @@ defineExpose({
             />
           </template>
           <ColumnFixedPanel
-            :items="columnFixed.orderedItems.value"
-            @set-fixed="columnFixed.setFixed"
-            @reset="columnFixed.reset"
+            :items="columnFixedItems"
+            @set-fixed="setColumnFixed"
+            @reset="resetColumnFixed"
           />
         </ElPopover>
       </div>
@@ -1200,6 +1205,14 @@ defineExpose({
     ></div>
 
     <div v-if="props.showPagination" class="table-entity__pagination">
+      <!-- 选择了多少 -->
+      <div>
+        {{
+          t('components.tableEntity.selectedCount', {
+            count: getSelectedCount(),
+          })
+        }}
+      </div>
       <ElPagination
         :current-page="pagination.current_page"
         :page-size="pagination.per_page"

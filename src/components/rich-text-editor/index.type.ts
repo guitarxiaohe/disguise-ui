@@ -22,9 +22,7 @@ export type RichTextToolContext<
 
 export type RichTextToolPredicate<
   TExtraContext extends object = Record<string, never>,
-> =
-  | boolean
-  | ((context: RichTextToolContext<TExtraContext>) => boolean);
+> = boolean | ((context: RichTextToolContext<TExtraContext>) => boolean);
 
 type RichTextToolBase<TExtraContext extends object> = {
   /** 工具唯一标识。 */
@@ -62,9 +60,8 @@ export type RichTextActionTool<
   props?: never;
 };
 
-export type RichTextTool<
-  TExtraContext extends object = Record<string, never>,
-> = RichTextActionTool<TExtraContext> | RichTextComponentTool<TExtraContext>;
+export type RichTextTool<TExtraContext extends object = Record<string, never>> =
+  RichTextActionTool<TExtraContext> | RichTextComponentTool<TExtraContext>;
 
 export type RichTextEditorProps<
   TExtraContext extends object = Record<string, never>,

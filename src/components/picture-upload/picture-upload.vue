@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { AttachmentData } from '@/components/file-upload/file-upload.type';
 import type { UploadRequestOptions } from 'element-plus';
-import type { PictureUploadEmits, PictureUploadProps } from './picture-upload.type';
+import type {
+  PictureUploadEmits,
+  PictureUploadProps,
+} from './picture-upload.type';
 
 import { computed, nextTick, onBeforeUnmount, ref, toRefs, watch } from 'vue';
 
@@ -264,13 +267,16 @@ async function handleBeforeUpload(
 }
 
 function isAcceptedImage(file: File) {
-  return props.accept.length === 0 || props.accept.some((accepted) => {
-    if (accepted.startsWith('.')) {
-      return file.name.toLowerCase().endsWith(accepted.toLowerCase());
-    }
-    const pattern = accepted.toLowerCase().replace('*', '');
-    return file.type.toLowerCase().startsWith(pattern);
-  });
+  return (
+    props.accept.length === 0 ||
+    props.accept.some((accepted) => {
+      if (accepted.startsWith('.')) {
+        return file.name.toLowerCase().endsWith(accepted.toLowerCase());
+      }
+      const pattern = accepted.toLowerCase().replace('*', '');
+      return file.type.toLowerCase().startsWith(pattern);
+    })
+  );
 }
 
 function requestCrop(file: File) {
@@ -305,7 +311,8 @@ async function validateImageDimensions(file: File) {
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const candidate = new Image();
       candidate.onload = () => resolve(candidate);
-      candidate.onerror = () => reject(new Error(t('components.pictureUpload.readFailed')));
+      candidate.onerror = () =>
+        reject(new Error(t('components.pictureUpload.readFailed')));
       candidate.src = url;
     });
     const width = image.naturalWidth;
@@ -313,18 +320,26 @@ async function validateImageDimensions(file: File) {
     if (limits.width !== undefined && width !== limits.width)
       return t('components.pictureUpload.widthExact', { width: limits.width });
     if (limits.height !== undefined && height !== limits.height)
-      return t('components.pictureUpload.heightExact', { height: limits.height });
+      return t('components.pictureUpload.heightExact', {
+        height: limits.height,
+      });
     if (limits.minWidth !== undefined && width < limits.minWidth)
       return t('components.pictureUpload.widthMin', { width: limits.minWidth });
     if (limits.minHeight !== undefined && height < limits.minHeight)
-      return t('components.pictureUpload.heightMin', { height: limits.minHeight });
+      return t('components.pictureUpload.heightMin', {
+        height: limits.minHeight,
+      });
     if (limits.maxWidth !== undefined && width > limits.maxWidth)
       return t('components.pictureUpload.widthMax', { width: limits.maxWidth });
     if (limits.maxHeight !== undefined && height > limits.maxHeight)
-      return t('components.pictureUpload.heightMax', { height: limits.maxHeight });
+      return t('components.pictureUpload.heightMax', {
+        height: limits.maxHeight,
+      });
     return '';
   } catch (error) {
-    return error instanceof Error ? error.message : t('components.pictureUpload.readFailed');
+    return error instanceof Error
+      ? error.message
+      : t('components.pictureUpload.readFailed');
   } finally {
     URL.revokeObjectURL(url);
   }

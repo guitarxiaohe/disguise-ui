@@ -45,17 +45,17 @@ const props = withDefaults(defineProps<CrudPageProps>(), {
   rowKey: 'id',
   actions: undefined,
   pushToolbarActions: () => [],
-  createTitle: '新增',
-  editTitle: '编辑',
-  viewTitle: '详情',
-  addButtonText: '新增',
+  createTitle: undefined,
+  editTitle: undefined,
+  viewTitle: undefined,
+  addButtonText: undefined,
   showImport: true,
   showExport: true,
   importUrl: undefined,
   exportUrl: undefined,
   defaultValues: () => ({}),
   confirmDelete: true,
-  deleteConfirmText: '确定要删除这条数据吗？',
+  deleteConfirmText: undefined,
   tableProps: () => ({}),
   searchFormProps: () => ({}),
   drawerProps: () => ({}),
@@ -320,7 +320,7 @@ const [Drawer, drawerApi] = useDrawerFormPage({
     const isCreate = currentMode.value === 'create';
     const handler = isCreate ? props.onCreate : props.onUpdate;
     if (!handler) {
-      ElMessage.warning('当前操作没有配置提交处理函数');
+      ElMessage.warning(t('components.crudPage.submitHandlerMissing'));
       return false;
     }
 
@@ -335,12 +335,18 @@ const [Drawer, drawerApi] = useDrawerFormPage({
       if (result === false) return false;
 
       ElMessage.success(
-        currentMode.value === 'create' ? '新增成功' : '更新成功',
+        currentMode.value === 'create'
+          ? t('components.crudPage.createSuccess')
+          : t('components.crudPage.updateSuccess'),
       );
       await reload();
       return true;
     } catch {
-      ElMessage.error(currentMode.value === 'create' ? '新增失败' : '更新失败');
+      ElMessage.error(
+        currentMode.value === 'create'
+          ? t('components.crudPage.createFailed')
+          : t('components.crudPage.updateFailed'),
+      );
       return false;
     } finally {
       drawerApi.setState({ submitting: false });
@@ -349,9 +355,13 @@ const [Drawer, drawerApi] = useDrawerFormPage({
 });
 
 function getTitle(mode: SchemaFormMode) {
-  if (mode === 'create') return props.createTitle;
-  if (mode === 'edit') return props.editTitle;
-  return props.viewTitle;
+  if (mode === 'create') {
+    return props.createTitle ?? t('components.crudPage.createTitle');
+  }
+  if (mode === 'edit') {
+    return props.editTitle ?? t('components.crudPage.editTitle');
+  }
+  return props.viewTitle ?? t('components.crudPage.viewTitle');
 }
 
 function getRowValues(mode: SchemaFormMode, row?: CrudPageRecord) {
@@ -401,7 +411,7 @@ async function openForm(mode: SchemaFormMode, row?: CrudPageRecord) {
     }
   } catch {
     if (token === formOpenToken.value) {
-      ElMessage.error('加载详情失败');
+      ElMessage.error(t('components.crudPage.loadDetailFailed'));
       drawerApi.close();
     }
   } finally {
@@ -416,14 +426,14 @@ async function openCreate() {
 }
 
 function resolveDeleteConfirmText(row: CrudPageRecord) {
-  return typeof props.deleteConfirmText === 'function'
-    ? props.deleteConfirmText(row)
-    : props.deleteConfirmText;
+  const text = props.deleteConfirmText;
+  if (typeof text === 'function') return text(row);
+  return text ?? t('components.crudPage.deleteConfirmText');
 }
 
 async function remove(row: CrudPageRecord) {
   if (!props.onDelete) {
-    ElMessage.warning('当前操作没有配置删除处理函数');
+    ElMessage.warning(t('components.crudPage.deleteHandlerMissing'));
     return;
   }
 
@@ -440,10 +450,10 @@ async function remove(row: CrudPageRecord) {
   try {
     const result = await props.onDelete(row);
     if (result === false) return;
-    ElMessage.success('删除成功');
+    ElMessage.success(t('components.crudPage.deleteSuccess'));
     await reload();
   } catch {
-    ElMessage.error('删除失败');
+    ElMessage.error(t('components.crudPage.deleteFailed'));
   }
 }
 
@@ -452,14 +462,15 @@ async function removeSelected() {
   if (rows.length === 0) return;
 
   if (!props.onDelete && !props.onBatchDelete) {
-    ElMessage.warning('当前操作没有配置批量删除处理函数');
+    ElMessage.warning(t('components.crudPage.batchDeleteHandlerMissing'));
     return;
   }
 
   try {
-    await ElMessageBox.confirm(`确定要删除选中的 ${rows.length} 条数据吗？`, {
-      type: 'warning',
-    });
+    await ElMessageBox.confirm(
+      t('components.crudPage.batchDeleteConfirm', { count: rows.length }),
+      { type: 'warning' },
+    );
   } catch {
     return;
   }
@@ -474,17 +485,17 @@ async function removeSelected() {
         if (result === false) return;
       }
     }
-    ElMessage.success('删除成功');
+    ElMessage.success(t('components.crudPage.deleteSuccess'));
     tableRef.value?.clearSelection();
     await reload();
   } catch {
-    ElMessage.error('删除失败');
+    ElMessage.error(t('components.crudPage.deleteFailed'));
   }
 }
 
 function openImport() {
   if (!tableRef.value?.openImport()) {
-    ElMessage.warning('当前页面没有配置导入功能');
+    ElMessage.warning(t('components.crudPage.importNotConfigured'));
   }
 }
 
@@ -518,7 +529,7 @@ async function handleExport() {
         source: response.data,
       });
     } catch {
-      ElMessage.error('导出失败');
+      ElMessage.error(t('components.crudPage.exportFailed'));
     }
   }
 }
@@ -693,7 +704,7 @@ defineExpose({
             type="primary"
             @click="openCreate"
           >
-            {{ props.addButtonText }}
+            {{ props.addButtonText ?? t('components.crudPage.addButtonText') }}
           </ElButton>
 
           <ElButton
@@ -713,7 +724,7 @@ defineExpose({
             {{ t('components.tableEntity.import') }}
           </ElButton>
           <ElButton
-            v-if="props.exportConfig"
+            v-if="props.showExport && props.exportConfig"
             v-access="[`${resolvedPermissionCode}:export`]"
             @click="handleExport"
           >

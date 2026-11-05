@@ -36,9 +36,7 @@ function readRowIndex(row: HTMLElement, rowHeight: number) {
 
 function listRows(root: HTMLElement) {
   return Array.from(
-    root.querySelectorAll<HTMLElement>(
-      '.el-table-v2__body .el-table-v2__row',
-    ),
+    root.querySelectorAll<HTMLElement>('.el-table-v2__body .el-table-v2__row'),
   );
 }
 
@@ -88,11 +86,7 @@ export function useRowDrag(options: RowDragOptions) {
     const rows = options.getRows();
     if (index < 0 || index >= rows.length) return null;
     const row = rows[index];
-    if (
-      row &&
-      !options.isRowDisabled(row) &&
-      options.canDrop(source, row)
-    ) {
+    if (row && !options.isRowDisabled(row) && options.canDrop(source, row)) {
       return index;
     }
     const preferred = delta >= 0 ? -1 : 1;

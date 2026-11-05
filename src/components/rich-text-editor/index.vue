@@ -321,8 +321,7 @@ function toggleSourceMode() {
 function addLink() {
   if (editingDisabled.value) return;
   const currentHref = editor.value?.getAttributes('link').href as
-    | string
-    | undefined;
+    string | undefined;
   const url = window.prompt(
     t('components.richTextEditor.linkPrompt'),
     currentHref ?? '',

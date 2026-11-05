@@ -123,8 +123,7 @@ const activeValues = computed<Array<number | string>>(() => {
 
 function resolveValue(item: Record<string, any>): number | string {
   return (item[props.valueKey] ?? item.id ?? item.value ?? '') as
-    | number
-    | string;
+    number | string;
 }
 
 function resolveLabel(item: Record<string, any>): string {
@@ -298,13 +297,11 @@ watch(
       activeValues: values,
       selectedValues: selectedOpts.value.map((item) => item.value),
       loadRows: (selectedValues) =>
-        props
-          .fetcher!({
-            page: 1,
-            per_page: Math.max(selectedValues.length, 1),
-            selectedValues,
-          })
-          .then((r) => r.items ?? []),
+        props.fetcher!({
+          page: 1,
+          per_page: Math.max(selectedValues.length, 1),
+          selectedValues,
+        }).then((r) => r.items ?? []),
       resolveValue,
       toOption: toOpt,
     });

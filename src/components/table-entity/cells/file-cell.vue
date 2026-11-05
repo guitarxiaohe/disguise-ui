@@ -7,6 +7,8 @@ import { useFileType } from '@/components/file-upload/composables/use-file-type'
 import { useImageUrl } from '@/composables/use-image-url';
 import { ElTooltip } from 'element-plus';
 
+import { $t as t } from '@/runtime/i18n';
+
 import PictureCell from './picture-cell.vue';
 
 /**
@@ -110,7 +112,7 @@ const getFileKind = (
   ) {
     return { kind: 'doc', label: 'Word' };
   }
-  return { kind: 'other', label: '文件' };
+  return { kind: 'other', label: t('components.tableEntity.fileKindOther') };
 };
 
 const attachmentList = computed<AttachmentData[]>(() =>
@@ -230,11 +232,17 @@ const formatSize = (size?: null | number): string => {
               <div style="font-weight: 600; word-break: break-all">
                 {{ file.fileOriginName }}
               </div>
-              <div style="color: #909399">类型：{{ file.kindLabel }}</div>
-              <div v-if="formatSize(file.size)" style="color: #909399">
-                大小：{{ formatSize(file.size) }}
+              <div style="color: #909399">
+                {{ t('components.tableEntity.fileType') }}：{{ file.kindLabel }}
               </div>
-              <div style="color: #909399">点击打开 / 下载</div>
+              <div v-if="formatSize(file.size)" style="color: #909399">
+                {{ t('components.tableEntity.fileSize') }}：{{
+                  formatSize(file.size)
+                }}
+              </div>
+              <div style="color: #909399">
+                {{ t('components.tableEntity.fileOpenHint') }}
+              </div>
             </div>
           </template>
 

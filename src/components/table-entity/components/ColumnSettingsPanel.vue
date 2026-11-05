@@ -90,7 +90,12 @@ function fixedValue(key: string): ColumnFixedValue {
 
     <div class="column-settings-panel__list">
       <div class="column-settings-panel__head">
-        <span></span><span>{{ t('components.tableEntity.display') }}</span><span>{{ t('components.tableEntity.columnName') }}</span><span>{{ t('components.tableEntity.width') }}</span><span>{{ t('components.tableEntity.headerAlign') }}</span><span>{{ t('components.tableEntity.contentAlign') }}</span><span>{{ t('components.tableEntity.fixedColumn') }}</span>
+        <span></span><span>{{ t('components.tableEntity.display') }}</span
+        ><span>{{ t('components.tableEntity.columnName') }}</span
+        ><span>{{ t('components.tableEntity.width') }}</span
+        ><span>{{ t('components.tableEntity.headerAlign') }}</span
+        ><span>{{ t('components.tableEntity.contentAlign') }}</span
+        ><span>{{ t('components.tableEntity.fixedColumn') }}</span>
       </div>
       <VueDraggable
         v-model="localSettings"

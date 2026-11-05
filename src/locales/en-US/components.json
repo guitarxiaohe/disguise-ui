@@ -19,7 +19,8 @@
       "fieldDepartment": "Department",
       "ariaLabel": "User information",
       "clickToViewDetail": "Click to view details",
-      "empty": "N/A"
+      "empty": "N/A",
+      "fieldId": "User ID"
     }
   },
   "importDialog": {
@@ -67,7 +68,11 @@
     "importError": "Import failed, please try again later",
     "mappingRequired": "Required field {field} is not mapped. Please select a source column",
     "mappingDuplicate": "The same column cannot be mapped to multiple fields",
-    "mappingEmpty": "Please map at least one field"
+    "mappingEmpty": "Please map at least one field",
+    "templateDownloadError": "Template download failed",
+    "parseFileMissing": "File parse handler is not configured",
+    "apiMissing": "Import API is not configured",
+    "submitImportMissing": "Import submit handler is not configured"
   },
   "richTextEditor": {
     "placeholder": "Enter content...",
@@ -165,7 +170,13 @@
     "visibleCount": "{visible} / {total} columns visible",
     "viewAllItems": "View all {count} {unit}",
     "collapseItems": "Collapse",
-    "itemUnit": "items"
+    "itemUnit": "items",
+    "selectedCount": "{count} selected",
+    "dragSort": "Drag to sort",
+    "fileType": "Type",
+    "fileSize": "Size",
+    "fileOpenHint": "Click to open / download",
+    "fileKindOther": "File"
   },
   "fileUpload": {
     "placeholder": "Click to upload",
@@ -197,6 +208,9 @@
     "typeNotAllowed": "Only {types} is supported",
     "sizeLimitExceeded": "Image size cannot exceed {size}MB"
   },
+  "imagesView": {
+    "empty": "No images"
+  },
   "pictureUpload": {
     "cropTitle": "Crop image",
     "cropHint": "Drag the crop area and resize it from the corners",
@@ -211,5 +225,31 @@
     "heightMin": "Image height must be at least {height}px",
     "widthMax": "Image width must not exceed {width}px",
     "heightMax": "Image height must not exceed {height}px"
+  },
+  "searchForm": {
+    "search": "Search",
+    "reset": "Reset",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
+  "crudPage": {
+    "createTitle": "New",
+    "editTitle": "Edit",
+    "viewTitle": "Details",
+    "addButtonText": "New",
+    "deleteConfirmText": "Delete this record?",
+    "batchDeleteConfirm": "Delete the selected {count} records?",
+    "submitHandlerMissing": "No submit handler configured for this action",
+    "createSuccess": "Created successfully",
+    "updateSuccess": "Updated successfully",
+    "createFailed": "Failed to create",
+    "updateFailed": "Failed to update",
+    "loadDetailFailed": "Failed to load details",
+    "deleteHandlerMissing": "No delete handler configured for this action",
+    "deleteSuccess": "Deleted successfully",
+    "deleteFailed": "Failed to delete",
+    "batchDeleteHandlerMissing": "No batch delete handler configured for this action",
+    "importNotConfigured": "Import is not configured on this page",
+    "exportFailed": "Export failed"
   }
 }

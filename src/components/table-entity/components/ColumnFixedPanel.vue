@@ -22,10 +22,10 @@ defineEmits<{
   <div class="column-fixed-panel">
     <div class="column-fixed-panel__header">
       <span class="column-fixed-panel__title">{{
-        t('tableEntity.freezeColumn')
+        t('components.tableEntity.freezeColumn')
       }}</span>
       <ElButton type="primary" link size="small" @click="$emit('reset')">
-        {{ t('tableEntity.restoreDefault') }}
+        {{ t('components.tableEntity.restoreDefault') }}
       </ElButton>
     </div>
 
@@ -46,13 +46,13 @@ defineEmits<{
           "
         >
           <ElRadioButton value="left">
-            {{ t('tableEntity.left') }}
+            {{ t('components.tableEntity.left') }}
           </ElRadioButton>
           <ElRadioButton :value="false">
-            {{ t('tableEntity.none') }}
+            {{ t('components.tableEntity.none') }}
           </ElRadioButton>
           <ElRadioButton value="right">
-            {{ t('tableEntity.right') }}
+            {{ t('components.tableEntity.right') }}
           </ElRadioButton>
         </ElRadioGroup>
       </div>

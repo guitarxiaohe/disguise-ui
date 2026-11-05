@@ -44,12 +44,7 @@ export type ColumnsItem = {
   valueType?: 'date' | 'datetime';
 } & Omit<Column, 'dataKey' | 'type' | 'width'>;
 export type TableEntityCellType =
-  | 'avatar'
-  | 'dict'
-  | 'file'
-  | 'listExpand'
-  | 'picture'
-  | 'price';
+  'avatar' | 'dict' | 'file' | 'listExpand' | 'picture' | 'price';
 
 export type TableEntityRowKey = number | string | symbol;
 export type TableEntitySortOrder = 'asc' | 'desc';

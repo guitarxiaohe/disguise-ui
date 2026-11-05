@@ -45,21 +45,21 @@ async function submit() {
 
 ## Props
 
-| 名称 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `modelValue` | `Record<string, any>` | `{}` | 表单值，用 `v-model` 绑定 |
-| `schema` | `SchemaFormItem[]` | `[]` | 字段元数据 |
-| `mode` | `'create' \| 'edit' \| 'view'` | `'create'` | 表单模式，影响字段显隐与只读 |
-| `columns` | `number` | `1` | 整体栅格列数，字段可用 `span` 单独覆盖 |
-| `labelWidth` | `number \| string` | `'auto'` | 标签宽度 |
-| `labelPosition` | `'left' \| 'right' \| 'top'` | `'top'` | 标签相对控件的位置（左/右/上） |
-| `labelAlign` | `'left' \| 'center' \| 'right'` | — | 标签文字在 `labelWidth` 内的对齐；不设则沿用 Element Plus 默认 |
-| `labelGap` | `number \| string` | `20` | 标签与控件间距（px 或带单位字符串） |
-| `itemGap` | `number \| string` | `30` | 表单项纵向间距，对应 `--el-form-item-margin-bottom` |
-| `groupGap` | `number \| string` | `0` | 分组相对其他表单项额外增加的上下间距（px 或带单位字符串） |
-| `disabled` | `boolean` | `false` | 整体禁用 |
-| `loading` | `boolean` | `false` | 显示加载遮罩 |
-| `underline` | `boolean` | `false` | 为 `true` 时输入框只显示下边框；不传则使用全边框 |
+| 名称            | 类型                            | 默认值     | 说明                                                           |
+| --------------- | ------------------------------- | ---------- | -------------------------------------------------------------- |
+| `modelValue`    | `Record<string, any>`           | `{}`       | 表单值，用 `v-model` 绑定                                      |
+| `schema`        | `SchemaFormItem[]`              | `[]`       | 字段元数据                                                     |
+| `mode`          | `'create' \| 'edit' \| 'view'`  | `'create'` | 表单模式，影响字段显隐与只读                                   |
+| `columns`       | `number`                        | `1`        | 整体栅格列数，字段可用 `span` 单独覆盖                         |
+| `labelWidth`    | `number \| string`              | `'auto'`   | 标签宽度                                                       |
+| `labelPosition` | `'left' \| 'right' \| 'top'`    | `'top'`    | 标签相对控件的位置（左/右/上）                                 |
+| `labelAlign`    | `'left' \| 'center' \| 'right'` | —          | 标签文字在 `labelWidth` 内的对齐；不设则沿用 Element Plus 默认 |
+| `labelGap`      | `number \| string`              | `20`       | 标签与控件间距（px 或带单位字符串）                            |
+| `itemGap`       | `number \| string`              | `30`       | 表单项纵向间距，对应 `--el-form-item-margin-bottom`            |
+| `groupGap`      | `number \| string`              | `0`        | 分组相对其他表单项额外增加的上下间距（px 或带单位字符串）      |
+| `disabled`      | `boolean`                       | `false`    | 整体禁用                                                       |
+| `loading`       | `boolean`                       | `false`    | 显示加载遮罩                                                   |
+| `underline`     | `boolean`                       | `false`    | 为 `true` 时输入框只显示下边框；不传则使用全边框               |
 
 ## 暴露方法
 
@@ -78,50 +78,50 @@ formRef.value?.clearValidate(); // 清除校验状态
 
 所有 `type` 都支持以下属性：
 
-| 名称 | 类型 | 说明 |
-| --- | --- | --- |
-| `prop` | `string` | 字段名，对应表单值的 key，同时作为插槽名 |
-| `label` | `string` | 标签文字 |
-| `type` | `FieldType` | 控件类型，见下节 |
-| `placeholder` | `string` | 占位符，不传时按类型自动生成 |
-| `defaultValue` | `any` | 默认值，仅在字段 key 不存在时填充 |
-| `required` | `boolean` | 自动生成必填规则，与 `rules` 合并 |
-| `rules` | `FormItemRule[]` | Element Plus 校验规则；`validator` 的第四个参数为全量表单值 |
-| `span` | `number` | 24 栅格占位，不传则按 `columns` 均分 |
-| `newRow` | `boolean` | 强制另起一行（可与 `span: 6` 等组合，不必占满 24） |
-| `readonly` | `boolean` | 渲染为纯文本而非输入控件 |
-| `copyable` | `boolean` | 只读态是否显示复制按钮，默认跟随 `readonly` |
-| `disabled` | `boolean \| (ctx) => boolean` | 禁用，支持联动 |
-| `hidden` | `boolean \| (ctx) => boolean` | 隐藏，支持联动 |
-| `hideOnCreate` | `boolean` | 新建时隐藏 |
-| `hideOnEdit` | `boolean` | 编辑时隐藏 |
-| `tip` | `string` | 控件下方的灰色提示 |
-| `props` | `Record<string, any>` | 透传给底层控件的额外属性 |
-| `component` | `string \| Component` | 使用注册的自定义组件，或直接传入 Vue 组件；可覆盖内置控件 |
+| 名称           | 类型                          | 说明                                                        |
+| -------------- | ----------------------------- | ----------------------------------------------------------- |
+| `prop`         | `string`                      | 字段名，对应表单值的 key，同时作为插槽名                    |
+| `label`        | `string`                      | 标签文字                                                    |
+| `type`         | `FieldType`                   | 控件类型，见下节                                            |
+| `placeholder`  | `string`                      | 占位符，不传时按类型自动生成                                |
+| `defaultValue` | `any`                         | 默认值，仅在字段 key 不存在时填充                           |
+| `required`     | `boolean`                     | 自动生成必填规则，与 `rules` 合并                           |
+| `rules`        | `FormItemRule[]`              | Element Plus 校验规则；`validator` 的第四个参数为全量表单值 |
+| `span`         | `number`                      | 24 栅格占位，不传则按 `columns` 均分                        |
+| `newRow`       | `boolean`                     | 强制另起一行（可与 `span: 6` 等组合，不必占满 24）          |
+| `readonly`     | `boolean`                     | 渲染为纯文本而非输入控件                                    |
+| `copyable`     | `boolean`                     | 只读态是否显示复制按钮，默认跟随 `readonly`                 |
+| `disabled`     | `boolean \| (ctx) => boolean` | 禁用，支持联动                                              |
+| `hidden`       | `boolean \| (ctx) => boolean` | 隐藏，支持联动                                              |
+| `hideOnCreate` | `boolean`                     | 新建时隐藏                                                  |
+| `hideOnEdit`   | `boolean`                     | 编辑时隐藏                                                  |
+| `tip`          | `string`                      | 控件下方的灰色提示                                          |
+| `props`        | `Record<string, any>`         | 透传给底层控件的额外属性                                    |
+| `component`    | `string \| Component`         | 使用注册的自定义组件，或直接传入 Vue 组件；可覆盖内置控件   |
 
 `placeholder` 和必填提示会按控件类型自动区分措辞：输入类用 `validation.enterField`（"请输入 xxx"），选择类用 `validation.selectField`（"请选择 xxx"）。
 
 ## 控件类型
 
-| type           | 渲染              | 说明                              |
-| -------------- | ----------------- | --------------------------------- |
-| `text`         | `ElInput`         | 带 clearable                      |
-| `textarea`     | `ElInput`         | 多行，默认 4 行                   |
-| `number`       | `ElInputNumber`   |                                   |
-| `cascader`     | `ElCascader`      | 默认开启筛选，所有属性通过 `props` 透传 |
-| `select`       | `ElSelect`        | 需要 `options` 或 `dictCode`      |
-| `radio`        | `ElRadioGroup`    | 同上                              |
-| `checkbox`     | `ElCheckboxGroup` | 同上，值为数组                    |
-| `switch`       | `ElSwitch`        |                                   |
-| `date`         | `ElDatePicker`    | 值格式 `YYYY-MM-DD`               |
-| `datetime`     | `ElDatePicker`    | 值格式 `YYYY-MM-DD HH:mm:ss`      |
+| type           | 渲染              | 说明                                                                        |
+| -------------- | ----------------- | --------------------------------------------------------------------------- |
+| `text`         | `ElInput`         | 带 clearable                                                                |
+| `textarea`     | `ElInput`         | 多行，默认 4 行                                                             |
+| `number`       | `ElInputNumber`   |                                                                             |
+| `cascader`     | `ElCascader`      | 默认开启筛选，所有属性通过 `props` 透传                                     |
+| `select`       | `ElSelect`        | 需要 `options` 或 `dictCode`                                                |
+| `radio`        | `ElRadioGroup`    | 同上                                                                        |
+| `checkbox`     | `ElCheckboxGroup` | 同上，值为数组                                                              |
+| `switch`       | `ElSwitch`        |                                                                             |
+| `date`         | `ElDatePicker`    | 值格式 `YYYY-MM-DD`                                                         |
+| `datetime`     | `ElDatePicker`    | 值格式 `YYYY-MM-DD HH:mm:ss`                                                |
 | `picture`      | `PictureUpload`   | 图片上传，配置走 `props` 透传；支持 `crop` 裁剪与 `dimensions` 最终尺寸限制 |
-| `file`         | `FileUpload`      | 附件上传，配置走 `props` 透传     |
-| `upload`       | `FileUpload`      | 通用上传兼容类型，配置走 `props` 透传 |
-| `async-select` | `AsyncSelect`     | 需要 `apiOptions`                 |
-| `component`    | 注册的自定义组件  | 默认使用 `v-model:modelValue`     |
-| `slot`         | 自定义            | 插槽名为 `prop`                   |
-| `group`        | 容器              | 一个 label 下并排多个控件，见下节 |
+| `file`         | `FileUpload`      | 附件上传，配置走 `props` 透传                                               |
+| `upload`       | `FileUpload`      | 通用上传兼容类型，配置走 `props` 透传                                       |
+| `async-select` | `AsyncSelect`     | 需要 `apiOptions`                                                           |
+| `component`    | 注册的自定义组件  | 默认使用 `v-model:modelValue`                                               |
+| `slot`         | 自定义            | 插槽名为 `prop`                                                             |
+| `group`        | 容器              | 一个 label 下并排多个控件，见下节                                           |
 
 未内置的类型有：日期区间、纯时间、密码框。这些暂时用 `slot` 接。
 

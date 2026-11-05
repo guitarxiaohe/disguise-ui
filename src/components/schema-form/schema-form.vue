@@ -13,6 +13,8 @@ import { computed, nextTick, ref, watch } from 'vue';
 
 import { ElCol, ElForm, ElFormItem, ElRow } from 'element-plus';
 
+import { $t as t } from '@/runtime/i18n';
+
 import SchemaFormItem from './schema-form-item.vue';
 import {
   evalCondition,
@@ -256,7 +258,7 @@ defineExpose({
                     v-if="isGroupRequired(entry)"
                     class="schema-form-group__required-note"
                   >
-                    为必填项
+                    {{ t('schemaForm.requiredNote') }}
                   </span>
                 </div>
                 <span v-else>{{ entry.label }}</span>

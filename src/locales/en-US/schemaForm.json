@@ -1,5 +1,8 @@
 {
   "copy": "Copy",
   "copied": "Copied",
-  "empty": "N/A"
+  "empty": "N/A",
+  "requiredNote": "Required",
+  "yes": "Yes",
+  "no": "No"
 }

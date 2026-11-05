@@ -528,7 +528,7 @@ defineExpose({
             </div>
             <div class="user-avatar-info__hero-meta">
               <span v-if="drawerUserId">
-                {{ t('field.id') }}: {{ drawerUserId }}
+                {{ t('components.userAvatarInfo.fieldId') }}: {{ drawerUserId }}
               </span>
               <span v-if="drawerDepartment">
                 {{ drawerDepartment }}

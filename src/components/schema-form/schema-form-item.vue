@@ -6,6 +6,7 @@ import type { FieldContext, ResolvedField } from './schema-form.type';
 
 import { computed, defineAsyncComponent } from 'vue';
 
+import { $t as t } from '@/runtime/i18n';
 import { formatDate, formatDateTime } from '@/runtime/utils';
 
 import DictTag from '@/components/dict-tag/index.vue';
@@ -104,10 +105,10 @@ const readonlyValue = computed(() => {
     const activeValue = resolvedProps.value?.activeValue ?? true;
     const inactiveValue = resolvedProps.value?.inactiveValue ?? false;
     if (normalizeOptionValue(value) === normalizeOptionValue(activeValue)) {
-      return resolvedProps.value?.activeText ?? '是';
+      return resolvedProps.value?.activeText ?? t('schemaForm.yes');
     }
     if (normalizeOptionValue(value) === normalizeOptionValue(inactiveValue)) {
-      return resolvedProps.value?.inactiveText ?? '否';
+      return resolvedProps.value?.inactiveText ?? t('schemaForm.no');
     }
   }
 
@@ -218,7 +219,9 @@ const customComponentListeners = computed(() => {
 const richTextProps = computed(() => ({
   ...resolvedProps.value,
   editable:
-    !props.disabled && !props.readonly && resolvedProps.value?.editable !== false,
+    !props.disabled &&
+    !props.readonly &&
+    resolvedProps.value?.editable !== false,
   toolContext: {
     field: props.field,
     formData: context.value.values,
