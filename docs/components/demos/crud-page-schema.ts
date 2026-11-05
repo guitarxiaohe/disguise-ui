@@ -99,7 +99,6 @@ export const crudFullFields: CrudPageField[] = [
         workYears: 'workYears',
         jobLevel: 'jobLevel',
         subtitle: 'subtitle',
-
         postNames: [],
         roleNames: ['test'],
         sex: '1',
