@@ -11,7 +11,7 @@ const rows = ref(mockUsers.map((item) => ({ ...item })));
 let nextId = rows.value.length + 1;
 
 const fields: CrudPageField[] = [
-  { prop: 'name', label: '名称', type: 'text', required: true, search: true, table: { width: 140 } },
+  { prop: 'name', label: '名称', type: 'text', required: true, search: true, table: { width: 80} },
   {
     prop: 'status',
     label: '状态',
@@ -21,6 +21,34 @@ const fields: CrudPageField[] = [
     dictCode: 'sys_status',
     search: true,
     table: { width: 100, type: 'dict', dictCode: 'sys_status' },
+  },
+{
+  prop:'tags',
+  type:'text',
+    label: '展开标签',
+
+    table: {  type: 'listExpand',
+    width:200,
+    cellProps: { max: 2,  },},
+
+},
+    {
+     prop: ' price',
+    label: '金额',
+    type: 'number',
+    table: { width: 80, type: 'price', cellProps: { unit: '¥',  oldPriceStyle:  { fontSize: '10px' } } },
+  },
+      {
+     prop: ' price1',
+    label: '金额1',
+    type: 'number',
+    table: { width: 160, type: 'price', cellProps: { unit: '$', oldPrice: 'oldPrice', oldPriceStyle:  { fontSize: '10px' } } },
+  },
+    {
+     prop: 'files',
+    label: '文件',
+    type: 'file',
+    table: { width: 160, type: 'file', cellProps: { size: 30, maxStack: 2 } },
   },
   {
     prop: 'job',
@@ -69,6 +97,14 @@ function handleCreate(values: Record<string, any>) {
       ...values,
       id: nextId++,
       deptName,
+        oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+    ],
       createTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
     },
     ...rows.value,

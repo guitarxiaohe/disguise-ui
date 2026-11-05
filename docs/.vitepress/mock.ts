@@ -35,6 +35,14 @@ export const mockUsers = [
     nickName: '张三',
     userName: 'zhangsan',
     userId: 1,
+      oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+    ],
   },
   {
     id: 2,
@@ -48,6 +56,17 @@ export const mockUsers = [
     nickName: '李四',
     userName: 'lisi',
     userId: 2,
+      oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+      '../../public/test2.pdf',
+      '../../public/test2.pdf',
+      '../../public/test2.pdf',
+    ],
   },
   {
     id: 3,
@@ -61,6 +80,14 @@ export const mockUsers = [
     nickName: '王五',
     userName: 'wangwu',
     userId: 3,
+      oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+    ],
   },
   {
     id: 4,
@@ -74,6 +101,14 @@ export const mockUsers = [
     nickName: '赵六',
     userName: 'zhaoliu',
     userId: 4,
+      oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+    ],
   },
   {
     id: 5,
@@ -87,5 +122,13 @@ export const mockUsers = [
     nickName: '钱七',
     userName: 'qianqi',
     userId: 5,
+      oldPrice: 15,
+    tags: ['Vue', 'Element Plus', '表格', '表单'],
+      price:13,
+      price1:134,
+      files: [
+      '../../public/test.pdf',
+      '../../public/test2.pdf',
+    ],
   },
 ];

@@ -76,7 +76,6 @@ function renderBuiltinCell(
 ) {
   const maxPreviewCount = column.maxPreviewCount ?? 3;
   const cellProps = column.cellProps ?? column.props ?? {};
-
   switch (column.type) {
     case 'avatar': {
       return h(UserCell, { row: rowData, value: value as any });
@@ -99,7 +98,9 @@ function renderBuiltinCell(
       return h(PriceCell, {
         ...cellProps,
         price: String(value || '0'),
-        lodPrice: rowData[cellProps?.lodPrice] ?? '请查看配置项',
+        oldPrice: rowData[cellProps?.oldPrice] ?? null,
+        style: cellProps?.style ?? (() => ({})),
+        oldPriceStyle: cellProps?.oldPriceStyle ?? (() => ({})),
       });
     }
     case 'listExpand': {

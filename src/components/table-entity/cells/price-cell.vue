@@ -2,31 +2,44 @@
 const props = withDefaults(
   defineProps<{
     price: string;
-    lodPrice: string;
+    oldPrice: string;
+    unit?: string;
+   toFixed?: number;
+
+   style?: Record<string, string>;
+   oldPriceStyle?: Record<string, string>;
   }>(),
   {
     price: '',
     /**
      * 老价格 带航线
      */
-    lodPrice: '',
+    oldPrice: '',
+
+    unit:'$',
+    toFixed:2,
+    style: () => ({}),
+    oldPriceStyle: () => ({}),
   },
 );
 
-/** 保留两位小数，自动补 $ 前缀 */
-const formatPrice = (val: string) => {
-  const num = parseFloat(val.replace(/[^0-9.-]/g, ''));
-  const fixed = isNaN(num) ? '0.00' : num.toFixed(2);
-  return `$${fixed}`;
+const formatPrice = (val: string | number) => {
+  const raw = String(val ?? '').replace(/[^0-9.-]/g, '');
+  const num = parseFloat(raw);
+  const fixed = isNaN(num) ? '0.00' : num.toFixed(props.toFixed);
+  return `${props.unit}${fixed}`;
 };
 </script>
 
 <template>
   <div class="price-cell">
-    <span class="text-[red]">{{ formatPrice(price) }}</span>
-    <span v-if="lodPrice" class="ml-1 line-through">{{
-      formatPrice(lodPrice)
-    }}</span>
+    <span class="text-[red]" :style="props.style">
+      {{ formatPrice(price) }}
+    </span>
+    <span v-if="oldPrice" class="ml-1 line-through" :style="props.oldPriceStyle">
+      {{ formatPrice(oldPrice) }}
+    </span>
+
   </div>
 </template>
 
