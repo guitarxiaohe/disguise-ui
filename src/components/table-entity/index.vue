@@ -1204,9 +1204,13 @@ defineExpose({
       :style="resizeLineStyle"
     ></div>
 
-    <div v-if="props.showPagination" class="table-entity__pagination">
+    <div
+      v-if="props.showPagination"
+      class="table-entity__pagination flex items-center justify-between"
+    >
       <!-- 选择了多少 -->
       <div
+        v-if="getSelectedCount() > 0"
         class="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--el-color-primary-light-7)] bg-[var(--el-color-primary-light-9)] px-3 text-sm font-medium text-[var(--el-color-primary)] shadow-sm transition-colors"
       >
         <span
@@ -1219,6 +1223,7 @@ defineExpose({
           })
         }}
       </div>
+      <div v-else></div>
       <ElPagination
         :current-page="pagination.current_page"
         :page-size="pagination.per_page"
