@@ -38,7 +38,12 @@ function formatReleaseNote(subject) {
 const hash = git(['rev-parse', '--short', 'HEAD']);
 const branch = git(['rev-parse', '--abbrev-ref', 'HEAD']);
 const rawLogs = git(
-  ['log', '-5', '--date=iso-strict', '--pretty=format:%h%x1f%ad%x1f%an%x1f%s%x1e'],
+  [
+    'log',
+    '-5',
+    '--date=iso-strict',
+    '--pretty=format:%h%x1f%ad%x1f%an%x1f%s%x1e',
+  ],
   '',
 );
 const commits = rawLogs

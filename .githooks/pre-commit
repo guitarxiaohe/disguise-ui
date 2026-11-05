@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# 提交前检查:格式检查(Prettier)+ 类型检查(vue-tsc)
+set -e
+
+# 收集本次暂存的、需要检查的文件
+staged=$(git diff --cached --name-only --diff-filter=ACM \
+  | grep -E '\.(ts|tsx|js|jsx|mjs|cjs|vue|json|css|scss|md)$' || true)
+
+if [ -n "$staged" ]; then
+  echo "==> Prettier 格式检查..."
+  if ! echo "$staged" | xargs npx prettier --check; then
+    echo ""
+    echo "格式检查未通过。请运行 npm run format 后重新提交。"
+    exit 1
+  fi
+fi
+
+echo "==> TypeScript 类型检查..."
+if ! npx vue-tsc --noEmit; then
+  echo ""
+  echo "类型检查未通过,请修复类型错误后重新提交。"
+  exit 1
+fi
+
+echo "==> 检查通过,允许提交。"

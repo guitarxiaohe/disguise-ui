@@ -24,7 +24,10 @@ export { default as PictureUpload } from './components/picture-upload/picture-up
 export type * from './components/picture-upload/picture-upload.type.js';
 export { default as RichTextEditor } from './components/rich-text-editor/index.vue';
 export type * from './components/rich-text-editor/index.type.js';
-export { registerSchemaFormComponents, SchemaForm } from './components/schema-form/index.js';
+export {
+  registerSchemaFormComponents,
+  SchemaForm,
+} from './components/schema-form/index.js';
 export type {
   SchemaFormComponent,
   SchemaFormComponentConfig,

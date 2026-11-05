@@ -64,8 +64,13 @@ export function useVbenModal(options: ModalOptions = {}) {
     options.onOpenChange?.(false);
   }
 
-  function setState(patch: { footer?: boolean; fullscreen?: boolean; title?: string }) {
-    if (typeof patch.fullscreen === 'boolean') state.fullscreen = patch.fullscreen;
+  function setState(patch: {
+    footer?: boolean;
+    fullscreen?: boolean;
+    title?: string;
+  }) {
+    if (typeof patch.fullscreen === 'boolean')
+      state.fullscreen = patch.fullscreen;
     if (typeof patch.title === 'string') state.title = patch.title;
     if (typeof patch.footer === 'boolean') state.footer = patch.footer;
   }
@@ -83,10 +88,8 @@ export function useVbenModal(options: ModalOptions = {}) {
           dialogSlots.footer = () => slots.footer?.();
         } else if (showFooter) {
           dialogSlots.footer = () => [
-            h(
-              ElButton,
-              { onClick: () => options.onCancel?.() },
-              () => String(attrs.cancelText ?? state.cancelText),
+            h(ElButton, { onClick: () => options.onCancel?.() }, () =>
+              String(attrs.cancelText ?? state.cancelText),
             ),
             h(
               ElButton,

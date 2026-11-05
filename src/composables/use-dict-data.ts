@@ -4,10 +4,7 @@ import type { MaybeRefOrGetter } from 'vue';
 
 import { computed, toValue } from 'vue';
 
-import {
-  DICT_DATA_ALL_QUERY_KEY,
-  fetchAllDictData,
-} from '@/runtime/dict';
+import { DICT_DATA_ALL_QUERY_KEY, fetchAllDictData } from '@/runtime/dict';
 import { useQuery } from '@tanstack/vue-query';
 
 /** ****************************** 字典缓存查询 ********************************/

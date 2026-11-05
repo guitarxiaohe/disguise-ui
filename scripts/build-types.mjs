@@ -63,4 +63,3 @@ function rewriteAliasImports(directory) {
 }
 
 rewriteAliasImports(output);
-
