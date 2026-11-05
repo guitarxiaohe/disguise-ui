@@ -15,7 +15,7 @@ import source from './demos/dialog-list-basic.vue?raw'
   </DemoBlock>
 </ClientOnly>
 
-`fetcher` 接收 `keyword`、`page`、`per_page` 和 `filterParams`，返回当前页数据与总条数。
+`fetcher` 接收 `{ keyword, page, per_page, params }`，其中 `params` 为 `filterParams` 的值；返回当前页数据与总条数。
 
 ## Props
 

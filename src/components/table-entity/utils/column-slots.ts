@@ -67,18 +67,35 @@ const isFiles = (value: any) => {
   }
 };
 
+/** 解析内置单元格透传属性，cellProps / props 支持函数形式按当前行返回。 */
+function resolveCellProps(
+  column: ColumnsItem,
+  row: Record<string, any>,
+  value: unknown,
+  rowIndex: number,
+): Record<string, any> {
+  const rawCellProps = column.cellProps ?? column.props ?? {};
+  return typeof rawCellProps === 'function'
+    ? (rawCellProps({ row, value, rowIndex, column }) ?? {})
+    : rawCellProps;
+}
+
 /** 按列 type 渲染内置单元格组件，未命中时返回 undefined。 */
 function renderBuiltinCell(
   column: ColumnsItem,
   rowData: Record<string, any>,
   value: unknown,
+  rowIndex: number,
   listExpand?: ColumnSlotListExpand,
 ) {
   const maxPreviewCount = column.maxPreviewCount ?? 3;
-  const cellProps = column.cellProps ?? column.props ?? {};
+  const cellProps = resolveCellProps(column, rowData, value, rowIndex);
   switch (column.type) {
     case 'avatar': {
-      return h(UserCell, { row: rowData, value: value as any });
+      return h(UserCell, {
+        row: { ...rowData, ...cellProps },
+        value: value as any,
+      });
     }
     case 'file': {
       return h(FileCell, {
@@ -224,6 +241,7 @@ export function applyColumnSlots(
           currentColumn,
           rowData,
           value,
+          rowIndex,
           listExpand,
         );
         if (builtinCell) {

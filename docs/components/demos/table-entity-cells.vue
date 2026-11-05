@@ -50,11 +50,24 @@ const columns: ColumnsItem[] = [
     key: 'price',
     width: 220,
     type: 'price',
-    cellProps: {
+    // cellProps 支持函数形式，入参带出当前行数据，按行返回配置
+    cellProps: ({ row }) => ({
       unit: '$',
       oldPrice: 'oldPrice',
-      oldPriceStyle: { fontSize: '10px' },
-    },
+      oldPriceStyle: row.oldPrice > 20 ? { fontSize: '10px' } : {},
+    }),
+  },
+
+  {
+    title: '负责任',
+    dataKey: 'by',
+    key: 'by',
+    width: 220,
+    type: 'avatar',
+    cellProps: ({ row }) => ({
+      nickName: '1212',
+      username: '1212',
+    }),
   },
 ];
 
@@ -63,8 +76,8 @@ const data = [
     id: 1,
     status: '1',
     userId: 1,
-    nickName: '张三',
-    userName: 'zhangsan',
+    // nickName: '张三',
+    // userName: 'zhangsan',
     sex: '1',
     deptName: '研发部',
     images: ['/logo.svg'],
@@ -72,6 +85,7 @@ const data = [
     tags: ['Vue', 'Element Plus', '表格', '表单'],
     price: 13,
     files: ['../../public/test.pdf', '../../public/test2.pdf'],
+    by: 1,
   },
   {
     oldPrice: 23,
@@ -88,6 +102,7 @@ const data = [
     images: ['/logo.svg', '/logo.svg'],
     tags: ['Figma'],
     price: 13,
+    by: 1,
     files: [
       '../../public/test.pdf',
       '../../public/test2.pdf',

@@ -83,8 +83,33 @@ export const crudFullFields: CrudPageField[] = [
     prop: 'userName',
     label: '用户名',
     type: 'text',
-    table: { width: 160, type: 'avatar' },
+    table: {
+      width: 160,
+      type: 'avatar',
+      cellProps: ({ row }) => ({
+        nickName: row.nickName,
+        userName: row.userName,
+        age: '99',
+        avatar:
+          'https://rh-international.oss-us-east-1.aliyuncs.com/attachment/v3/a-14.jpg',
+        deptName: 'dev',
+        email: 'he12205227953@gmail.com',
+        nickName: '测试跟单客服',
+        phone: '18163203256',
+        workYears: 'workYears',
+        jobLevel: 'jobLevel',
+        subtitle: 'subtitle',
+
+        postNames: [],
+        roleNames: ['test'],
+        sex: '1',
+        userId: 5,
+        avatar:
+          'https://rh-international.oss-us-east-1.aliyuncs.com/attachment/v3/20260811_111411-13.png',
+      }),
+    },
   },
+
   {
     prop: 'sort',
     label: '排序',

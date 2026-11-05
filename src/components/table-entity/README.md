@@ -137,6 +137,21 @@ const columns = [
 }
 ```
 
+`cellProps` 也支持函数形式，按当前行数据返回配置，入参为 `{ row, value, rowIndex, column }`（`row` 为整行数据）：
+
+```ts
+{
+  title: '金额',
+  dataKey: 'price',
+  type: 'price',
+  cellProps: ({ row }) => ({
+    unit: '$',
+    oldPrice: 'oldPrice',
+    oldPriceStyle: row.oldPrice > 20 ? { fontSize: '10px' } : {},
+  }),
+}
+```
+
 列表超过指定条数时可以折叠。设置 `type: 'listExpand'`，单元格值可以是字符串数组或对象数组。超过 `cellProps.max`（默认 2）条时只显示前面几条，并出现「查看全部 N 个{unit}」，点击后展开整行，再点「收起」收回。
 
 ```ts

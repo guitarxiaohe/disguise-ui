@@ -20,7 +20,7 @@ const fields: CrudPageField[] = [
 const lastSort = ref('拖动行左侧把手调整顺序');
 
 function handleRowSort(payload: TableEntityRowSortPayload) {
-  rows.value = payload.rows;
+  rows.value = payload.rows as typeof rows.value;
   lastSort.value = `${payload.oldIndex + 1} → ${payload.newIndex + 1}`;
 }
 </script>

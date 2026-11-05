@@ -19,21 +19,21 @@ import source from './demos/async-select-basic.vue?raw'
 
 ## Props
 
-| 名称          | 类型                                    | 默认值   | 说明                         |
-| ------------- | --------------------------------------- | -------- | ---------------------------- |
-| `modelValue`  | `string \| number \| array`             | —        | 选中值                       |
-| `fetcher`     | `(params) => Promise<{ items, total }>` | —        | 服务端分页取数               |
-| `options`     | `object[]`                              | `[]`     | 本地选项                     |
-| `dictCode`    | `string`                                | —        | 读取缓存字典                 |
-| `valueKey`    | `string`                                | `'id'`   | 值字段                       |
-| `labelKey`    | `string`                                | —        | 标签字段                     |
-| `multiple`    | `boolean`                               | `false`  | 多选                         |
-| `columns`     | `ColumnsItem[]`                         | `[]`     | 弹窗列表列                   |
-| `subtitleKey` | `string`                                | `''`     | 下拉选项副标题字段           |
-| `placeholder` | `string`                                | 内置文案 | 占位文字                     |
-| `disabled`    | `boolean`                               | `false`  | 是否禁用                     |
-| `dialogTitle` | `string`                                | 内置文案 | 选择弹窗标题                 |
-| `perPage`     | `number`                                | `20`     | 下拉请求及弹窗列表的每页条数 |
+| 名称          | 类型                                    | 默认值   | 说明                                                 |
+| ------------- | --------------------------------------- | -------- | ---------------------------------------------------- |
+| `modelValue`  | `string \| number \| null \| array`     | —        | 选中值，多选时为数组                                 |
+| `fetcher`     | `(params) => Promise<{ items, total }>` | —        | 服务端分页取数                                       |
+| `options`     | `object[]`                              | `[]`     | 本地选项                                             |
+| `dictCode`    | `string`                                | —        | 读取缓存字典                                         |
+| `valueKey`    | `string`                                | `'id'`   | 值字段                                               |
+| `labelKey`    | `string`                                | `''`     | 标签字段，为空时取 `columns[0].dataKey` 或 `'label'` |
+| `multiple`    | `boolean`                               | `false`  | 多选                                                 |
+| `columns`     | `ColumnsItem[]`                         | `[]`     | 弹窗列表列                                           |
+| `subtitleKey` | `string`                                | `''`     | 下拉选项副标题字段                                   |
+| `placeholder` | `string`                                | 内置文案 | 占位文字                                             |
+| `disabled`    | `boolean`                               | `false`  | 是否禁用                                             |
+| `dialogTitle` | `string`                                | 内置文案 | 选择弹窗标题                                         |
+| `perPage`     | `number`                                | `20`     | 下拉请求及弹窗列表的每页条数                         |
 
 未列出的属性会继续透传给 Element Plus `ElSelectV2`。
 

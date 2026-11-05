@@ -114,14 +114,27 @@ const fetchList: TableEntityDataFetcher = async ({
 };
 
 function handleCreate(values: Record<string, any>) {
-  const deptName =
-    { 1: '产品中心', 2: '研发部', 3: '设计部', 4: '运营部', 5: '财务部' }[
-      values.deptId
-    ] ?? '';
+  const deptMap: Record<string, string> = {
+    1: '产品中心',
+    2: '研发部',
+    3: '设计部',
+    4: '运营部',
+    5: '财务部',
+  };
+  const deptName = deptMap[String(values.deptId)] ?? '';
+  const id = nextId++;
   rows.value = [
     {
       ...values,
-      id: nextId++,
+      id,
+      name: String(values.name ?? `新用户${id}`),
+      status: values.status ?? '1',
+      sex: values.sex ?? '1',
+      job: values.job ?? '',
+      deptId: Number(values.deptId ?? 0),
+      nickName: values.name ?? `新用户${id}`,
+      userName: values.userName ?? values.name ?? `新用户${id}`,
+      userId: id,
       deptName,
       oldPrice: 15,
       tags: ['Vue', 'Element Plus', '表格', '表单'],

@@ -70,29 +70,29 @@
 
 ## DialogList
 
-| 属性           | 类型                                    | 默认值    | 说明                          |
-| -------------- | --------------------------------------- | --------- | ----------------------------- |
-| `visible`      | `boolean`                               | —         | 弹窗显隐                      |
-| `modelValue`   | `any \| any[]`                          | —         | 当前选中值                    |
-| `multiple`     | `boolean`                               | `true`    | 是否多选                      |
-| `fetcher`      | `(params) => Promise<{ items, total }>` | —         | 分页取数函数                  |
-| `columns`      | `ColumnsItem[]`                         | `[]`      | 列配置                        |
-| `rowKey`       | `string`                                | `'id'`    | 行唯一字段                    |
-| `dialogTitle`  | `string`                                | `''`      | 弹窗标题                      |
-| `dialogWidth`  | `number \| string`                      | `'960px'` | 弹窗宽度                      |
-| `tableHeight`  | `number`                                | `420`     | 表格高度                      |
-| `perPage`      | `number`                                | `20`      | 每页条数                      |
-| `filterParams` | `Record<string, any>`                   | `{}`      | 传给 `fetcher` 的额外筛选条件 |
+| 属性           | 类型                                    | 默认值    | 说明                                        |
+| -------------- | --------------------------------------- | --------- | ------------------------------------------- |
+| `visible`      | `boolean`                               | —         | 弹窗显隐                                    |
+| `modelValue`   | `any \| any[]`                          | —         | 当前选中值                                  |
+| `multiple`     | `boolean`                               | `true`    | 是否多选                                    |
+| `fetcher`      | `(params) => Promise<{ items, total }>` | —         | 分页取数函数                                |
+| `columns`      | `ColumnsItem[]`                         | `[]`      | 列配置                                      |
+| `rowKey`       | `string`                                | `'id'`    | 行唯一字段                                  |
+| `dialogTitle`  | `string`                                | `''`      | 弹窗标题                                    |
+| `dialogWidth`  | `number \| string`                      | `'960px'` | 弹窗宽度                                    |
+| `tableHeight`  | `number`                                | `420`     | 表格高度                                    |
+| `perPage`      | `number`                                | `20`      | 每页条数                                    |
+| `filterParams` | `Record<string, any>`                   | `{}`      | 作为 `params` 传给 `fetcher` 的额外筛选条件 |
 
 ## DictTag
 
-| 属性       | 类型                       | 默认值 | 说明              |
-| ---------- | -------------------------- | ------ | ----------------- |
-| `code`     | `string`                   | `''`   | 字典编码          |
-| `dictType` | `string`                   | `''`   | `code` 的兼容别名 |
-| `value`    | `string \| number \| null` | `null` | 字典值            |
-| `label`    | `string \| number \| null` | `null` | 直接指定标签      |
-| `color`    | `string \| null`           | `null` | 语义色或 CSS 颜色 |
+| 属性       | 类型                       | 默认值 | 说明                             |
+| ---------- | -------------------------- | ------ | -------------------------------- |
+| `code`     | `string`                   | `''`   | 字典编码                         |
+| `dictType` | `string`                   | `''`   | `code` 的兼容别名                |
+| `value`    | `string \| number \| null` | `null` | 字典值                           |
+| `label`    | `string \| number \| null` | `null` | 直接指定显示文字，优先于字典结果 |
+| `color`    | `string \| null`           | `null` | 语义色或 CSS 颜色                |
 
 ## DisguiseIcon
 
@@ -382,9 +382,9 @@
 | `drawerAvatarSize` | `number`                  | `64`     | 抽屉头像尺寸                                 |
 | `age`              | `number \| string`        | —        | 年龄                                         |
 | `workYears`        | `number \| string`        | —        | 工龄                                         |
-| `email`            | `string`                  | —        | 邮箱（当前版本未参与渲染）                   |
-| `phone`            | `string`                  | —        | 手机号（当前版本未参与渲染）                 |
-| `department`       | `string`                  | —        | 部门（当前版本未参与渲染）                   |
+| `email`            | `string`                  | —        | 邮箱（抽屉详情展示）                         |
+| `phone`            | `string`                  | —        | 手机号（抽屉详情展示）                       |
+| `department`       | `string`                  | —        | 部门（抽屉详情展示，未传时回退 `deptName`）  |
 | `jobLevel`         | `string`                  | —        | 职级                                         |
 | `enableDrawer`     | `boolean`                 | `true`   | 是否允许打开详情抽屉                         |
 | `drawerTitle`      | `string`                  | 内置文案 | 抽屉标题                                     |
@@ -392,4 +392,4 @@
 | `drawerProps`      | `Record<string, unknown>` | —        | 透传给 `ElDrawer`                            |
 | `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                             |
 
-事件：`update:drawerVisible`。插槽：`avatar`、`name`、`subtitle`、`default`、`drawer-avatar`、`drawer-name`。暴露方法：`openDrawer()`、`closeDrawer()`、`remoteUser`、`remoteDetail`（当前版本远程拉取未启用，`remoteUser` / `remoteDetail` 恒为空）。
+事件：`update:drawerVisible`。插槽：`avatar`、`name`、`subtitle`、`default`、`drawer-avatar`、`drawer-name`。暴露方法：`openDrawer()`、`closeDrawer()`。

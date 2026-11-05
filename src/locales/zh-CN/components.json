@@ -21,6 +21,7 @@
     "ariaLabel": "用户信息",
     "clickToViewDetail": "点击查看详情",
     "empty": "暂无",
+    "nameEmpty": "暂无姓名",
     "fieldId": "用户 ID"
   },
   "importDialog": {

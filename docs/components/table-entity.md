@@ -133,23 +133,23 @@ import asyncDataSource from './demos/table-entity-async.vue?raw'
 
 `columns` 的每一项在 ElTable 列配置（`title`、`key`、`align`、`fixed`、`cellRenderer`、`headerCellRenderer` 等）基础上扩展以下字段：
 
-| 名称              | 类型                            | 默认值   | 说明                                                                                   |
-| ----------------- | ------------------------------- | -------- | -------------------------------------------------------------------------------------- |
-| `width`           | `number`                        | `120`    | 列宽；不传时按 120 计算并自动补满容器宽度                                              |
-| `dataKey`         | `string`                        | —        | 单元格取值字段（ElTableV2 命名）                                                       |
-| `dataIndex`       | `string`                        | —        | `dataKey` 的兼容别名，二者取其一即可                                                   |
-| `headerAlign`     | `'left' \| 'center' \| 'right'` | `'left'` | 表头对齐方式                                                                           |
-| `align`           | `'left' \| 'center' \| 'right'` | `'left'` | 单元格内容水平对齐方式                                                                 |
-| `verticalAlign`   | `'top' \| 'center' \| 'bottom'` | —        | 单元格内容垂直对齐方式                                                                 |
-| `type`            | `TableEntityCellType`           | —        | 内置单元格类型，取值见「内置单元格」章节                                               |
-| `dictCode`        | `string`                        | —        | 字典编码，`type: 'dict'` 时使用                                                        |
-| `dictType`        | `string`                        | —        | 同 `dictCode`，兼容 dict-tag 的旧命名                                                  |
-| `maxPreviewCount` | `number`                        | `3`      | `picture` / `file` 最多展示数量，超出显示 `+N`                                         |
-| `cellProps`       | `Record<string, any>`           | `{}`     | 内置单元格透传属性，`picture` 会继续传给 ImagesView                                    |
-| `props`           | `Record<string, any>`           | `{}`     | 同 `cellProps`，兼容写法                                                               |
-| `sortable`        | `boolean`                       | `false`  | 允许点击表头触发服务端排序                                                             |
-| `sortOrder`       | `'asc' \| 'desc'`               | —        | 初始排序方向；设置后该列表头也可点击排序                                               |
-| `valueType`       | `'date' \| 'datetime'`          | —        | 按日期格式化展示（`YYYY-MM-DD` / 含时分秒）；字段为空时回退常见的创建 / 更新时间字段名 |
+| 名称              | 类型                                                                                 | 默认值   | 说明                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------- |
+| `width`           | `number`                                                                             | `120`    | 列宽；不传时按 120 计算并自动补满容器宽度                                              |
+| `dataKey`         | `string`                                                                             | —        | 单元格取值字段（ElTableV2 命名）                                                       |
+| `dataIndex`       | `string`                                                                             | —        | `dataKey` 的兼容别名，二者取其一即可                                                   |
+| `headerAlign`     | `'left' \| 'center' \| 'right'`                                                      | `'left'` | 表头对齐方式                                                                           |
+| `align`           | `'left' \| 'center' \| 'right'`                                                      | `'left'` | 单元格内容水平对齐方式                                                                 |
+| `verticalAlign`   | `'top' \| 'center' \| 'bottom'`                                                      | —        | 单元格内容垂直对齐方式                                                                 |
+| `type`            | `TableEntityCellType`                                                                | —        | 内置单元格类型，取值见「内置单元格」章节                                               |
+| `dictCode`        | `string`                                                                             | —        | 字典编码，`type: 'dict'` 时使用                                                        |
+| `dictType`        | `string`                                                                             | —        | 同 `dictCode`，兼容 dict-tag 的旧命名                                                  |
+| `maxPreviewCount` | `number`                                                                             | `3`      | `picture` / `file` 最多展示数量，超出显示 `+N`                                         |
+| `cellProps`       | `Record<string, any>` \| `({ row, value, rowIndex, column }) => Record<string, any>` | `{}`     | 内置单元格透传属性，`picture` 会继续传给 ImagesView；函数形式可按当前行数据返回配置    |
+| `props`           | 同 `cellProps`                                                                       | `{}`     | 同 `cellProps`，兼容写法                                                               |
+| `sortable`        | `boolean`                                                                            | `false`  | 允许点击表头触发服务端排序                                                             |
+| `sortOrder`       | `'asc' \| 'desc'`                                                                    | —        | 初始排序方向；设置后该列表头也可点击排序                                               |
+| `valueType`       | `'date' \| 'datetime'`                                                               | —        | 按日期格式化展示（`YYYY-MM-DD` / 含时分秒）；字段为空时回退常见的创建 / 更新时间字段名 |
 
 ## Events
 

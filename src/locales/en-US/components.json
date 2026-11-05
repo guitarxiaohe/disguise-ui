@@ -20,6 +20,7 @@
       "ariaLabel": "User information",
       "clickToViewDetail": "Click to view details",
       "empty": "N/A",
+      "nameEmpty": "No name",
       "fieldId": "User ID"
     }
   },

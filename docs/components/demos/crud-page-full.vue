@@ -62,11 +62,11 @@ function handleCreate(values: Record<string, any>) {
       nickName: values.name,
       userName: values.userName ?? values.name,
       deptName,
-      oldPrice: undefined,
+      oldPrice: 0,
       tags: values.tags ?? [],
       cover: values.cover ?? '/logo.svg',
       createTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    },
+    } as (typeof rows.value)[number],
     ...rows.value,
   ];
   ElMessage.success('已新增（示例数据仅存在于当前页面）');

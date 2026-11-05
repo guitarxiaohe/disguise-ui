@@ -10,6 +10,7 @@ import {
   watch,
   watchEffect,
 } from 'vue';
+import { ElAvatar, ElDrawer, ElTooltip } from 'element-plus';
 import { useI18n } from '@/runtime/i18n';
 
 import { useImageUrl } from '@/composables/use-image-url';
@@ -26,57 +27,35 @@ import {
   User,
   Venus,
 } from 'lucide-vue-next';
-/** ****************************** props ********************************/
 
+/** ****************************** props ********************************/
 const props = withDefaults(
   defineProps<{
-    /** 用户 ID，传入后请求 `/system/user/{id}`，返回 data 为 SysUser */
     userId?: number | string;
-    /** 展示名称（仅 userId 时可省略，由接口 nickName / userName 兜底） */
     name?: string;
-    /** 副标题，如部门、职位 */
     subtitle?: string;
-    /** 头像图片地址 */
     src?: string;
-    /** 男性：右侧文案蓝色；女性：粉色；未传或无法识别：次要文字色 */
     gender?: UserAvatarGenderInput;
-    /** 头像尺寸，对应 el-avatar size */
     size?: number;
-    /** 透传 el-avatar（会与 src、size、shape 合并，后者优先） */
     avatar?: Record<string, unknown>;
-    /** 抽屉内头像尺寸（基础信息 el-descriptions 首行） */
     drawerAvatarSize?: number;
-    /** 年龄 */
     age?: number | string;
-    /** 工龄 */
     workYears?: number | string;
-    /** 邮箱 */
     email?: string;
-    /** 手机号 */
     phone?: string;
-    /** 部门信息（未传时用 subtitle / 接口 dept 兜底） */
     department?: string;
-    /** 职级 */
     jobLevel?: string;
-    /** 是否允许点击打开抽屉 */
     enableDrawer?: boolean;
-    /** 抽屉标题，不传则用 i18n */
     drawerTitle?: string;
-    /** 抽屉宽度 */
     drawerSize?: number | string;
-    /** 透传 el-drawer */
     drawerProps?: Record<string, unknown>;
-    /** 昵称（props 直传，不调接口时用） */
     nickName?: string;
-    /** 部门名称（props 直传，不调接口时用） */
     deptName?: string;
-    /** 性别（props 直传，不调接口时用） */
     sex?: string;
   }>(),
   {
     nickName: '',
     deptName: '',
-
     userId: undefined,
     name: undefined,
     subtitle: '',
@@ -99,7 +78,6 @@ const props = withDefaults(
 );
 const { ensureImageBaseUrl, resolveImageUrl } = useImageUrl();
 void ensureImageBaseUrl();
-/** ****************************** 类型 ********************************/
 
 export type UserAvatarGenderInput =
   | 1
@@ -116,16 +94,12 @@ export type UserAvatarGenderInput =
   | '男';
 
 const drawerVisible = defineModel<boolean>('drawerVisible', { default: false });
-
-/** 懒加载：首次打开前不挂载 el-drawer；在 closed 后再卸载以保留关闭动画 */
 const drawerRendered = ref(false);
 
 watch(
   drawerVisible,
   (v) => {
-    if (v) {
-      drawerRendered.value = true;
-    }
+    if (v) drawerRendered.value = true;
   },
   { immediate: true },
 );
@@ -137,39 +111,23 @@ function onDrawerClosed() {
 const { t } = useI18n();
 const slots = useSlots();
 
-/** ****************************** 远程 SysUser ********************************/
-
-/** data 内用户主数据 */
-const remoteDetail = computed(
-  () => null as null | { data?: Record<string, any> },
-);
-const remoteUser = computed(() => remoteDetail.value?.data);
-const remoteEnabled = computed(() => false);
-const isFetching = computed(() => false);
-const presenceStore = computed(() => ({
-  isUserOnline: (_id: null | string) => false,
-})).value;
-
-const showRemoteLoading = computed(
-  () => remoteEnabled.value && isFetching.value && !remoteDetail.value,
-);
-
-// ==================== 显示区（仅 props，不依赖接口） ====================
+/** ****************************** 展示数据（全部来自 props） ********************************/
 const displayName = computed(() => props.nickName || props.name || '');
 const displaySubtitle = computed(() => props.subtitle || props.deptName || '');
 const displayAge = computed(() => props.age);
 const displayWorkYears = computed(() => props.workYears);
 const displayJobLevel = computed(() => props.jobLevel);
-
-// ==================== 抽屉（接口数据） ====================
-const drawerName = computed(
-  () => remoteUser.value?.nickName ?? remoteUser.value?.userName ?? '',
+const displayEmail = computed(() => props.email);
+const displayPhone = computed(() => props.phone);
+const displayDepartment = computed(
+  () => props.department || props.deptName || '',
 );
-const drawerUserId = computed(() => remoteUser.value?.userId ?? props.userId);
 
-// 默认插槽存在时，抽屉内展示插槽内容，否则展示内置字段
+const drawerName = computed(() => props.nickName || props.name || '');
+const drawerUserId = computed(() => props.userId);
 const hasDrawerDefaultSlot = computed(() => !!slots.default);
 
+/** 判断性别来源 */
 const genderSource = computed<'female' | 'male' | 'unknown'>(() => {
   if (
     props.gender !== undefined &&
@@ -184,20 +142,28 @@ const genderSource = computed<'female' | 'male' | 'unknown'>(() => {
   return 'unknown';
 });
 
-const drawerGenderSource = computed<'female' | 'male' | 'unknown'>(() => {
-  const sex = remoteUser.value?.sex;
-  if (sex === '0') return 'male';
-  if (sex === '1') return 'female';
-  return 'unknown';
-});
+/** 抽屉性别与触发器一致（不再读远程数据） */
+const drawerGenderSource = computed(() => genderSource.value);
+
+/** 统一使用性别作为主题色依据 */
+const isFemaleTheme = computed(() => genderSource.value === 'female');
+
+// ======== 动态主题配置 ========
+const themeClass = computed(() =>
+  isFemaleTheme.value ? 'theme-female' : 'theme-male',
+);
+
+// 触发器性别文字颜色
+const metaClass = computed(() => ({
+  '!text-blue-600': genderSource.value === 'male',
+  '!text-pink-500': genderSource.value === 'female',
+}));
 
 const drawerGenderLabel = computed(() => {
-  if (drawerGenderSource.value === 'male') {
+  if (drawerGenderSource.value === 'male')
     return t('components.userAvatarInfo.genderMale');
-  }
-  if (drawerGenderSource.value === 'female') {
+  if (drawerGenderSource.value === 'female')
     return t('components.userAvatarInfo.genderFemale');
-  }
   return t('components.userAvatarInfo.genderUnknown');
 });
 
@@ -207,26 +173,16 @@ const drawerShowGenderBadge = computed(
     drawerGenderSource.value === 'female',
 );
 
-const metaClass = computed(() => ({
-  'user-avatar-info__meta--male': genderSource.value === 'male',
-  'user-avatar-info__meta--female': genderSource.value === 'female',
-}));
-
-/** 头像右上角性别角标（仅男/女展示） */
 const showGenderBadge = computed(
   () => genderSource.value === 'male' || genderSource.value === 'female',
 );
 
-/** 头像右下角在线状态角标 */
 const showPresenceBadge = computed(
   () => props.userId != null && String(props.userId) !== '',
 );
 
-const isUserOnline = computed(() =>
-  presenceStore.isUserOnline(
-    props.userId == null ? null : String(props.userId),
-  ),
-);
+/** 无远程在线状态，保持离线态展示 */
+const isUserOnline = computed(() => false);
 
 const genderIconSize = computed(() =>
   Math.max(10, Math.min(16, Math.round(props.size * 0.36))),
@@ -236,7 +192,7 @@ const mergedAvatarProps = computed(() => ({
   ...props.avatar,
   size: props.size,
   src: resolveImageUrl(props.src || '--'),
-  shape: 'circle',
+  shape: 'circle' as const,
 }));
 
 const drawerTitleText = computed(
@@ -291,19 +247,19 @@ const drawerDetailItems = computed(() => [
     key: 'phone',
     label: t('components.userAvatarInfo.fieldPhone'),
     icon: drawerIconMap.phone,
-    value: displayField(remoteUser.value?.phonenumber ?? ''),
+    value: displayField(displayPhone.value),
   },
   {
     key: 'email',
     label: t('components.userAvatarInfo.fieldEmail'),
     icon: drawerIconMap.email,
-    value: displayField(remoteUser.value?.email ?? ''),
+    value: displayField(displayEmail.value),
   },
   {
     key: 'department',
     label: t('components.userAvatarInfo.fieldDepartment'),
     icon: drawerIconMap.department,
-    value: drawerDepartment.value,
+    value: displayField(displayDepartment.value),
   },
 ]);
 
@@ -320,15 +276,12 @@ const triggerAriaLabel = computed(() =>
 );
 
 function displayField(v: unknown) {
-  if (v === undefined || v === null || v === '') {
+  if (v === undefined || v === null || v === '')
     return t('components.userAvatarInfo.empty');
-  }
   return String(v);
 }
 
-const drawerDepartment = computed(() =>
-  displayField(remoteUser.value?.dept?.deptName ?? ''),
-);
+const drawerDepartment = computed(() => displayField(displayDepartment.value));
 
 function onTriggerClick() {
   if (!props.enableDrawer) return;
@@ -344,7 +297,6 @@ function onTriggerKeydown(e: KeyboardEvent) {
 }
 
 /** ****************************** 副标题省略与 hover 全文 ********************************/
-
 const subtitleRef = ref<HTMLElement | null>(null);
 const subtitleOverflow = ref(false);
 
@@ -377,44 +329,22 @@ watch(
 function openDrawer() {
   drawerVisible.value = true;
 }
-
 function closeDrawer() {
   drawerVisible.value = false;
 }
 
-defineExpose({
-  openDrawer,
-  closeDrawer,
-  /** data 内 SysUser */
-  remoteUser,
-  /** 完整接口响应（含根级 roles、posts、roleIds） */
-  remoteDetail,
-});
+defineExpose({ openDrawer, closeDrawer });
 </script>
 
 <template>
-  <div class="user-avatar-info-root">
-    <div v-if="showRemoteLoading" class="user-avatar-info__loading">
-      <el-skeleton animated>
-        <template #template>
-          <div class="user-avatar-info__skeleton-row">
-            <el-skeleton-item
-              variant="circle"
-              :style="{ width: `${size}px`, height: `${size}px` }"
-            />
-            <div class="user-avatar-info__skeleton-text">
-              <el-skeleton-item variant="p" style="width: 55%" />
-              <el-skeleton-item variant="p" style="width: 40%" />
-            </div>
-          </div>
-        </template>
-      </el-skeleton>
-    </div>
-
+  <div class="inline-block max-w-full">
+    <!-- Trigger -->
     <div
-      v-else
-      class="user-avatar-info"
-      :class="{ 'user-avatar-info--clickable': enableDrawer }"
+      class="inline-flex items-center min-w-0 max-w-full gap-2 outline-none rounded-md"
+      :class="{
+        'cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-100':
+          enableDrawer,
+      }"
       :role="enableDrawer ? 'button' : undefined"
       :tabindex="enableDrawer ? 0 : undefined"
       :aria-label="triggerAriaLabel"
@@ -422,14 +352,19 @@ defineExpose({
       @click="onTriggerClick"
       @keydown="onTriggerKeydown"
     >
-      <div class="user-avatar-info__avatar-wrap">
-        <el-avatar class="user-avatar-info__avatar" v-bind="mergedAvatarProps">
+      <div class="relative flex-shrink-0 w-fit">
+        <ElAvatar
+          class="inline-flex flex-shrink-0 items-center justify-center align-middle"
+          v-bind="mergedAvatarProps"
+        >
           <slot name="avatar">{{ displayName?.slice(0, 1) }}</slot>
-        </el-avatar>
+        </ElAvatar>
+
+        <!-- Gender Badge -->
         <span
           v-if="showGenderBadge"
-          class="user-avatar-info__gender-badge"
-          :class="`user-avatar-info__gender-badge--${genderSource}`"
+          class="absolute -top-0.5 -right-0.5 z-[1] box-border inline-flex items-center justify-center w-3 h-3 pointer-events-none rounded-full border-2 border-white bg-white"
+          :class="genderSource === 'male' ? 'text-blue-600' : 'text-pink-500'"
           aria-hidden="true"
         >
           <Mars
@@ -439,506 +374,184 @@ defineExpose({
           />
           <Venus v-else :size="genderIconSize" :stroke-width="2.5" />
         </span>
+
+        <!-- Presence Badge -->
         <span
           v-if="showPresenceBadge"
-          class="user-avatar-info__presence-badge"
-          :class="{
-            'user-avatar-info__presence-badge--online': isUserOnline,
-          }"
+          class="absolute right-0 bottom-0 z-[1] box-border w-2.5 h-2.5 pointer-events-none rounded-full border-2 border-white"
+          :class="isUserOnline ? 'bg-emerald-500' : 'bg-gray-300'"
           aria-hidden="true"
         ></span>
       </div>
 
-      <div class="user-avatar-info__meta" :class="metaClass">
-        <div class="user-avatar-info__name">
+      <div
+        class="flex flex-col flex-1 justify-center min-w-0 text-sm leading-[1.35]"
+        :class="metaClass"
+      >
+        <div
+          class="overflow-hidden text-ellipsis text-[13px] font-medium whitespace-nowrap"
+        >
           <slot name="name">{{ displayName }}</slot>
         </div>
-        <div
-          v-if="displaySubtitle || $slots.subtitle"
-          class="user-avatar-info__subtitle-wrap"
-        >
-          <el-tooltip
+        <div v-if="displaySubtitle || $slots.subtitle" class="w-full min-w-0">
+          <ElTooltip
             placement="top"
             :disabled="!subtitleOverflow"
             :show-after="200"
-            popper-class="user-avatar-info-tooltip"
+            popper-class="max-w-[min(90vw,380px)]"
           >
             <template #content>
-              <div class="user-avatar-info__tooltip-text displaySubtitle">
+              <div
+                class="max-w-[min(90vw,360px)] text-[10px] leading-[1.45] break-words whitespace-normal"
+              >
                 <slot name="subtitle">{{ displaySubtitle }}</slot>
               </div>
             </template>
             <div
               ref="subtitleRef"
-              class="user-avatar-info__subtitle"
-              :class="{
-                'user-avatar-info__subtitle--overflow': subtitleOverflow,
-              }"
+              class="min-w-0 overflow-hidden text-ellipsis text-[10px] whitespace-nowrap"
+              :class="subtitleOverflow ? 'cursor-help' : ''"
             >
               <slot name="subtitle">{{ displaySubtitle }}</slot>
             </div>
-          </el-tooltip>
+          </ElTooltip>
         </div>
       </div>
     </div>
 
-    <el-drawer
+    <!-- Drawer (通过 themeClass 控制全局主题) -->
+    <ElDrawer
       v-if="drawerRendered"
       v-model="drawerVisible"
       :size="drawerSize"
-      class="user-avatar-info-drawer row-detail-drawer"
+      class="user-avatar-info-drawer"
+      :class="themeClass"
       v-bind="mergedDrawerProps"
       @closed="onDrawerClosed"
     >
       <template #header>
-        <div class="row-detail-drawer__header">
-          <span class="row-detail-drawer__title">{{ drawerTitleText }}</span>
+        <div class="flex items-center w-full min-h-[24px] gap-3">
+          <span class="flex-1 font-semibold text-gray-900">{{
+            drawerTitleText
+          }}</span>
         </div>
       </template>
 
-      <div v-if="hasDrawerDefaultSlot" class="user-avatar-info__drawer-slot">
+      <div v-if="hasDrawerDefaultSlot" class="text-sm text-gray-900">
         <slot></slot>
       </div>
-      <div v-else class="user-avatar-info__drawer">
-        <!-------------------------- 用户摘要 -------------------------->
-        <section class="user-avatar-info__hero">
-          <div class="user-avatar-info__hero-avatar">
+
+      <div v-else class="flex flex-col gap-5 pt-2.5">
+        <!-------------------------- 用户摘要 (Hero) -------------------------->
+        <!-- 背景动态切换：男性浅蓝，女性浅粉 -->
+        <section
+          class="relative flex flex-col items-center sm:flex-row gap-5 min-h-[140px] p-6 overflow-hidden rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
+          :class="
+            isFemaleTheme
+              ? 'bg-gradient-to-br from-pink-50 to-rose-100'
+              : 'bg-gradient-to-br from-sky-50 to-indigo-100'
+          "
+        >
+          <!-- 装饰光晕 -->
+          <div
+            class="absolute top-[-50%] right-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0)_70%)] rounded-full pointer-events-none"
+          ></div>
+
+          <div class="relative z-[1] flex-shrink-0">
             <slot name="drawer-avatar">
-              <el-avatar
+              <!-- 头像动态切换：粉色渐变/蓝色渐变 -->
+              <ElAvatar
                 :size="props.drawerAvatarSize"
                 :src="mergedAvatarProps.src"
+                class="!text-[24px] !font-semibold !text-white !border-[3px] !border-white"
+                :class="
+                  isFemaleTheme
+                    ? '!bg-gradient-to-br !from-pink-400 !to-rose-500 !shadow-[0_4px_12px_rgba(244,63,94,0.2)]'
+                    : '!bg-gradient-to-br !from-blue-400 !to-blue-500 !shadow-[0_4px_12px_rgba(59,130,246,0.2)]'
+                "
               >
                 {{ drawerName?.slice(0, 1) }}
-              </el-avatar>
+              </ElAvatar>
             </slot>
           </div>
-          <div class="user-avatar-info__hero-main">
-            <div class="user-avatar-info__hero-name-row">
+
+          <div class="relative z-[1] min-w-0 text-center sm:text-left">
+            <div class="flex flex-col sm:flex-row items-center gap-3">
               <slot name="drawer-name">
-                <strong class="user-avatar-info__hero-name">
-                  {{ drawerName }}
+                <strong
+                  class="text-xl font-semibold text-slate-800 tracking-wide"
+                >
+                  {{ drawerName || t('components.userAvatarInfo.nameEmpty') }}
                 </strong>
               </slot>
+              <!-- 标签动态切换 -->
               <span
                 v-if="drawerShowGenderBadge"
-                class="user-avatar-info__hero-gender"
+                class="px-2.5 py-0.5 text-xs font-medium leading-5 rounded-xl"
+                :class="
+                  isFemaleTheme
+                    ? 'text-pink-600 bg-pink-600/10'
+                    : 'text-blue-600 bg-blue-600/10'
+                "
               >
                 {{ drawerGenderLabel }}
               </span>
             </div>
-            <div class="user-avatar-info__hero-meta">
-              <span v-if="drawerUserId">
+
+            <div
+              class="flex flex-wrap justify-center sm:justify-start gap-3 mt-2.5 text-[13px] text-slate-500"
+            >
+              <span
+                v-if="drawerUserId"
+                class="flex items-center px-2 py-0.5 font-mono bg-white/60 rounded-md"
+              >
                 {{ t('components.userAvatarInfo.fieldId') }}: {{ drawerUserId }}
               </span>
-              <span v-if="drawerDepartment">
+              <span v-if="drawerDepartment" class="flex items-center">
                 {{ drawerDepartment }}
               </span>
             </div>
           </div>
         </section>
 
-        <!-------------------------- 信息卡片 -------------------------->
-        <section class="user-avatar-info__card-grid">
+        <!-------------------------- 信息卡片 (Grid) -------------------------->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div
             v-for="item in drawerDetailItems"
             :key="item.key"
-            class="user-avatar-info__field-card"
+            class="group flex items-center gap-4 min-w-0 p-4 sm:p-5 bg-white border border-slate-200/80 rounded-xl shadow-sm transition-all duration-200"
           >
-            <div class="user-avatar-info__field-icon">
-              <component :is="item.icon" :size="18" :stroke-width="2.2" />
+            <!-- 图标底色动态切换 -->
+            <div
+              class="flex flex-shrink-0 items-center justify-center w-10 h-10 rounded-[10px] transition-colors"
+              :class="
+                isFemaleTheme
+                  ? 'text-pink-500 bg-pink-50 group-hover:bg-pink-100'
+                  : 'text-blue-500 bg-blue-50 group-hover:bg-blue-100'
+              "
+            >
+              <component :is="item.icon" :size="18" :stroke-width="2" />
             </div>
-            <div class="user-avatar-info__field-content">
-              <div class="user-avatar-info__field-label">{{ item.label }}</div>
-              <div class="user-avatar-info__field-value">
+            <div class="flex flex-col gap-1 min-w-0">
+              <div class="text-xs text-slate-400">{{ item.label }}</div>
+              <div
+                class="overflow-hidden text-ellipsis text-sm font-semibold text-slate-800 whitespace-nowrap"
+                :title="item.value"
+              >
                 {{ item.value }}
               </div>
             </div>
           </div>
         </section>
       </div>
-    </el-drawer>
+    </ElDrawer>
   </div>
 </template>
 
-<style scoped lang="scss">
-.user-avatar-info-root {
-  display: inline-block;
-  max-width: 100%;
-}
-
-.user-avatar-info__loading {
-  min-width: 120px;
-}
-
-.user-avatar-info__skeleton-row {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-}
-
-.user-avatar-info__skeleton-text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-.user-avatar-info {
-  display: inline-flex;
-  gap: var(--spacing-sm);
-  align-items: center;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.user-avatar-info--clickable {
-  cursor: pointer;
-  outline: none;
-  border-radius: var(--radius-md);
-}
-
-.user-avatar-info--clickable:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-primary-bg);
-}
-
-.user-avatar-info__avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-  width: fit-content;
-}
-
-.user-avatar-info__gender-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  z-index: 1;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  pointer-events: none;
-  background: var(--color-bg-card);
-  border: 2px solid var(--color-bg-card);
-  border-radius: 50%;
-}
-
-.user-avatar-info__gender-badge--male {
-  color: var(--color-gender-male-text);
-}
-
-.user-avatar-info__gender-badge--female {
-  color: var(--color-gender-female-text);
-}
-
-.user-avatar-info__presence-badge {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  box-sizing: border-box;
-  width: 10px;
-  height: 10px;
-  pointer-events: none;
-  background: var(--el-text-color-placeholder);
-  border: 2px solid var(--color-bg-card);
-  border-radius: 50%;
-}
-
-.user-avatar-info__presence-badge--online {
-  background: var(--el-color-success);
-}
-
-.user-avatar-info__gender-badge--drawer {
-  top: -3px;
-  right: -3px;
-  width: 22px;
-  height: 22px;
-}
-
-/* 勿用 line-height:0 / display:block，否则会破坏 el-avatar 内默认文字的 flex 居中 */
-.user-avatar-info__avatar {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
-}
-
-.user-avatar-info__meta {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  justify-content: center;
-  min-width: 0;
-  font-size: var(--font-size-sm);
-  line-height: 1.35;
-}
-
-.user-avatar-info__name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
-
-.user-avatar-info__subtitle-wrap {
-  width: 100%;
-  min-width: 0;
-}
-
-.user-avatar-info__subtitle {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--font-size-xs);
-  font-size: 10px;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-}
-
-.user-avatar-info__subtitle--overflow {
-  cursor: help;
-}
-
-.user-avatar-info__tooltip-text {
-  max-width: min(90vw, 360px);
-  font-size: 10px;
-  line-height: 1.45;
-  word-break: break-word;
-  white-space: normal;
-}
-
-.user-avatar-info__drawer-avatar {
-  flex-shrink: 0;
-}
-
-.user-avatar-info__drawer-slot {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-}
-
-.row-detail-drawer__header {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  min-height: 24px;
-}
-
-.row-detail-drawer__title {
-  flex: 1;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-/* 男性：名称与副标题均为蓝色 */
-.user-avatar-info__meta--male .user-avatar-info__name,
-.user-avatar-info__meta--male .user-avatar-info__subtitle {
-  color: var(--color-gender-male-text);
-}
-
-/* 女性：名称与副标题均为粉色 */
-.user-avatar-info__meta--female .user-avatar-info__name,
-.user-avatar-info__meta--female .user-avatar-info__subtitle {
-  color: var(--color-gender-female-text);
-}
-
-.user-avatar-info__drawer {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.user-avatar-info__hero {
-  position: relative;
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  min-height: 142px;
-  padding: 26px;
-  overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 88% 40%,
-      rgb(255 255 255 / 72%) 0 10%,
-      transparent 11% 100%
-    ),
-    linear-gradient(135deg, var(--color-primary-bg), rgb(255 255 255 / 68%));
-  border-radius: var(--radius-lg);
-
-  &::before,
-  &::after {
-    position: absolute;
-    pointer-events: none;
-    content: '';
-    border-radius: 999px;
-  }
-
-  &::before {
-    top: 20px;
-    right: -34px;
-    width: 210px;
-    height: 118px;
-    border: 1px solid rgb(255 255 255 / 62%);
-    transform: rotate(-28deg);
-  }
-
-  &::after {
-    right: 58px;
-    bottom: -28px;
-    width: 120px;
-    height: 168px;
-    border: 1px solid rgb(255 255 255 / 52%);
-    transform: rotate(18deg);
-  }
-}
-
-.user-avatar-info__hero-avatar {
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-
-  :deep(.el-avatar) {
-    font-size: 26px;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(
-      135deg,
-      var(--color-primary-light),
-      var(--color-primary)
-    );
-  }
-}
-
-.user-avatar-info__hero-main {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-}
-
-.user-avatar-info__hero-name-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  min-width: 0;
-}
-
-.user-avatar-info__hero-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 18px;
-  line-height: 26px;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
-
-.user-avatar-info__hero-gender {
-  flex-shrink: 0;
-  padding: 2px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 18px;
-  color: var(--color-primary);
-  background: var(--color-primary-bg);
-  border-radius: var(--radius-full);
-}
-
-.user-avatar-info__hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-text-secondary);
-
-  span + span::before {
-    margin-right: 8px;
-    color: var(--color-text-placeholder);
-    content: '·';
-  }
-}
-
-.user-avatar-info__card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 16px;
-  padding: 16px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.user-avatar-info__field-card {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-  min-height: 76px;
-  padding: 14px 16px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.user-avatar-info__field-icon {
-  display: inline-flex;
-  flex: 0 0 32px;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary);
-  background: var(--color-primary-bg);
-  border-radius: var(--radius-full);
-}
-
-.user-avatar-info__field-content {
-  min-width: 0;
-}
-
-.user-avatar-info__field-label {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--color-text-secondary);
-}
-
-.user-avatar-info__field-value {
-  margin-top: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 20px;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-  .user-avatar-info__card-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .user-avatar-info__hero {
-    padding: 22px;
-  }
-}
-</style>
-
 <style lang="scss">
-/* el-tooltip 的 popper 挂载到 body */
-.user-avatar-info-tooltip.el-popper {
-  max-width: min(90vw, 380px);
-}
-
+/*
+  由于 ElDrawer 挂载在 body 下，需要保留全局覆盖样式
+*/
 .user-avatar-info-drawer .el-drawer__header {
   display: flex;
   gap: 12px;
@@ -947,19 +560,34 @@ defineExpose({
   min-height: 32px;
   padding: 18px 24px 10px;
   margin: 0;
-  color: var(--color-text-primary);
+  color: #1e293b;
 }
 
 .user-avatar-info-drawer .el-drawer__body {
-  padding: 12px 24px 24px;
-  background: var(--color-bg-page);
+  padding: 16px 24px 24px;
+  background-color: #f8fafc;
 }
 
 .user-avatar-info-drawer .el-drawer {
-  background: var(--color-bg-page);
+  background: #f8fafc;
 }
 
-.user-avatar-info .el-avatar > img {
-  width: none !important;
+.user-avatar-info-drawer .el-avatar > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* 卡片悬停效果：通过 CSS 变量动态控制边框和阴影颜色 */
+.user-avatar-info-drawer.theme-male .group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.user-avatar-info-drawer.theme-female .group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.3);
 }
 </style>

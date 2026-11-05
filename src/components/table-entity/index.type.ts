@@ -32,10 +32,10 @@ export type ColumnsItem = {
   dictType?: string;
   /** 最多展示的缩略图 / 文件图标数量，type 为 picture 或 file 时使用，默认 3 */
   maxPreviewCount?: number;
-  /** 内置单元格组件透传属性，picture 会继续透传给 ImagesView */
-  cellProps?: Record<string, any>;
+  /** 内置单元格组件透传属性，picture 会继续透传给 ImagesView；也可传函数按当前行返回 */
+  cellProps?: TableEntityCellProps;
   /** 兼容使用 props 作为内置单元格透传配置 */
-  props?: Record<string, any>;
+  props?: TableEntityCellProps;
   /** 是否允许点击表头进行服务端排序 */
   sortable?: boolean;
   /** 初始排序方向 */
@@ -45,6 +45,22 @@ export type ColumnsItem = {
 } & Omit<Column, 'dataKey' | 'type' | 'width'>;
 export type TableEntityCellType =
   'avatar' | 'dict' | 'file' | 'listExpand' | 'picture' | 'price';
+
+/** cellProps 函数形式的入参 */
+export type TableEntityCellPropsContext = {
+  /** 当前行完整数据 */
+  row: Record<string, any>;
+  /** 当前单元格取值 */
+  value: unknown;
+  /** 当前行索引 */
+  rowIndex: number;
+  /** 当前列配置 */
+  column: ColumnsItem;
+};
+/** 内置单元格透传属性：对象，或按当前行数据返回对象的函数 */
+export type TableEntityCellProps =
+  | ((ctx: TableEntityCellPropsContext) => Record<string, any>)
+  | Record<string, any>;
 
 export type TableEntityRowKey = number | string | symbol;
 export type TableEntitySortOrder = 'asc' | 'desc';

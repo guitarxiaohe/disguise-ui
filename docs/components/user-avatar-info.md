@@ -29,34 +29,34 @@ import drawerSource from './demos/user-avatar-info-drawer.vue?raw'
   </DemoBlock>
 </ClientOnly>
 
-未提供 `default` 插槽时渲染内置详情：年龄、工龄、职级来自对应 props；姓名、性别、电话、邮箱、部门依赖远程用户数据（当前版本未启用远程拉取，这些字段会显示为空）。
+未提供 `default` 插槽时渲染内置详情：姓名取 `nickName || name`，性别由 `gender` / `sex` 推断；年龄、工龄、职级、电话、邮箱、部门来自对应 props（部门未传时回退 `deptName`），为空时显示「暂无」。
 
 ## Props
 
-| 名称               | 类型                      | 默认值   | 说明                                                               |
-| ------------------ | ------------------------- | -------- | ------------------------------------------------------------------ |
-| `userId`           | `number \| string`        | —        | 用户 ID；传入后头像右下角展示在线状态角标                          |
-| `name`             | `string`                  | —        | 展示名称                                                           |
-| `nickName`         | `string`                  | `''`     | 昵称，优先于 `name` 展示                                           |
-| `subtitle`         | `string`                  | `''`     | 副标题，优先于 `deptName`；溢出时 hover 显示全文                   |
-| `deptName`         | `string`                  | `''`     | 部门名称                                                           |
-| `src`              | `string`                  | —        | 头像地址                                                           |
-| `gender`           | `UserAvatarGenderInput`   | —        | 性别；`'male'` / `'female'` 时展示角标并着色                       |
-| `sex`              | `string`                  | `''`     | 性别编码，`'0'` 男 / `'1'` 女（`gender` 未传时生效）               |
-| `size`             | `number`                  | `30`     | 头像尺寸                                                           |
-| `avatar`           | `Record<string, unknown>` | —        | 透传给 `ElAvatar`                                                  |
-| `drawerAvatarSize` | `number`                  | `64`     | 抽屉头像尺寸                                                       |
-| `age`              | `number \| string`        | —        | 年龄                                                               |
-| `workYears`        | `number \| string`        | —        | 工龄                                                               |
-| `email`            | `string`                  | —        | 邮箱（当前版本未参与渲染）                                         |
-| `phone`            | `string`                  | —        | 手机号（当前版本未参与渲染）                                       |
-| `department`       | `string`                  | —        | 部门（当前版本未参与渲染，触发区副标题取 `subtitle` / `deptName`） |
-| `jobLevel`         | `string`                  | —        | 职级                                                               |
-| `enableDrawer`     | `boolean`                 | `true`   | 是否允许打开详情抽屉                                               |
-| `drawerTitle`      | `string`                  | 内置文案 | 抽屉标题                                                           |
-| `drawerSize`       | `number \| string`        | `'40%'`  | 抽屉宽度                                                           |
-| `drawerProps`      | `Record<string, unknown>` | —        | 透传给 `ElDrawer`                                                  |
-| `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                                                   |
+| 名称               | 类型                      | 默认值   | 说明                                                                                |
+| ------------------ | ------------------------- | -------- | ----------------------------------------------------------------------------------- |
+| `userId`           | `number \| string`        | —        | 用户 ID；传入后头像右下角展示在线状态角标                                           |
+| `name`             | `string`                  | —        | 展示名称                                                                            |
+| `nickName`         | `string`                  | `''`     | 昵称，优先于 `name` 展示                                                            |
+| `subtitle`         | `string`                  | `''`     | 副标题，优先于 `deptName`；溢出时 hover 显示全文                                    |
+| `deptName`         | `string`                  | `''`     | 部门名称                                                                            |
+| `src`              | `string`                  | —        | 头像地址                                                                            |
+| `gender`           | `UserAvatarGenderInput`   | —        | 性别；`'male'` / `'female'` 时展示角标并着色                                        |
+| `sex`              | `string`                  | `''`     | 性别编码，`'0'` 男 / `'1'` 女（`gender` 未传时生效）                                |
+| `size`             | `number`                  | `30`     | 头像尺寸                                                                            |
+| `avatar`           | `Record<string, unknown>` | —        | 透传给 `ElAvatar`                                                                   |
+| `drawerAvatarSize` | `number`                  | `64`     | 抽屉头像尺寸                                                                        |
+| `age`              | `number \| string`        | —        | 年龄                                                                                |
+| `workYears`        | `number \| string`        | —        | 工龄                                                                                |
+| `email`            | `string`                  | —        | 邮箱（抽屉详情展示）                                                                |
+| `phone`            | `string`                  | —        | 手机号（抽屉详情展示）                                                              |
+| `department`       | `string`                  | —        | 部门（抽屉详情展示，未传时回退 `deptName`；触发区副标题取 `subtitle` / `deptName`） |
+| `jobLevel`         | `string`                  | —        | 职级                                                                                |
+| `enableDrawer`     | `boolean`                 | `true`   | 是否允许打开详情抽屉                                                                |
+| `drawerTitle`      | `string`                  | 内置文案 | 抽屉标题                                                                            |
+| `drawerSize`       | `number \| string`        | `'40%'`  | 抽屉宽度                                                                            |
+| `drawerProps`      | `Record<string, unknown>` | —        | 透传给 `ElDrawer`                                                                   |
+| `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                                                                    |
 
 `UserAvatarGenderInput`：`1 | 2 | '' | 'F' | 'f' | 'female' | 'M' | 'm' | 'male' | 'unknown' | '女' | '男'`。当前仅 `'male'` / `'female'` 会触发角标与着色，其余取值按未识别处理。
 
@@ -79,11 +79,9 @@ import drawerSource from './demos/user-avatar-info-drawer.vue?raw'
 
 ## 暴露方法
 
-| 名称            | 说明                   |
-| --------------- | ---------------------- |
-| `openDrawer()`  | 打开详情抽屉           |
-| `closeDrawer()` | 关闭详情抽屉           |
-| `remoteUser`    | 远程用户数据的只读引用 |
-| `remoteDetail`  | 完整远程响应的只读引用 |
+| 名称            | 说明         |
+| --------------- | ------------ |
+| `openDrawer()`  | 打开详情抽屉 |
+| `closeDrawer()` | 关闭详情抽屉 |
 
-当前版本未启用远程拉取：`remoteDetail` 恒为 `null`、`remoteUser` 恒为 `undefined`，在线状态角标恒为离线样式。
+当前版本在线状态角标恒为离线样式。
