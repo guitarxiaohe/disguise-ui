@@ -35,6 +35,9 @@ const props = withDefaults(defineProps<SchemaFormProps>(), {
   schema: () => [],
   underline: false,
 });
+const emit = defineEmits<{
+  'field-change': [field: ResolvedField, value: any];
+}>();
 
 const model = defineModel<Record<string, any>>({ default: () => ({}) });
 
@@ -132,8 +135,9 @@ function isReadonly(field: ResolvedField) {
   return props.mode === 'view' || !!field.readonly;
 }
 
-function setValue(prop: string, value: any) {
-  model.value = { ...model.value, [prop]: value };
+function setValue(field: ResolvedField, value: any) {
+  model.value = { ...model.value, [field.prop]: value };
+  emit('field-change', field, value);
 }
 
 // 仅在键缺失时补默认值，用户主动清空后的空值不会被重新填充
@@ -272,7 +276,7 @@ defineExpose({
                   :model-value="model[child.prop]"
                   :disabled="isDisabled(child, entry)"
                   :readonly="isReadonly(child)"
-                  @update:model-value="setValue(child.prop, $event)"
+                  @update:model-value="setValue(child, $event)"
                 >
                   <template #default="slotProps">
                     <slot :name="child.prop" v-bind="slotProps"></slot>
@@ -293,7 +297,7 @@ defineExpose({
               :model-value="model[entry.prop]"
               :disabled="isDisabled(entry)"
               :readonly="isReadonly(entry)"
-              @update:model-value="setValue(entry.prop, $event)"
+              @update:model-value="setValue(entry, $event)"
             >
               <template #default="slotProps">
                 <slot :name="entry.prop" v-bind="slotProps"></slot>

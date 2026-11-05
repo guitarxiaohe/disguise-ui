@@ -2,11 +2,12 @@
 import type { FieldContext, SchemaFormMode } from '../schema-form';
 import type {
   ResolvedEntry,
+  ResolvedField,
   ResolvedGroup,
 } from '../schema-form/schema-form.type';
 import type { SearchFormItem, SearchFormValues } from './index.type';
 
-import { computed, ref, useSlots, watch } from 'vue';
+import { computed, nextTick, ref, useSlots, watch } from 'vue';
 
 import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 import { ElButton } from 'element-plus';
@@ -52,6 +53,7 @@ const model = defineModel<SearchFormValues>({ default: () => ({}) });
 const slots = useSlots();
 const expanded = ref(false);
 const schemaFormRef = ref<InstanceType<typeof SchemaForm>>();
+const autoSearchFieldTypes = new Set(['async-select', 'cascader', 'select']);
 
 const entries = computed(() => props.schema as ResolvedEntry[]);
 const context = computed<FieldContext>(() => ({
@@ -103,6 +105,28 @@ function handleSubmit() {
   emit('search', getValues());
 }
 
+function handleEnterKeydown(event: KeyboardEvent) {
+  if (event.isComposing) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.tagName !== 'INPUT') return;
+  if (
+    target.closest(
+      '.async-select, .el-select, .el-cascader, .el-date-editor',
+    )
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  handleSubmit();
+}
+
+async function handleFieldChange(field: ResolvedField) {
+  if (!autoSearchFieldTypes.has(field.type)) return;
+  await nextTick();
+  handleSubmit();
+}
+
 function handleReset() {
   model.value = getDefaultValues();
   emit('reset', getValues());
@@ -125,7 +149,11 @@ defineExpose({
 </script>
 
 <template>
-  <form class="search-form" @submit.prevent="handleSubmit">
+  <form
+    class="search-form"
+    @keydown.enter="handleEnterKeydown"
+    @submit.prevent="handleSubmit"
+  >
     <SchemaForm
       ref="schemaFormRef"
       v-model="model"
@@ -138,6 +166,7 @@ defineExpose({
       label-position="left"
       :label-width="labelWidth"
       :item-gap="12"
+      @field-change="handleFieldChange"
     >
       <template
         v-for="slotName in slotNames"
