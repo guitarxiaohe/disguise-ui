@@ -1206,7 +1206,13 @@ defineExpose({
 
     <div v-if="props.showPagination" class="table-entity__pagination">
       <!-- 选择了多少 -->
-      <div>
+      <div
+        class="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--el-color-primary-light-7)] bg-[var(--el-color-primary-light-9)] px-3 text-sm font-medium text-[var(--el-color-primary)] shadow-sm transition-colors"
+      >
+        <span
+          class="size-2 rounded-full bg-[var(--el-color-primary)] shadow-[0_0_0_3px_var(--el-color-primary-light-8)]"
+          aria-hidden="true"
+        ></span>
         {{
           t('components.tableEntity.selectedCount', {
             count: getSelectedCount(),
