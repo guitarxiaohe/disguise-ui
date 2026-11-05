@@ -2,12 +2,22 @@ import type {
   DrawerFormPageApi,
   DrawerFormPageOpenOptions,
   DrawerFormPageOptions,
+  DrawerFormPageProps,
   DrawerFormValues,
 } from './index.type';
 
 import { defineComponent, h, reactive, ref, watch } from 'vue';
 
 import DrawerFormPage from './index.vue';
+
+/** DrawerFormPage 实例上实际用到的方法，避免 InstanceType 触发过深的类型实例化 */
+interface DrawerFormPageInstance {
+  getValues: () => DrawerFormValues;
+  resetFields: () => void;
+  submit: () => Promise<boolean>;
+  toggleFullscreen: () => void;
+  validate: () => Promise<boolean>;
+}
 
 export function useDrawerFormPage<
   TValues extends DrawerFormValues = DrawerFormValues,
@@ -29,7 +39,7 @@ export function useDrawerFormPage<
   const state = reactive<DrawerFormPageOpenOptions<TValues>>({
     ...defaultState,
   });
-  const drawerRef = ref<InstanceType<typeof DrawerFormPage>>();
+  const drawerRef = ref<DrawerFormPageInstance>();
 
   let api: DrawerFormPageApi<TValues>;
 
@@ -104,7 +114,8 @@ export function useDrawerFormPage<
           DrawerFormPage,
           {
             ...attrs,
-            ...state,
+            // 收窄为具体 props 类型，避免 reactive 的 UnwrapRef 泛型递归导致类型实例化过深
+            ...(state as Partial<DrawerFormPageProps>),
             ref: drawerRef,
             modelValue: visible.value,
             formValues: values.value,

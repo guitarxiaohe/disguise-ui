@@ -104,7 +104,7 @@ export function getRequestClient() {
   return requestClient;
 }
 
-export function loadDictData() {
+export function loadDictData(): Promise<Record<string, DictValueItem[]>> {
   return dictLoader?.() ?? Promise.resolve({});
 }
 
