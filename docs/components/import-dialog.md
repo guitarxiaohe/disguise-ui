@@ -9,6 +9,7 @@ import Template from './demos/import-dialog-template.vue'
 import templateSource from './demos/import-dialog-template.vue?raw'
 import Duplicate from './demos/import-dialog-duplicate.vue'
 import duplicateSource from './demos/import-dialog-duplicate.vue?raw'
+
 </script>
 
 ## 基础用法

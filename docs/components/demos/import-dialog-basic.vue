@@ -11,6 +11,15 @@ const targetFields = [
   { field: 'status', label: '状态' },
   { field: 'job', label: '岗位' },
 ];
+
+const IMPORTDOC = `
+一、Excel文件要求
+    • 文件格式：必须是 .xlsx 格式（Excel 2007及以上版本）
+    • 文件命名：只能用英文、数字、下划线，例如：upload_template_2026.xlsx
+    • 禁止使用：中文、空格、特殊符号（如：@、#、$、%等）
+    • 模版下载：下载模版
+
+        `;
 </script>
 
 <template>
@@ -22,6 +31,7 @@ const targetFields = [
       '文档站示例不会真正请求后台',
       '选择任意 xlsx / csv 后可走完映射流程',
     ]"
+    :importDesc="IMPORTDOC"
     :parse-file="
       async ({ file }) => ({
         fileName: file.name,

@@ -837,12 +837,16 @@ async function handleImport() {
 
       <!-------------------------- 上传文件 -------------------------->
       <template v-if="currentStep === 'upload'">
-        <template v-if="importDesc">
+        <slot name="desc-title">
           <div class="import-dialog__form-label">
             {{ t('components.importDialog.descLabel') }}
           </div>
-          <div class="import-dialog__desc">{{ importDesc }}</div>
-        </template>
+        </slot>
+        <slot name="desc-content">
+          <template v-if="importDesc">
+            <div class="import-dialog__desc">{{ importDesc }}</div>
+          </template>
+        </slot>
 
         <ElUpload
           ref="uploadRef"

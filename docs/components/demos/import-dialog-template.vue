@@ -19,6 +19,7 @@ function handleDownloadTemplate() {
     >打开导入（自定义模板下载）</ElButton
   >
   <ImportDialog
+    importDesc="打开导入（自定义模板下载）"
     v-model="visible"
     :target-fields="targetFields"
     :tips="[
