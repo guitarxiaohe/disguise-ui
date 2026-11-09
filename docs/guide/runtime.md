@@ -4,17 +4,18 @@
 
 ## 配置项
 
-| 名称               | 类型                                               | 说明                                            |
-| ------------------ | -------------------------------------------------- | ----------------------------------------------- |
-| `locale`           | `string`                                           | 内置文案语言，默认 `zh-CN`                      |
-| `messages`         | `Record<string, Record<string, unknown>>`          | 覆盖内置文案，key 路径与组件里的 `t()` 一致     |
-| `request`          | `DisguiseRequestClient`                            | 导入、导出使用的请求客户端                      |
-| `fetchAllDictData` | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值  |
-| `uploadFile`       | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                  |
-| `imageBaseUrl`     | `string`                                           | 相对图片路径要拼接的域名                        |
-| `hasAccess`        | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示 |
-| `getAccessToken`   | `() => string`                                     | 导出请求附带的 token                            |
-| `cardShadow`       | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                 |
+| 名称                     | 类型                                               | 说明                                                                       |
+| ------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------- |
+| `locale`                 | `string`                                           | 内置文案语言，默认 `zh-CN`                                                 |
+| `messages`               | `Record<string, Record<string, unknown>>`          | 覆盖内置文案，key 路径与组件里的 `t()` 一致                                |
+| `request`                | `DisguiseRequestClient`                            | 导入、导出使用的请求客户端                                                 |
+| `fetchAllDictData`       | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值                             |
+| `uploadFile`             | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                                             |
+| `imageBaseUrl`           | `string`                                           | 相对图片路径要拼接的域名                                                   |
+| `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                            |
+| `getAccessToken`         | `() => string`                                     | 导出请求附带的 token                                                       |
+| `cardShadow`             | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                                            |
+| `userAvatarDrawerFields` | `UserAvatarDrawerField[]`                          | `UserAvatarInfo` 抽屉详情字段的全局配置，组件 `drawerFields` prop 优先于它 |
 
 ## 字典
 
@@ -47,6 +48,20 @@ setupDisguise({
 ```
 
 `options.baseFolder` 和 `options.addWatermark` 来自上传组件的同名 props。
+
+## UserAvatarInfo 抽屉字段
+
+`UserAvatarInfo` 抽屉详情卡片展示哪些字段、字段名和顺序，可以全局注入一套配置，个别组件再用 `drawerFields` prop 覆盖。字段配置类型为 `UserAvatarDrawerField`（`{ key, label?, icon?, value? }`），详见 [UserAvatarInfo](../components/user-avatar-info.md#自定义抽屉字段)。
+
+```ts
+setupDisguise({
+  userAvatarDrawerFields: [
+    { key: 'name' },
+    { key: 'department' },
+    { key: 'email' },
+  ],
+});
+```
 
 ## 远程实体
 

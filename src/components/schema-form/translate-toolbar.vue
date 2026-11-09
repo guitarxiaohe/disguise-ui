@@ -24,10 +24,12 @@ const props = withDefaults(
     inline?: boolean;
     languages: TranslateLanguage[];
     loading?: boolean;
+    /** 是否将语言下拉列表挂载到浮层外；富文本场景设为 false，避免鼠标移入列表时关闭悬停浮层。 */
+    selectTeleported?: boolean;
     sourceLanguage: string;
     targetLanguage: string;
   }>(),
-  { disabled: false, inline: false, loading: false },
+  { disabled: false, inline: false, loading: false, selectTeleported: true },
 );
 
 const emit = defineEmits<{
@@ -133,8 +135,8 @@ function handleCommand(command: string) {
     <div class="translate-toolbar__row">
       <ElSelect
         :model-value="sourceLanguage"
-        :teleported="false"
         :disabled="disabled || loading"
+        :teleported="selectTeleported"
         :placeholder="t('product-management.attribute.translation.from')"
         class="translate-toolbar__language-select"
         @update:model-value="emit('update:sourceLanguage', String($event))"
@@ -149,8 +151,8 @@ function handleCommand(command: string) {
       <span class="translate-toolbar__arrow" aria-hidden="true">→</span>
       <ElSelect
         :model-value="targetLanguage"
-        :teleported="false"
         :disabled="disabled || loading"
+        :teleported="selectTeleported"
         :placeholder="t('product-management.attribute.translation.to')"
         class="translate-toolbar__language-select"
         @update:model-value="emit('update:targetLanguage', String($event))"
@@ -165,7 +167,7 @@ function handleCommand(command: string) {
       <ElDropdown
         split-button
         type="primary"
-        :teleported="false"
+        :teleported="selectTeleported"
         class="translate-toolbar__action"
         :disabled="disabled || loading || !sourceLanguage || !targetLanguage"
         @click="emit('translate', 'translate')"
