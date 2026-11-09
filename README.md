@@ -1,12 +1,14 @@
 # Disguise
 
-从原后台抽出的列表、表单、上传组件。安装后不依赖原后台的接口、字典和权限，这些能力在启动时注入。
+[文档地址](http://110.42.237.20:3006/)
+
+列表、表单、上传组件。安装后不依赖原后台的接口、字典和权限，这些能力在启动时注入。
 
 ## 包含
 
 `CrudPage`、`TableEntity`、`SchemaForm`、`SearchForm`、`DrawerFormPage`、`AsyncSelect`、`DictTag`、`ImportDialog`、`ImageUpload`、`ImagesView`、`PictureUpload`、`RichTextEditor`、`BaseCard`、`DisguiseIcon`。
 
-业务实体（商品、部门、用户）没有打进包。远程下拉用 `registerEntity` 自己注册。
+业务实体。远程下拉用 `registerEntity` 自己注册。
 
 ## 安装
 
