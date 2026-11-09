@@ -223,6 +223,7 @@ async function translate(command: TranslateCommand = 'translate') {
             :languages="languages"
             :source-language="sourceLanguage"
             :target-language="targetLanguage"
+            :select-teleported="false"
             :disabled="disabled"
             :loading="translating"
             @update:source-language="sourceLanguage = $event"

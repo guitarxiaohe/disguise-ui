@@ -24,10 +24,12 @@ const props = withDefaults(
     inline?: boolean;
     languages: TranslateLanguage[];
     loading?: boolean;
+    /** 是否将语言下拉列表挂载到浮层外；富文本场景设为 false，避免鼠标移入列表时关闭悬停浮层。 */
+    selectTeleported?: boolean;
     sourceLanguage: string;
     targetLanguage: string;
   }>(),
-  { disabled: false, inline: false, loading: false },
+  { disabled: false, inline: false, loading: false, selectTeleported: true },
 );
 
 const emit = defineEmits<{
@@ -134,6 +136,7 @@ function handleCommand(command: string) {
       <ElSelect
         :model-value="sourceLanguage"
         :disabled="disabled || loading"
+        :teleported="selectTeleported"
         :placeholder="t('product-management.attribute.translation.from')"
         class="translate-toolbar__language-select"
         @update:model-value="emit('update:sourceLanguage', String($event))"
@@ -149,6 +152,7 @@ function handleCommand(command: string) {
       <ElSelect
         :model-value="targetLanguage"
         :disabled="disabled || loading"
+        :teleported="selectTeleported"
         :placeholder="t('product-management.attribute.translation.to')"
         class="translate-toolbar__language-select"
         @update:model-value="emit('update:targetLanguage', String($event))"
