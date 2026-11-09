@@ -133,6 +133,7 @@ function handleCommand(command: string) {
     <div class="translate-toolbar__row">
       <ElSelect
         :model-value="sourceLanguage"
+        :teleported="false"
         :disabled="disabled || loading"
         :placeholder="t('product-management.attribute.translation.from')"
         class="translate-toolbar__language-select"
@@ -148,6 +149,7 @@ function handleCommand(command: string) {
       <span class="translate-toolbar__arrow" aria-hidden="true">→</span>
       <ElSelect
         :model-value="targetLanguage"
+        :teleported="false"
         :disabled="disabled || loading"
         :placeholder="t('product-management.attribute.translation.to')"
         class="translate-toolbar__language-select"
@@ -163,6 +165,7 @@ function handleCommand(command: string) {
       <ElDropdown
         split-button
         type="primary"
+        :teleported="false"
         class="translate-toolbar__action"
         :disabled="disabled || loading || !sourceLanguage || !targetLanguage"
         @click="emit('translate', 'translate')"
