@@ -367,29 +367,30 @@
 
 ## UserAvatarInfo
 
-| 属性               | 类型                      | 默认值   | 说明                                         |
-| ------------------ | ------------------------- | -------- | -------------------------------------------- |
-| `userId`           | `number \| string`        | —        | 用户 ID；传入后展示在线状态角标              |
-| `name`             | `string`                  | —        | 展示名称                                     |
-| `nickName`         | `string`                  | `''`     | 昵称，优先于 `name` 展示                     |
-| `subtitle`         | `string`                  | `''`     | 副标题，优先于 `deptName`                    |
-| `deptName`         | `string`                  | `''`     | 部门名称                                     |
-| `src`              | `string`                  | —        | 头像地址                                     |
-| `gender`           | `UserAvatarGenderInput`   | —        | 性别；`'male'` / `'female'` 时展示角标并着色 |
-| `sex`              | `string`                  | `''`     | 性别编码，`'0'` 男 / `'1'` 女                |
-| `size`             | `number`                  | `30`     | 头像尺寸                                     |
-| `avatar`           | `Record<string, unknown>` | —        | 透传给 `ElAvatar`                            |
-| `drawerAvatarSize` | `number`                  | `64`     | 抽屉头像尺寸                                 |
-| `age`              | `number \| string`        | —        | 年龄                                         |
-| `workYears`        | `number \| string`        | —        | 工龄                                         |
-| `email`            | `string`                  | —        | 邮箱（抽屉详情展示）                         |
-| `phone`            | `string`                  | —        | 手机号（抽屉详情展示）                       |
-| `department`       | `string`                  | —        | 部门（抽屉详情展示，未传时回退 `deptName`）  |
-| `jobLevel`         | `string`                  | —        | 职级                                         |
-| `enableDrawer`     | `boolean`                 | `true`   | 是否允许打开详情抽屉                         |
-| `drawerTitle`      | `string`                  | 内置文案 | 抽屉标题                                     |
-| `drawerSize`       | `number \| string`        | `'40%'`  | 抽屉宽度                                     |
-| `drawerProps`      | `Record<string, unknown>` | —        | 透传给 `ElDrawer`                            |
-| `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                             |
+| 属性               | 类型                      | 默认值   | 说明                                                                           |
+| ------------------ | ------------------------- | -------- | ------------------------------------------------------------------------------ |
+| `userId`           | `number \| string`        | —        | 用户 ID；传入后展示在线状态角标                                                |
+| `name`             | `string`                  | —        | 展示名称                                                                       |
+| `nickName`         | `string`                  | `''`     | 昵称，优先于 `name` 展示                                                       |
+| `subtitle`         | `string`                  | `''`     | 副标题，优先于 `deptName`                                                      |
+| `deptName`         | `string`                  | `''`     | 部门名称                                                                       |
+| `src`              | `string`                  | —        | 头像地址                                                                       |
+| `gender`           | `UserAvatarGenderInput`   | —        | 性别；`'male'` / `'female'` 时展示角标并着色                                   |
+| `sex`              | `string`                  | `''`     | 性别编码，`'0'` 男 / `'1'` 女                                                  |
+| `size`             | `number`                  | `30`     | 头像尺寸                                                                       |
+| `avatar`           | `Record<string, unknown>` | —        | 透传给 `ElAvatar`                                                              |
+| `drawerAvatarSize` | `number`                  | `64`     | 抽屉头像尺寸                                                                   |
+| `age`              | `number \| string`        | —        | 年龄                                                                           |
+| `workYears`        | `number \| string`        | —        | 工龄                                                                           |
+| `email`            | `string`                  | —        | 邮箱（抽屉详情展示）                                                           |
+| `phone`            | `string`                  | —        | 手机号（抽屉详情展示）                                                         |
+| `department`       | `string`                  | —        | 部门（抽屉详情展示，未传时回退 `deptName`）                                    |
+| `jobLevel`         | `string`                  | —        | 职级                                                                           |
+| `enableDrawer`     | `boolean`                 | `true`   | 是否允许打开详情抽屉                                                           |
+| `drawerTitle`      | `string`                  | 内置文案 | 抽屉标题                                                                       |
+| `drawerSize`       | `number \| string`        | `'40%'`  | 抽屉宽度                                                                       |
+| `drawerProps`      | `Record<string, unknown>` | —        | 透传给 `ElDrawer`                                                              |
+| `drawerFields`     | `UserAvatarDrawerField[]` | —        | 抽屉详情卡片字段配置，优先于全局 `userAvatarDrawerFields`，不传时为默认 8 字段 |
+| `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                                                               |
 
-事件：`update:drawerVisible`。插槽：`avatar`、`name`、`subtitle`、`default`、`drawer-avatar`、`drawer-name`。暴露方法：`openDrawer()`、`closeDrawer()`。
+事件：`update:drawerVisible`。插槽：`avatar`、`name`、`subtitle`、`default`、`drawer-avatar`、`drawer-name`。暴露方法：`openDrawer()`、`closeDrawer()`。 `UserAvatarDrawerField`：`{ key, label?, icon?, value? }`，用于配置抽屉详情卡片字段，也可通过 `setupDisguise({ userAvatarDrawerFields })` 全局注入。

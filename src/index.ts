@@ -39,6 +39,7 @@ export type * from './components/search-form/index.type.js';
 export type * from './components/table-entity/index.type.js';
 export { default as TableEntity } from './components/table-entity/index.vue';
 export { default as UserAvatarInfo } from './components/user-avatar-info/index.vue';
+export type { UserAvatarGenderInput } from './components/user-avatar-info/index.vue';
 export { getEntity, paginateLocally, registerEntity } from './entities/index';
 export type {
   EntityDefinition,
@@ -50,4 +51,5 @@ export type {
   DisguiseOptions,
   DisguiseOptions as SetupDisguiseOptions,
   PaginationConfig,
+  UserAvatarDrawerField,
 } from './setup';

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'vue';
+import type { CSSProperties, Component } from 'vue';
 
 import { ref } from 'vue';
 
@@ -27,6 +27,23 @@ export interface PaginationConfig {
   /** 分页条数下拉菜单的样式；默认层级高于 DialogList 弹窗 */
   popperStyle?: CSSProperties;
 }
+
+/**
+ * UserAvatarInfo 抽屉详情卡片字段配置
+ * - 内置字段（name/gender/age/workYears/jobLevel/phone/email/department）
+ *   未提供 value 时自动取对应 props 的展示值
+ * - 自定义字段需提供 value，label / icon 可覆盖默认文案与图标
+ */
+export interface UserAvatarDrawerField {
+  /** 字段 key，同时用于匹配内置取值、默认 label 与默认 icon */
+  key: string;
+  /** 字段名；不传时内置字段取默认国际化文案，未知 key 回退为 key 本身 */
+  label?: string;
+  /** 字段图标；不传时取内置 icon 映射，未知 key 回退为默认图标 */
+  icon?: Component;
+  /** 自定义展示值，优先于内置 key 的默认取值（空值统一显示「暂无」） */
+  value?: string | number;
+}
 export interface DisguiseOptions {
   /** 组件内置文案语言，默认 zh-CN */
   locale?: string;
@@ -52,6 +69,9 @@ export interface DisguiseOptions {
 
   /** TableEntity 分页器的全局配置 */
   paginationConfig?: PaginationConfig;
+
+  /** UserAvatarInfo 抽屉详情字段的全局配置，组件 drawerFields prop 优先于它 */
+  userAvatarDrawerFields?: UserAvatarDrawerField[];
 }
 
 const locale = ref('zh-CN');
@@ -65,6 +85,7 @@ const paginationConfig = ref<PaginationConfig>({
   pageSizes: [10, 20, 50, 100],
   popperStyle: { zIndex: 4000 },
 });
+const userAvatarDrawerFields = ref<UserAvatarDrawerField[] | null>(null);
 
 let requestClient: DisguiseRequestClient | null = null;
 let dictLoader: DisguiseOptions['fetchAllDictData'];
@@ -89,6 +110,9 @@ export function configureDisguise(options: DisguiseOptions) {
       ...paginationConfig.value,
       ...options.paginationConfig,
     };
+  }
+  if (options.userAvatarDrawerFields !== undefined) {
+    userAvatarDrawerFields.value = options.userAvatarDrawerFields;
   }
 }
 
@@ -129,4 +153,7 @@ export function getCardShadow() {
 }
 export function getPaginationConfig() {
   return paginationConfig;
+}
+export function getUserAvatarDrawerFields() {
+  return userAvatarDrawerFields;
 }

@@ -12,10 +12,11 @@ import {
 } from 'vue';
 import { ElAvatar, ElDrawer, ElTooltip } from 'element-plus';
 import { useI18n } from '@/runtime/i18n';
+import type { UserAvatarDrawerField } from '@/runtime/context';
+import { getUserAvatarDrawerFields } from '@/runtime/context';
 
 import { useImageUrl } from '@/composables/use-image-url';
 import {
-  Badge,
   Briefcase,
   Building2,
   Cake,
@@ -49,6 +50,7 @@ const props = withDefaults(
     drawerTitle?: string;
     drawerSize?: number | string;
     drawerProps?: Record<string, unknown>;
+    drawerFields?: UserAvatarDrawerField[];
     nickName?: string;
     deptName?: string;
     sex?: string;
@@ -74,6 +76,7 @@ const props = withDefaults(
     drawerSize: '40%',
     drawerProps: undefined,
     drawerAvatarSize: 64,
+    drawerFields: undefined,
   },
 );
 const { ensureImageBaseUrl, resolveImageUrl } = useImageUrl();
@@ -92,6 +95,12 @@ export type UserAvatarGenderInput =
   | 'unknown'
   | '女'
   | '男';
+
+/**
+ * 抽屉详情卡片字段配置（UserAvatarDrawerField）定义在 @/runtime/context，
+ * 可通过 setupDisguise({ userAvatarDrawerFields }) 全局注入，
+ * 组件 drawerFields prop 优先于全局配置。
+ */
 
 const drawerVisible = defineModel<boolean>('drawerVisible', { default: false });
 const drawerRendered = ref(false);
@@ -208,60 +217,65 @@ const drawerIconMap: Record<string, Component> = {
   email: markRaw(Mail),
   phone: markRaw(Phone),
   department: markRaw(Building2),
-  jobLevel: markRaw(Badge),
+  jobLevel: markRaw(Briefcase),
   position: markRaw(Briefcase),
 };
 
-const drawerDetailItems = computed(() => [
-  {
-    key: 'name',
-    label: t('components.userAvatarInfo.fieldName'),
-    icon: drawerIconMap.name,
-    value: drawerName.value,
-  },
-  {
-    key: 'gender',
-    label: t('components.userAvatarInfo.fieldGender'),
-    icon: drawerIconMap.gender,
-    value: drawerGenderLabel.value,
-  },
-  {
-    key: 'age',
-    label: t('components.userAvatarInfo.fieldAge'),
-    icon: drawerIconMap.age,
-    value: displayField(displayAge.value),
-  },
-  {
-    key: 'workYears',
-    label: t('components.userAvatarInfo.fieldWorkYears'),
-    icon: drawerIconMap.workYears,
-    value: displayField(displayWorkYears.value),
-  },
-  {
-    key: 'jobLevel',
-    label: t('components.userAvatarInfo.fieldJobLevel'),
-    icon: drawerIconMap.position,
-    value: displayField(displayJobLevel.value),
-  },
-  {
-    key: 'phone',
-    label: t('components.userAvatarInfo.fieldPhone'),
-    icon: drawerIconMap.phone,
-    value: displayField(displayPhone.value),
-  },
-  {
-    key: 'email',
-    label: t('components.userAvatarInfo.fieldEmail'),
-    icon: drawerIconMap.email,
-    value: displayField(displayEmail.value),
-  },
-  {
-    key: 'department',
-    label: t('components.userAvatarInfo.fieldDepartment'),
-    icon: drawerIconMap.department,
-    value: displayField(displayDepartment.value),
-  },
-]);
+/** 未传 drawerFields 时的默认字段（保持原有顺序与文案） */
+const defaultDrawerFields: UserAvatarDrawerField[] = [
+  { key: 'name' },
+  { key: 'gender' },
+  { key: 'age' },
+  { key: 'workYears' },
+  { key: 'jobLevel' },
+  { key: 'phone' },
+  { key: 'email' },
+  { key: 'department' },
+];
+
+/** 内置字段 key -> 默认国际化文案 key */
+const drawerFieldLabelKeys: Record<string, string> = {
+  name: 'components.userAvatarInfo.fieldName',
+  gender: 'components.userAvatarInfo.fieldGender',
+  age: 'components.userAvatarInfo.fieldAge',
+  workYears: 'components.userAvatarInfo.fieldWorkYears',
+  jobLevel: 'components.userAvatarInfo.fieldJobLevel',
+  phone: 'components.userAvatarInfo.fieldPhone',
+  email: 'components.userAvatarInfo.fieldEmail',
+  department: 'components.userAvatarInfo.fieldDepartment',
+};
+
+/** 内置字段 key -> 展示值（全部来自现有 props 的 display* 计算属性） */
+const drawerFieldValues = computed<Record<string, string>>(() => ({
+  name: drawerName.value,
+  gender: drawerGenderLabel.value,
+  age: displayField(displayAge.value),
+  workYears: displayField(displayWorkYears.value),
+  jobLevel: displayField(displayJobLevel.value),
+  phone: displayField(displayPhone.value),
+  email: displayField(displayEmail.value),
+  department: displayField(displayDepartment.value),
+}));
+
+const drawerDetailItems = computed(() => {
+  const fields =
+    props.drawerFields ??
+    getUserAvatarDrawerFields().value ??
+    defaultDrawerFields;
+  return fields.map((field) => {
+    const labelKey = drawerFieldLabelKeys[field.key];
+    const value =
+      field.value !== undefined
+        ? displayField(field.value)
+        : (drawerFieldValues.value[field.key] ?? displayField(undefined));
+    return {
+      key: field.key,
+      label: field.label ?? (labelKey ? t(labelKey) : field.key),
+      icon: field.icon ?? drawerIconMap[field.key] ?? drawerIconMap.name,
+      value,
+    };
+  });
+});
 
 const mergedDrawerProps = computed(() => ({
   appendToBody: true,
