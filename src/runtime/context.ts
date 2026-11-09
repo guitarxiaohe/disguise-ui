@@ -1,4 +1,4 @@
-import type { CSSProperties, Component } from 'vue';
+import type { CSSProperties, Component, Ref } from 'vue';
 
 import { ref } from 'vue';
 
@@ -151,9 +151,11 @@ export function getAccessToken() {
 export function getCardShadow() {
   return cardShadow;
 }
-export function getPaginationConfig() {
+export function getPaginationConfig(): Ref<PaginationConfig> {
   return paginationConfig;
 }
-export function getUserAvatarDrawerFields() {
+export function getUserAvatarDrawerFields(): Ref<
+  UserAvatarDrawerField[] | null
+> {
   return userAvatarDrawerFields;
 }

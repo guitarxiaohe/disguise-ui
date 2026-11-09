@@ -167,6 +167,7 @@ function handleCommand(command: string) {
       <ElDropdown
         split-button
         type="primary"
+        :teleported="selectTeleported"
         class="translate-toolbar__action"
         :disabled="disabled || loading || !sourceLanguage || !targetLanguage"
         @click="emit('translate', 'translate')"
