@@ -26,10 +26,7 @@
   },
   "importDialog": {
     "title": "Batch Import",
-    "modeCreate": "Create New",
-    "modeUpdate": "Update Existing",
-    "modeLabel": "Import Mode",
-    "modeHelp": "Create New adds new records; Update Existing updates existing records based on the unique identifier",
+    "descLabel": "Import Instructions",
     "tipSize": "File size cannot exceed {size}MB",
     "tipHeader": "The first row must be the header, and header names must be unique",
     "tipFormula": "Do not modify the formulas or formats in the template",

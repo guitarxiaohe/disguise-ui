@@ -26,10 +26,7 @@
   },
   "importDialog": {
     "title": "批量导入",
-    "modeCreate": "新增导入",
-    "modeUpdate": "更新导入",
-    "modeLabel": "导入方式",
-    "modeHelp": "新增导入会创建新的数据记录；更新导入会根据唯一标识更新已有数据",
+    "descLabel": "导入说明",
     "tipSize": "文件大小不能超过 {size}MB",
     "tipHeader": "首行需为表头，且表头名称不可重复",
     "tipFormula": "请勿修改模板中的公式与格式",

@@ -45,24 +45,41 @@ import duplicateSource from './demos/import-dialog-duplicate.vue?raw'
 
 ## Props
 
-| 名称              | 类型                                             | 默认值              | 说明                                                                               |
-| ----------------- | ------------------------------------------------ | ------------------- | ---------------------------------------------------------------------------------- |
-| `modelValue`      | `boolean`                                        | `false`             | 弹窗显隐                                                                           |
-| `api`             | `string`                                         | —                   | 导入上传接口；传入后组件内部提交文件                                               |
-| `templateUrl`     | `string`                                         | —                   | 模板下载接口                                                                       |
-| `templateMethod`  | `'GET' \| 'POST'`                                | `'POST'`            | 模板下载请求方法                                                                   |
-| `templateName`    | `string`                                         | `'导入模版'`        | 下载文件名                                                                         |
-| `title`           | `string`                                         | 内置文案            | 弹窗标题                                                                           |
-| `defaultMode`     | `ImportDialogMode`                               | `'create'`          | 默认导入模式                                                                       |
-| `modes`           | `ImportDialogModeOption[]`                       | 新增、更新          | 可选导入模式                                                                       |
-| `accept`          | `string[]`                                       | `['.xls', '.xlsx']` | 允许的文件扩展名                                                                   |
-| `maxSize`         | `number`                                         | `5`                 | 文件大小上限，单位 MB                                                              |
-| `maxPreviewCount` | `number`                                         | `100`               | 预览汇总文案中的最大统计行数，表格实际行数由 `parseFile` 返回的 `previewRows` 决定 |
-| `tips`            | `string[]`                                       | 内置文案            | 上传页提示                                                                         |
-| `targetFields`    | `ImportDialogTargetField[]`                      | `[]`                | 字段映射目标                                                                       |
-| `parseFile`       | `(payload) => Promise<ImportDialogParseResult>`  | —                   | 自定义文件解析                                                                     |
-| `submitImport`    | `(payload) => Promise<ImportDialogSubmitResult>` | —                   | 自定义导入提交                                                                     |
-| `resetOnClose`    | `boolean`                                        | `true`              | 关闭弹窗后是否重置流程                                                             |
+| 名称              | 类型                                             | 默认值              | 说明                                                                                 |
+| ----------------- | ------------------------------------------------ | ------------------- | ------------------------------------------------------------------------------------ |
+| `modelValue`      | `boolean`                                        | `false`             | 弹窗显隐                                                                             |
+| `api`             | `string`                                         | —                   | 导入上传接口；传入后组件内部提交文件                                                 |
+| `templateUrl`     | `string`                                         | —                   | 模板下载接口                                                                         |
+| `templateMethod`  | `'GET' \| 'POST'`                                | `'POST'`            | 模板下载请求方法                                                                     |
+| `templateName`    | `string`                                         | `'导入模版'`        | 下载文件名                                                                           |
+| `title`           | `string`                                         | 内置文案            | 弹窗标题                                                                             |
+| `defaultMode`     | `ImportDialogMode`                               | `'create'`          | 默认导入模式，随解析、导入请求提交                                                   |
+| `modes`           | `ImportDialogModeOption[]`                       | 新增、更新          | 导入模式选项；当前版本无选择入口                                                     |
+| `accept`          | `string[]`                                       | `['.xls', '.xlsx']` | 允许的文件扩展名                                                                     |
+| `maxSize`         | `number`                                         | `5`                 | 文件大小上限，单位 MB                                                                |
+| `maxPreviewCount` | `number`                                         | `100`               | 预览汇总文案中的最大统计行数，表格实际行数由 `parseFile` 返回的 `previewRows` 决定   |
+| `tips`            | `string[]`                                       | 内置文案            | 上传页提示                                                                           |
+| `importDesc`      | `string`                                         | —                   | 导入说明文字，显示在上传区「导入说明」标题下；未传时不显示该区域                     |
+| `skipSteps`       | `Array<'preview' \| 'mapping'>`                  | `[]`                | 跳过的流程步骤：`preview` 确认数据、`mapping` 字段映射；跳过后上传文件确认即直接导入 |
+| `targetFields`    | `ImportDialogTargetField[]`                      | `[]`                | 字段映射目标                                                                         |
+| `parseFile`       | `(payload) => Promise<ImportDialogParseResult>`  | —                   | 自定义文件解析                                                                       |
+| `submitImport`    | `(payload) => Promise<ImportDialogSubmitResult>` | —                   | 自定义导入提交                                                                       |
+| `resetOnClose`    | `boolean`                                        | `true`              | 关闭弹窗后是否重置流程                                                               |
+
+### 简化流程
+
+通过 `skipSteps` 可以去掉「确认数据」「字段映射」步骤，步骤条同步只展示剩余步骤，上传文件后点击「开始导入」即可直接导入（解析仍在后台自动完成，`submitImport` 照常拿到 `sheet` 与解析出的 `mappings`）：
+
+```vue
+<ImportDialog
+  v-model="visible"
+  :skip-steps="['preview', 'mapping']"
+  :parse-file="parseFile"
+  :submit-import="submitImport"
+/>
+```
+
+只跳过 `mapping` 时仍会展示「确认数据」页面，但按钮直接变为「开始导入」，且不再做映射校验。
 
 ## Events
 

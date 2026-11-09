@@ -177,24 +177,26 @@
 
 ## ImportDialog
 
-| 属性              | 类型                                             | 默认值              | 说明                         |
-| ----------------- | ------------------------------------------------ | ------------------- | ---------------------------- |
-| `modelValue`      | `boolean`                                        | `false`             | 弹窗显隐                     |
-| `api`             | `string`                                         | —                   | 导入上传接口                 |
-| `templateUrl`     | `string`                                         | —                   | 模板下载接口                 |
-| `templateMethod`  | `'GET' \| 'POST'`                                | `'POST'`            | 模板下载方法                 |
-| `templateName`    | `string`                                         | `'导入模版'`        | 下载的模板文件名             |
-| `title`           | `string`                                         | 内置文案            | 标题                         |
-| `defaultMode`     | `ImportDialogMode`                               | `'create'`          | 默认导入模式                 |
-| `modes`           | `ImportDialogModeOption[]`                       | 内置新增、更新      | 导入模式列表                 |
-| `accept`          | `string[]`                                       | `['.xls', '.xlsx']` | 允许的扩展名                 |
-| `maxSize`         | `number`                                         | `5`                 | 文件大小上限，MB             |
-| `maxPreviewCount` | `number`                                         | `100`               | 预览汇总文案中的最大统计行数 |
-| `tips`            | `string[]`                                       | 内置文案            | 上传提示                     |
-| `targetFields`    | `ImportDialogTargetField[]`                      | `[]`                | 目标字段                     |
-| `parseFile`       | `(payload) => Promise<ImportDialogParseResult>`  | —                   | 自定义解析                   |
-| `submitImport`    | `(payload) => Promise<ImportDialogSubmitResult>` | —                   | 自定义提交                   |
-| `resetOnClose`    | `boolean`                                        | `true`              | 关闭后是否重置               |
+| 属性              | 类型                                             | 默认值              | 说明                                     |
+| ----------------- | ------------------------------------------------ | ------------------- | ---------------------------------------- |
+| `modelValue`      | `boolean`                                        | `false`             | 弹窗显隐                                 |
+| `api`             | `string`                                         | —                   | 导入上传接口                             |
+| `templateUrl`     | `string`                                         | —                   | 模板下载接口                             |
+| `templateMethod`  | `'GET' \| 'POST'`                                | `'POST'`            | 模板下载方法                             |
+| `templateName`    | `string`                                         | `'导入模版'`        | 下载的模板文件名                         |
+| `title`           | `string`                                         | 内置文案            | 标题                                     |
+| `defaultMode`     | `ImportDialogMode`                               | `'create'`          | 默认导入模式                             |
+| `modes`           | `ImportDialogModeOption[]`                       | 内置新增、更新      | 导入模式列表；当前无选择入口             |
+| `accept`          | `string[]`                                       | `['.xls', '.xlsx']` | 允许的扩展名                             |
+| `maxSize`         | `number`                                         | `5`                 | 文件大小上限，MB                         |
+| `maxPreviewCount` | `number`                                         | `100`               | 预览汇总文案中的最大统计行数             |
+| `tips`            | `string[]`                                       | 内置文案            | 上传提示                                 |
+| `importDesc`      | `string`                                         | —                   | 导入说明文字，未传不显示                 |
+| `skipSteps`       | `Array<'preview' \| 'mapping'>`                  | `[]`                | 跳过的流程步骤，跳过后上传确认即直接导入 |
+| `targetFields`    | `ImportDialogTargetField[]`                      | `[]`                | 目标字段                                 |
+| `parseFile`       | `(payload) => Promise<ImportDialogParseResult>`  | —                   | 自定义解析                               |
+| `submitImport`    | `(payload) => Promise<ImportDialogSubmitResult>` | —                   | 自定义提交                               |
+| `resetOnClose`    | `boolean`                                        | `true`              | 关闭后是否重置                           |
 
 事件：`update:modelValue`、`downloadTemplate`、`fileChange`、`success`、`error`、`cancel`。无插槽、无暴露方法。
 

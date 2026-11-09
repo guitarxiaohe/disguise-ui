@@ -112,6 +112,10 @@ export interface ImportDialogProps {
   maxSize?: number;
   maxPreviewCount?: number;
   tips?: string[];
+  /** 导入说明文字，显示在上传区上方「导入说明」标题下；未传时不显示该区域 */
+  importDesc?: string;
+  /** 跳过的流程步骤：'preview' 确认数据、'mapping' 字段映射；跳过后上传文件确认即直接导入 */
+  skipSteps?: Array<'mapping' | 'preview'>;
   targetFields?: ImportDialogTargetField[];
   parseFile?: (
     payload: ImportDialogParsePayload,

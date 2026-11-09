@@ -7,7 +7,6 @@ import type {
   ImportDialogEmits,
   ImportDialogMappingItem,
   ImportDialogMode,
-  ImportDialogModeOption,
   ImportDialogParseResult,
   ImportDialogProps,
   ImportDialogStep,
@@ -25,7 +24,6 @@ import {
   Close,
   Download,
   FullScreen,
-  InfoFilled,
   Plus,
   ScaleToOriginal,
   SuccessFilled,
@@ -39,12 +37,9 @@ import {
   ElMessage,
   ElOption,
   ElProgress,
-  ElRadio,
-  ElRadioGroup,
   ElSelect,
   ElTable,
   ElTableColumn,
-  ElTooltip,
   ElUpload,
 } from 'element-plus';
 
@@ -61,6 +56,8 @@ const props = withDefaults(defineProps<ImportDialogProps>(), {
   accept: () => ['.xls', '.xlsx'],
   maxSize: 5,
   maxPreviewCount: 100,
+  importDesc: '',
+  skipSteps: () => [],
   tips: undefined,
   targetFields: () => [],
   resetOnClose: true,
@@ -110,24 +107,6 @@ const dialogTitle = computed(() => {
 
 // 传入 api 时由组件直接提交文件，否则使用外部传入的回调。
 const isApiMode = computed(() => Boolean(props.api));
-
-// 导入方式选项
-const modeOptions = computed<ImportDialogModeOption[]>(() => {
-  if (props.modes?.length) {
-    return props.modes;
-  }
-
-  return [
-    {
-      label: t('components.importDialog.modeCreate'),
-      value: 'create',
-    },
-    {
-      label: t('components.importDialog.modeUpdate'),
-      value: 'update',
-    },
-  ];
-});
 
 // 默认说明文案
 const tipList = computed<string[]>(() => {
@@ -213,14 +192,42 @@ const resultDescription = computed<string>(() => {
     : t('components.importDialog.errorDescription');
 });
 
-// 步骤条配置
+// 跳过的流程步骤
+const skipPreview = computed(() => props.skipSteps.includes('preview'));
+const skipMapping = computed(() => props.skipSteps.includes('mapping'));
+
+// 步骤条配置（按 skipSteps 过滤）
 const stepItems = computed(() => {
-  return [
-    t('components.importDialog.stepUpload'),
-    t('components.importDialog.stepPreview'),
-    t('components.importDialog.stepMapping'),
-    t('components.importDialog.stepImport'),
+  const items: Array<{ key: string; label: string }> = [
+    { key: 'upload', label: t('components.importDialog.stepUpload') },
+    { key: 'preview', label: t('components.importDialog.stepPreview') },
+    { key: 'mapping', label: t('components.importDialog.stepMapping') },
+    { key: 'import', label: t('components.importDialog.stepImport') },
   ];
+
+  return items.filter(
+    (item) =>
+      !(
+        (item.key === 'preview' && skipPreview.value) ||
+        (item.key === 'mapping' && skipMapping.value)
+      ),
+  );
+});
+
+// 当前所在步骤在步骤条中的位置
+const activeStepIndex = computed(() => {
+  const key = currentStep.value === 'importing' ? 'import' : currentStep.value;
+  const index = stepItems.value.findIndex((item) => item.key === key);
+  return index === -1 ? 0 : index;
+});
+
+// 点击「下一步」是否直接执行导入
+const nextImportsDirectly = computed(() => {
+  if (currentStep.value === 'mapping') return true;
+  if (currentStep.value === 'preview') return skipMapping.value;
+  if (currentStep.value === 'upload')
+    return isApiMode.value || (skipPreview.value && skipMapping.value);
+  return false;
 });
 
 /** ****************************** 状态同步 ********************************/
@@ -490,16 +497,16 @@ function applyParseResult(parseResult: ImportDialogParseResult) {
   mappings.value = buildMappings(parseResult.mappings);
 }
 
-// 执行文件解析
-async function runParse(sheet?: string) {
+// 执行文件解析，返回是否解析成功
+async function runParse(sheet?: string): Promise<boolean> {
   if (!selectedFile.value) {
     ElMessage.warning(t('components.importDialog.fileRequired'));
-    return;
+    return false;
   }
 
   if (!props.parseFile) {
     ElMessage.error(t('components.importDialog.parseFileMissing'));
-    return;
+    return false;
   }
 
   const currentToken = ++parseToken.value;
@@ -512,18 +519,19 @@ async function runParse(sheet?: string) {
       sheet,
     });
 
-    if (currentToken !== parseToken.value) return;
+    if (currentToken !== parseToken.value) return false;
 
     applyParseResult(parseResult);
-    currentStep.value = 'preview';
+    return true;
   } catch (error) {
-    if (currentToken !== parseToken.value) return;
+    if (currentToken !== parseToken.value) return false;
 
     const message =
       error instanceof Error
         ? error.message
         : t('components.importDialog.parseError');
     ElMessage.error(message);
+    return false;
   } finally {
     if (currentToken === parseToken.value) {
       parsing.value = false;
@@ -544,15 +552,6 @@ function handleUploadChange(uploadFile: UploadFile) {
   currentStep.value = 'upload';
   resetParsedState();
   emit('fileChange', rawFile);
-}
-
-// 处理导入方式变更
-function handleModeChange(value: boolean | number | string | undefined) {
-  if (typeof value !== 'string') return;
-
-  selectedMode.value = value;
-  resetParsedState();
-  currentStep.value = 'upload';
 }
 
 // 处理 sheet 切换
@@ -599,11 +598,29 @@ async function handleNext() {
       return;
     }
 
-    await runParse();
+    const parsed = await runParse();
+    if (!parsed) return;
+
+    if (!skipPreview.value) {
+      currentStep.value = 'preview';
+      return;
+    }
+
+    if (!skipMapping.value) {
+      currentStep.value = 'mapping';
+      return;
+    }
+
+    await handleImport();
     return;
   }
 
   if (currentStep.value === 'preview') {
+    if (skipMapping.value) {
+      await handleImport();
+      return;
+    }
+
     currentStep.value = 'mapping';
     return;
   }
@@ -671,7 +688,7 @@ async function handleDirectImport() {
 // 返回上一步
 function handlePrevious() {
   if (currentStep.value === 'mapping') {
-    currentStep.value = 'preview';
+    currentStep.value = skipPreview.value ? 'upload' : 'preview';
     return;
   }
 
@@ -695,12 +712,14 @@ async function handleImport() {
     return;
   }
 
-  if (!selectedSheet.value) {
+  // 工作表选择在「确认数据」步骤里，跳过该步骤时不强制校验
+  if (!skipPreview.value && !selectedSheet.value) {
     ElMessage.warning(t('components.importDialog.sheetRequired'));
     return;
   }
 
-  if (!validateMappings()) {
+  // 跳过「字段映射」时不做映射校验，直接使用解析得到的映射
+  if (!skipMapping.value && !validateMappings()) {
     return;
   }
 
@@ -751,7 +770,7 @@ async function handleImport() {
 <template>
   <Modal
     :title="dialogTitle"
-    class="import-dialog__dialog w-[600px]"
+    class="import-dialog__dialog"
     :closable="false"
     :close-on-click-modal="false"
     :close-on-press-escape="!importing"
@@ -791,74 +810,39 @@ async function handleImport() {
       <!-------------------------- 步骤条 -------------------------->
       <div v-if="showSteps" class="import-dialog__steps">
         <div
-          v-for="(stepLabel, index) in stepItems"
-          :key="stepLabel"
+          v-for="(step, index) in stepItems"
+          :key="step.key"
           class="import-dialog__step"
         >
           <div
             class="import-dialog__step-node"
             :class="{
-              'is-active':
-                (currentStep === 'upload' && index === 0) ||
-                (currentStep === 'preview' && index === 1) ||
-                (currentStep === 'mapping' && index === 2) ||
-                (currentStep === 'importing' && index === 3),
-              'is-done':
-                (currentStep === 'preview' && index === 0) ||
-                (currentStep === 'mapping' && index <= 1) ||
-                (currentStep === 'importing' && index <= 2),
+              'is-active': index === activeStepIndex,
+              'is-done': index < activeStepIndex,
             }"
           >
-            <ElIcon
-              v-if="
-                (currentStep === 'preview' && index === 0) ||
-                (currentStep === 'mapping' && index <= 1) ||
-                (currentStep === 'importing' && index <= 2)
-              "
-            >
+            <ElIcon v-if="index < activeStepIndex">
               <Check />
             </ElIcon>
             <span v-else>{{ index + 1 }}</span>
           </div>
-          <div class="import-dialog__step-label">{{ stepLabel }}</div>
+          <div class="import-dialog__step-label">{{ step.label }}</div>
           <div
             v-if="index !== stepItems.length - 1"
             class="import-dialog__step-line"
-            :class="{
-              'is-active':
-                (currentStep === 'preview' && index === 0) ||
-                (currentStep === 'mapping' && index <= 1) ||
-                (currentStep === 'importing' && index <= 2),
-            }"
+            :class="{ 'is-active': index < activeStepIndex }"
           ></div>
         </div>
       </div>
 
       <!-------------------------- 上传文件 -------------------------->
       <template v-if="currentStep === 'upload'">
-        <div class="import-dialog__form-label">
-          <span>{{ t('components.importDialog.modeLabel') }}</span>
-          <ElTooltip :content="t('components.importDialog.modeHelp')">
-            <ElIcon class="import-dialog__info">
-              <InfoFilled />
-            </ElIcon>
-          </ElTooltip>
-        </div>
-
-        <ElRadioGroup
-          :model-value="selectedMode"
-          class="import-dialog__mode-group"
-          @update:model-value="handleModeChange"
-        >
-          <ElRadio
-            v-for="option in modeOptions"
-            :key="option.value"
-            :label="option.value"
-            :disabled="option.disabled"
-          >
-            {{ option.label }}
-          </ElRadio>
-        </ElRadioGroup>
+        <template v-if="importDesc">
+          <div class="import-dialog__form-label">
+            {{ t('components.importDialog.descLabel') }}
+          </div>
+          <div class="import-dialog__desc">{{ importDesc }}</div>
+        </template>
 
         <ElUpload
           ref="uploadRef"
@@ -1094,7 +1078,7 @@ async function handleImport() {
             @click="handleNext"
           >
             {{
-              currentStep === 'mapping'
+              nextImportsDirectly
                 ? t('components.importDialog.startImport')
                 : t('components.importDialog.next')
             }}
@@ -1108,7 +1092,7 @@ async function handleImport() {
             @click="handleNext"
           >
             {{
-              isApiMode
+              nextImportsDirectly
                 ? t('components.importDialog.startImport')
                 : t('components.importDialog.next')
             }}
@@ -1236,12 +1220,12 @@ async function handleImport() {
   color: var(--color-text-primary);
 }
 
-.import-dialog__info {
-  color: var(--color-text-secondary);
-}
-
-.import-dialog__mode-group {
+.import-dialog__desc {
   margin-bottom: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  white-space: pre-line;
 }
 
 .import-dialog__upload {
