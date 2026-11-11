@@ -883,7 +883,7 @@ async function handleImport() {
           </div>
         </ElUpload>
         <slot name="after-upload" />
-        <div class="import-dialog__download">
+        <div class="import-dialog__download" v-if="templateUrl">
           <ElIcon :size="14">
             <Download />
           </ElIcon>

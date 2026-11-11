@@ -26,7 +26,7 @@ import duplicateSource from './demos/import-dialog-duplicate.vue?raw'
 
 ## 模板下载
 
-传入 `templateUrl` 时组件按 `templateMethod` 请求接口，优先用响应头 `content-disposition`、否则用 `templateName` 作为保存文件名。不传 `templateUrl` 时，点击「下载模板」会抛出 `downloadTemplate` 事件，由调用方自行处理。
+传入 `templateUrl` 时组件按 `templateMethod` 请求接口，优先用响应头 `content-disposition`、否则用 `templateName` 作为保存文件名，上传页同时显示「下载模板」入口；未传 `templateUrl` 时不显示该入口。
 
 <ClientOnly>
   <DemoBlock :source="templateSource">
