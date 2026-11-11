@@ -881,7 +881,7 @@ async function handleImport() {
             </div>
           </div>
         </ElUpload>
-
+        <slot name="after-upload" />
         <div class="import-dialog__download">
           <ElIcon :size="14">
             <Download />
