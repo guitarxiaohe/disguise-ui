@@ -198,7 +198,7 @@
 | `submitImport`    | `(payload) => Promise<ImportDialogSubmitResult>` | —                   | 自定义提交                               |
 | `resetOnClose`    | `boolean`                                        | `true`              | 关闭后是否重置                           |
 
-事件：`update:modelValue`、`downloadTemplate`、`fileChange`、`success`、`error`、`cancel`。无插槽、无暴露方法。
+事件：`update:modelValue`、`downloadTemplate`、`fileChange`、`success`、`error`、`cancel`。插槽：`desc-title`、`desc-content`、`after-upload`。无暴露方法。
 
 ## PictureUpload
 

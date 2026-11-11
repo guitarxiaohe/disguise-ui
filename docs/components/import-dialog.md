@@ -95,4 +95,8 @@ import duplicateSource from './demos/import-dialog-duplicate.vue?raw'
 
 ## Slots
 
-该组件暂无插槽。
+| 名称           | 插槽参数 | 说明                                                                         |
+| -------------- | -------- | ---------------------------------------------------------------------------- |
+| `desc-title`   | —        | 上传页「导入说明」标题；默认渲染内置标题文案                                 |
+| `desc-content` | —        | 上传页「导入说明」内容；默认渲染 `importDesc` 文字，未传 `importDesc` 时为空 |
+| `after-upload` | —        | 上传区之后、模板下载行之前的自定义内容                                       |
