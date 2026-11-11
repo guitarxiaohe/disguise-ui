@@ -1,5 +1,5 @@
 /** ****************************** 基础类型 ********************************/
-
+import type { UploadProps } from 'element-plus';
 // 导入模式值
 export type ImportDialogMode = 'create' | 'update' | (string & {});
 
@@ -126,6 +126,8 @@ export interface ImportDialogProps {
   resetOnClose?: boolean;
 
   templateName?: string;
+  /** ElUpload 透传属性，同名属性以后者为准 */
+  uploadProps?: Partial<UploadProps>;
 }
 
 // 组件 Emits

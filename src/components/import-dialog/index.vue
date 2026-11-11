@@ -65,6 +65,7 @@ const props = withDefaults(defineProps<ImportDialogProps>(), {
   parseFile: undefined,
   submitImport: undefined,
   templateName: '导入模版',
+  uploadProps: () => ({}),
 });
 
 const emit = defineEmits<ImportDialogEmits>();
@@ -854,8 +855,8 @@ async function handleImport() {
           drag
           :auto-upload="false"
           :show-file-list="false"
-          :accept="acceptText"
           :on-change="handleUploadChange"
+          v-bind="{ accept: acceptText, ...props.uploadProps }"
         >
           <div class="import-dialog__upload-inner">
             <div class="import-dialog__upload-icon">
