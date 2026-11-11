@@ -126,7 +126,6 @@
   },
   "dialogList": {
     "id": "ID",
-    "placeholder": "请输入关键词",
     "selectedCount": "已选 {count} 项",
     "cancel": "取消",
     "confirm": "确定"

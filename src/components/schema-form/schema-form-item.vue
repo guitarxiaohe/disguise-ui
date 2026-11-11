@@ -262,7 +262,14 @@ function update(value: any) {
 function fetchEntity(params: AsyncSelectFetchParams) {
   const definition = entity.value;
   if (!definition) return Promise.resolve({ items: [], total: 0 });
-  return definition.fetch({ ...params, params: apiParams.value });
+  return definition.fetch({
+    ...params,
+    // apiOptions.params 提供固定筛选条件，弹窗搜索条件覆盖同名字段。
+    params: {
+      ...(apiParams.value ?? {}),
+      ...(params.params ?? {}),
+    },
+  });
 }
 
 /** static / dict 选项在本地分页与搜索，供 AsyncSelect 使用 */

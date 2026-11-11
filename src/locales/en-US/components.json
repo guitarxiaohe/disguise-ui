@@ -126,7 +126,6 @@
   },
   "dialogList": {
     "id": "ID",
-    "placeholder": "Enter keywords",
     "selectedCount": "{count} selected",
     "cancel": "Cancel",
     "confirm": "Confirm"

@@ -1,4 +1,4 @@
-import type { ColumnsItem } from '@/components/table-entity/index.type';
+import type { DialogListColumn } from '@/components/dialog-list/index.type';
 
 /** ****************************** 类型 ********************************/
 
@@ -21,8 +21,8 @@ export type EntityFetchResult = {
  * 供 schema-form 的 async-select 字段按 entityKey 查表使用。
  */
 export type EntityDefinition = {
-  /** 弹窗列表的列配置 */
-  columns?: ColumnsItem[];
+  /** 弹窗列表的列配置，可附带 `search` 搜索元数据（生成弹窗内的搜索表单） */
+  columns?: DialogListColumn[];
   dialogTitle?: string;
   fetch: (params: EntityFetchParams) => Promise<EntityFetchResult>;
   key: string;

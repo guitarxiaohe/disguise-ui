@@ -6,6 +6,7 @@ export { default as BaseCard } from './components/card/index.vue';
 export { CrudPage } from './components/crud-page/index.js';
 export type * from './components/crud-page/index.type.js';
 export { default as DialogList } from './components/dialog-list/index.vue';
+export type * from './components/dialog-list/index.type.js';
 export { default as DictTag } from './components/dict-tag/index.vue';
 export {
   DrawerFormPage,

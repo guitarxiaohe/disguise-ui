@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ColumnsItem } from '@/components/table-entity/index.type';
+import type { DialogListColumn } from '@/components/dialog-list/index.type';
 
 import type {
   AsyncSelectDataFetcher,
@@ -43,7 +43,7 @@ const props = withDefaults(
     /** 字典编码；未配置 fetcher 时自动使用缓存字典选项 */
     dictCode?: string;
     /** 对话框列表的列配置 */
-    columns?: ColumnsItem[];
+    columns?: DialogListColumn[];
     /** 选项值字段名，默认 'id' */
     valueKey?: string;
     /** 选项标签字段名，根据 columns 第一列自动推断 */

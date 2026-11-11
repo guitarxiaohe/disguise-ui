@@ -1,29 +1,93 @@
 <script setup lang="ts">
-import type { ColumnsItem } from '@/components/table-entity/index.type';
+import type {
+  DialogListColumn,
+  DialogListFetchParams,
+  DialogListFetchResult,
+} from './index.type';
+import type {
+  SearchFormItem,
+  SearchFormValues,
+} from '../search-form/index.type';
 
 import { computed, ref, watch } from 'vue';
 
 import { useVbenModal } from '@/runtime/modal';
 
 import TableEntlty from '@/components/table-entity/index.vue';
-import { Search } from '@element-plus/icons-vue';
 import { keepPreviousData, useQuery } from '@tanstack/vue-query';
 
 import { $t as t } from '@/runtime/i18n';
+import { SearchForm } from '../search-form';
 
-/** ****************************** 类型 ********************************/
+/** ****************************** 搜索元数据解析 ********************************/
 
-type DialogListFetchParams = {
-  keyword?: string;
-  page: number;
-  per_page: number;
-  params?: Record<string, any>;
-};
+// 与 CrudPage 的 SEARCH_FIELD_KEYS 保持一致：集合内的键铺到搜索字段层，
+// 不在集合内的键合并进控件 props。
+const SEARCH_FIELD_KEYS = new Set([
+  'apiOptions',
+  'component',
+  'copyable',
+  'defaultValue',
+  'dictCode',
+  'disabled',
+  'hidden',
+  'hideOnCreate',
+  'hideOnEdit',
+  'label',
+  'newRow',
+  'options',
+  'optionSource',
+  'placeholder',
+  'props',
+  'readonly',
+  'required',
+  'rules',
+  'span',
+  'tip',
+  'type',
+]);
 
-type DialogListFetchResult = {
-  items: Record<string, any>[];
-  total: number;
-};
+function pickSearchFieldConfig(config: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(config).filter(([key]) => SEARCH_FIELD_KEYS.has(key)),
+  );
+}
+
+function omitSearchFieldConfig(config: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(config).filter(([key]) => !SEARCH_FIELD_KEYS.has(key)),
+  );
+}
+
+function resolveSearchColumn(column: DialogListColumn): SearchFormItem | null {
+  const searchConfig = column.search;
+  if (!searchConfig) return null;
+
+  // 未列入搜索字段配置键的透传键合并进控件 props；显式 search.props 作底、
+  // 透传键在后（顺序对齐 CrudPage 的 mergeFieldProps：后者覆盖前者）。
+  const controlProps = omitSearchFieldConfig(searchConfig);
+  const fieldProps = {
+    ...(typeof searchConfig.props === 'object' && searchConfig.props
+      ? searchConfig.props
+      : {}),
+    ...controlProps,
+  };
+
+  return {
+    // 兜底同 CrudPage：未配置的字段级键取默认值
+    hidden: false,
+    readonly: false,
+    required: false,
+    rules: [],
+    ...pickSearchFieldConfig(searchConfig),
+    // prop 不在搜索字段配置键集合内，需显式取出；
+    // prop/label/type 缺省时取列的 dataIndex（或 dataKey）/title 与 'text'
+    prop: searchConfig.prop ?? column.dataIndex ?? column.dataKey,
+    label: searchConfig.label ?? column.title,
+    type: searchConfig.type ?? 'text',
+    props: fieldProps,
+  } as SearchFormItem;
+}
 
 /** ****************************** Props & Emits ********************************/
 
@@ -33,7 +97,7 @@ const props = withDefaults(
     modelValue?: any | any[];
     multiple?: boolean;
     fetcher: (p: DialogListFetchParams) => Promise<DialogListFetchResult>;
-    columns?: ColumnsItem[];
+    columns?: DialogListColumn[];
     rowKey?: string;
     dialogTitle?: string;
     dialogWidth?: number | string;
@@ -79,7 +143,19 @@ const tableRef = ref<InstanceType<typeof TableEntlty>>();
 
 /** ****************************** 搜索 + 分页 ********************************/
 
-const keyword = ref('');
+const searchFields = computed<SearchFormItem[]>(() =>
+  props.columns
+    .map((column) => resolveSearchColumn(column))
+    .filter((field): field is SearchFormItem => !!field),
+);
+
+const showSearchForm = computed(() => searchFields.value.length > 0);
+
+/** 实时表单值（SearchForm 双向绑定） */
+const searchValues = ref<SearchFormValues>({});
+/** 已提交的查询值快照：queryKey / fetcher 只用它，避免边输入边请求 */
+const appliedSearch = ref<SearchFormValues>({});
+
 const page = ref(1);
 const pageSize = ref(props.perPage);
 const selectedKeys = ref<any[]>([]);
@@ -89,7 +165,7 @@ const queryKey = computed(() => [
   props.rowKey,
   page.value,
   pageSize.value,
-  keyword.value || '',
+  JSON.stringify(appliedSearch.value),
   JSON.stringify(props.filterParams),
 ]);
 
@@ -97,10 +173,9 @@ const { data: queryData, isFetching: loading } = useQuery({
   queryKey,
   queryFn: () =>
     props.fetcher({
-      keyword: keyword.value || undefined,
       page: page.value,
       per_page: pageSize.value,
-      params: props.filterParams,
+      params: { ...props.filterParams, ...appliedSearch.value },
     }),
   enabled: computed(() => props.visible),
   // 翻页请求期间保留上一页的 total。若中间短暂变成 0，ElPagination
@@ -128,7 +203,8 @@ watch(
         ? []
         : [props.modelValue];
     selectedKeys.value = vals;
-    keyword.value = '';
+    searchValues.value = {};
+    appliedSearch.value = {};
     page.value = 1;
     pageSize.value = props.perPage;
     lastSelectedRows = [];
@@ -137,8 +213,12 @@ watch(
   { immediate: true },
 );
 
-function onSearch() {
-  page.value = 1;
+// 提交搜索 / 重置：只刷新已提交查询值，不重置页码（靠 queryKey 变化触发请求）
+function onSearchSubmit(values: SearchFormValues) {
+  // 丢弃 undefined（如重置后的默认值），空值不参与合并、不覆盖 filterParams 同名键
+  appliedSearch.value = Object.fromEntries(
+    Object.entries(values).filter(([, v]) => v !== undefined),
+  );
 }
 
 function onPageChange(p: number) {
@@ -195,20 +275,15 @@ defineExpose({
     :confirm-text="t('components.dialogList.confirm')"
   >
     <div class="dialog-list">
-      <!-- 搜索栏 -->
+      <!-- 搜索表单（由 columns[].search 元数据生成） -->
+      <SearchForm
+        v-if="showSearchForm"
+        v-model="searchValues"
+        :schema="searchFields"
+        @search="onSearchSubmit"
+        @reset="onSearchSubmit"
+      />
       <div class="dialog-list__bar">
-        <el-input
-          v-model="keyword"
-          :placeholder="t('components.dialogList.placeholder')"
-          clearable
-          style="width: 260px"
-          @keyup.enter="onSearch"
-          @clear="onSearch"
-        >
-          <template #append>
-            <el-button :icon="Search" @click="onSearch" />
-          </template>
-        </el-input>
         <span v-if="selectedCount > 0" class="dialog-list__count">
           {{
             t('components.dialogList.selectedCount', { count: selectedCount })
