@@ -11,12 +11,17 @@ import Batch from './demos/crud-page-batch.vue'
 import batchSource from './demos/crud-page-batch.vue?raw'
 import Sort from './demos/crud-page-sort.vue'
 import sortSource from './demos/crud-page-sort.vue?raw'
+import fullSchemaSource from './demos/crud-page-schema.ts?raw'
+import mockSource from '../.vitepress/mock.ts?raw'
+
+const fullSchemaFile = { name: 'crud-page-schema.ts', source: fullSchemaSource }
+const mockFile = { name: 'mock.ts', source: mockSource }
 </script>
 
 ## 基础用法
 
 <ClientOnly>
-  <DemoBlock :source="source">
+  <DemoBlock :source="source" source-name="crud-page-basic.vue" :files="[mockFile]">
     <Basic />
     <template #description>
       查询、新增、编辑、删除都写在这一页里。数据存在内存中，刷新页面会恢复初始示例。
@@ -33,10 +38,10 @@ import sortSource from './demos/crud-page-sort.vue?raw'
 
 ## 全量示例
 
-一份 `fields` 同时覆盖 `SchemaForm` 的全部控件类型和 `TableEntity` 的全部内置单元格，字段定义抽在 `docs/components/demos/crud-page-schema.ts`。
+一份 `fields` 同时覆盖 `SchemaForm` 的全部控件类型和 `TableEntity` 的全部内置单元格，字段定义在 `docs/components/demos/crud-page-schema.ts`，「显示代码」里可切到对应标签页查看。
 
 <ClientOnly>
-  <DemoBlock :source="fullSource">
+  <DemoBlock :source="fullSource" source-name="crud-page-full.vue" :files="[fullSchemaFile, mockFile]">
     <Full />
     <template #description>
       点「新增」打开抽屉可以看到全部表单控件；表格里有字典、图片、附件、头像、列表展开和价格单元格。搜索字段超过一行时自动折叠。
@@ -83,7 +88,7 @@ import sortSource from './demos/crud-page-sort.vue?raw'
 勾选多行后点「删除选中」：配置了 `onBatchDelete` 时整批一次提交，否则逐行调用 `onDelete`。`pushToolbarActions` 追加的按钮点击后回传 `toolbarAction` 事件。
 
 <ClientOnly>
-  <DemoBlock :source="batchSource">
+  <DemoBlock :source="batchSource" source-name="crud-page-batch.vue" :files="[mockFile]">
     <Batch />
     <template #description>
       勾选多行点「删除选中」可整批删除；点「同步数据」触发 toolbarAction。

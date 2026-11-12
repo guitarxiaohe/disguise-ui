@@ -15,12 +15,15 @@ import ColSlots from './demos/table-entity-slots.vue'
 import colSlotsSource from './demos/table-entity-slots.vue?raw'
 import AsyncData from './demos/table-entity-async.vue'
 import asyncDataSource from './demos/table-entity-async.vue?raw'
+import mockSource from '../.vitepress/mock.ts?raw'
+
+const mockFile = { name: 'mock.ts', source: mockSource }
 </script>
 
 ## 基础用法
 
 <ClientOnly>
-  <DemoBlock :source="basicSource">
+  <DemoBlock :source="basicSource" source-name="table-entity-basic.vue" :files="[mockFile]">
     <Basic />
   </DemoBlock>
 </ClientOnly>
@@ -59,7 +62,7 @@ import asyncDataSource from './demos/table-entity-async.vue?raw'
 `show-actions` 默认开启，表格会在右侧固定一列操作。`actions` 控制内置按钮（查看 / 编辑 / 复制 / 删除，默认 `['edit','delete']`），`push-actions` 在其后追加自定义按钮；可见操作超过 1 个时统一收进 `...` 悬停下拉菜单。点击内置按钮触发 `handle-action`。
 
 <ClientOnly>
-  <DemoBlock :source="actionsSource">
+  <DemoBlock :source="actionsSource" source-name="table-entity-actions.vue" :files="[mockFile]">
     <Actions />
   </DemoBlock>
 </ClientOnly>
@@ -69,7 +72,7 @@ import asyncDataSource from './demos/table-entity-async.vue?raw'
 插槽名为 `{dataKey}Col`，优先级高于内置单元格与默认文本渲染，参数为 `{ row, value, cellData, column, rowIndex }`。
 
 <ClientOnly>
-  <DemoBlock :source="colSlotsSource">
+  <DemoBlock :source="colSlotsSource" source-name="table-entity-slots.vue" :files="[mockFile]">
     <ColSlots />
   </DemoBlock>
 </ClientOnly>
@@ -79,7 +82,7 @@ import asyncDataSource from './demos/table-entity-async.vue?raw'
 `data` 传入函数时进入异步模式：分页、排序、工具栏刷新都会以 `{ current_page, page, per_page, query, sortField, sortOrder }` 调用该函数，返回 `{ rows, total }`，工具栏同时出现刷新按钮。
 
 <ClientOnly>
-  <DemoBlock :source="asyncDataSource">
+  <DemoBlock :source="asyncDataSource" source-name="table-entity-async.vue" :files="[mockFile]">
     <AsyncData />
   </DemoBlock>
 </ClientOnly>

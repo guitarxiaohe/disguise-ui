@@ -13,6 +13,9 @@ import Modes from './demos/drawer-form-page-modes.vue'
 import modesSource from './demos/drawer-form-page-modes.vue?raw'
 import Linkage from './demos/drawer-form-page-linkage.vue'
 import linkageSource from './demos/drawer-form-page-linkage.vue?raw'
+import schemaSource from './demos/drawer-form-schema.ts?raw'
+
+const schemaFile = { name: 'drawer-form-schema.ts', source: schemaSource }
 </script>
 
 ## 基础用法
@@ -30,7 +33,7 @@ import linkageSource from './demos/drawer-form-page-linkage.vue?raw'
 一份 schema 覆盖当前所有字段类型，并带上分组锚点、组合控件、字段显隐、上传、富文本翻译、评分插槽、主题色自定义组件，以及自定义底部按钮。
 
 <ClientOnly>
-  <DemoBlock :source="fullSource">
+  <DemoBlock :source="fullSource" source-name="drawer-form-page-full.vue" :files="[schemaFile]">
     <Full />
     <template #description>
       打开后可点顶部锚点跳转分区，也可点全屏。详情里的翻译会把源文复制到目标语言并加上标记，接入真实接口时替换 `translateConfig.translate` 即可。
@@ -38,7 +41,7 @@ import linkageSource from './demos/drawer-form-page-linkage.vue?raw'
   </DemoBlock>
 </ClientOnly>
 
-完整字段定义在 `docs/components/demos/drawer-form-schema.ts`。
+完整字段定义在 `docs/components/demos/drawer-form-schema.ts`，「显示代码」里可切到对应标签页查看。
 
 | 分区       | 用到的能力                                                                          |
 | ---------- | ----------------------------------------------------------------------------------- |
@@ -54,7 +57,7 @@ import linkageSource from './demos/drawer-form-page-linkage.vue?raw'
 同一份 schema，打开时传入不同 `mode`。查看模式自动只读，提交按钮隐藏，列数固定为两列。
 
 <ClientOnly>
-  <DemoBlock :source="modesSource">
+  <DemoBlock :source="modesSource" source-name="drawer-form-page-modes.vue" :files="[schemaFile]">
     <Modes />
     <template #description>
       新增时「编号」被 `hideOnCreate` 藏掉；编辑和查看时它只读出现。

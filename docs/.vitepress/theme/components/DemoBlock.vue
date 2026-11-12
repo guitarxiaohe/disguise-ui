@@ -1,22 +1,40 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+interface DemoSourceFile {
+  name: string;
+  source: string;
+}
+
 const props = withDefaults(
   defineProps<{
+    /** 主示例文件源码（通常来自 `xxx.vue?raw`） */
     source: string;
+    /** 主示例文件名，多文件标签页里展示 */
+    sourceName?: string;
+    /** 额外文件（如字段配置、mock 数据），与主文件一起以标签页展示 */
+    files?: DemoSourceFile[];
     title?: string;
   }>(),
-  { title: '' },
+  { title: '', sourceName: 'demo.vue', files: () => [] },
 );
 
 const open = ref(false);
 const copied = ref(false);
+const activeIndex = ref(0);
 
-const normalizedSource = computed(() => props.source.replace(/\n$/, ''));
+const tabs = computed<DemoSourceFile[]>(() => [
+  { name: props.sourceName, source: props.source },
+  ...props.files,
+]);
+
+const activeSource = computed(() =>
+  (tabs.value[activeIndex.value]?.source ?? '').replace(/\n$/, ''),
+);
 
 async function copySource() {
   try {
-    await navigator.clipboard.writeText(normalizedSource.value);
+    await navigator.clipboard.writeText(activeSource.value);
     copied.value = true;
     window.setTimeout(() => {
       copied.value = false;
@@ -37,10 +55,24 @@ async function copySource() {
       <slot name="description" />
     </div>
     <div v-show="open" class="demo-block__source">
+      <div v-if="tabs.length > 1" class="demo-block__tabs">
+        <button
+          v-for="(tab, index) in tabs"
+          :key="tab.name"
+          type="button"
+          class="demo-block__tab"
+          :class="{ 'is-active': index === activeIndex }"
+          @click="activeIndex = index"
+        >
+          {{ tab.name }}
+        </button>
+      </div>
       <button class="demo-block__copy" type="button" @click="copySource">
         {{ copied ? '已复制' : '复制' }}
       </button>
-      <pre><code>{{ normalizedSource }}</code></pre>
+      <pre
+        :class="{ 'has-tabs': tabs.length > 1 }"
+      ><code>{{ activeSource }}</code></pre>
     </div>
     <button class="demo-block__control" type="button" @click="open = !open">
       <span class="demo-block__caret" :class="{ 'is-open': open }"></span>
@@ -93,9 +125,41 @@ async function copySource() {
   line-height: 1.65;
 }
 
+.demo-block__source pre.has-tabs {
+  padding-top: 12px;
+}
+
 .demo-block__source code {
   font-family: var(--vp-font-family-mono);
   color: var(--vp-c-text-1);
+}
+
+.demo-block__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 10px 96px 0 16px;
+}
+
+.demo-block__tab {
+  padding: 3px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.demo-block__tab:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.demo-block__tab.is-active {
+  border-color: var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-brand-1);
 }
 
 .demo-block__copy {
