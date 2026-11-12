@@ -128,6 +128,8 @@ export interface ImportDialogProps {
   templateName?: string;
   /** ElUpload 透传属性，同名属性以后者为准 */
   uploadProps?: Partial<UploadProps>;
+
+  templateShow?: boolean;
 }
 
 // 组件 Emits

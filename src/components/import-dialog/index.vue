@@ -66,6 +66,7 @@ const props = withDefaults(defineProps<ImportDialogProps>(), {
   submitImport: undefined,
   templateName: '导入模版',
   uploadProps: () => ({}),
+  templateShow: true,
 });
 
 const emit = defineEmits<ImportDialogEmits>();
@@ -883,7 +884,7 @@ async function handleImport() {
           </div>
         </ElUpload>
         <slot name="after-upload" />
-        <div class="import-dialog__download" v-if="templateUrl">
+        <div class="import-dialog__download" v-if="templateShow">
           <ElIcon :size="14">
             <Download />
           </ElIcon>
