@@ -1,5 +1,6 @@
 dist
 node_modules
+.vitepress/cache
 docs/.vitepress/cache
 docs/.vitepress/dist
 package-lock.json
