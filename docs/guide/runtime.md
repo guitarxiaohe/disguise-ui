@@ -4,18 +4,36 @@
 
 ## 配置项
 
-| 名称                     | 类型                                               | 说明                                                                       |
-| ------------------------ | -------------------------------------------------- | -------------------------------------------------------------------------- |
-| `locale`                 | `string`                                           | 内置文案语言，默认 `zh-CN`                                                 |
-| `messages`               | `Record<string, Record<string, unknown>>`          | 覆盖内置文案，key 路径与组件里的 `t()` 一致                                |
-| `request`                | `DisguiseRequestClient`                            | 导入、导出使用的请求客户端                                                 |
-| `fetchAllDictData`       | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值                             |
-| `uploadFile`             | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                                             |
-| `imageBaseUrl`           | `string`                                           | 相对图片路径要拼接的域名                                                   |
-| `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                            |
-| `getAccessToken`         | `() => string`                                     | 导出请求附带的 token                                                       |
-| `cardShadow`             | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                                            |
-| `userAvatarDrawerFields` | `UserAvatarDrawerField[]`                          | `UserAvatarInfo` 抽屉详情字段的全局配置，组件 `drawerFields` prop 优先于它 |
+| 名称                     | 类型                                               | 说明                                                                                             |
+| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `locale`                 | `string`                                           | 内置文案语言，默认 `zh-CN`                                                                       |
+| `messages`               | `Record<string, Record<string, unknown>>`          | 覆盖内置文案，key 路径与组件里的 `t()` 一致                                                      |
+| `translateLanguages`     | `TranslateLanguage[]`（`{ code, label }`）         | 多语言表单默认语言列表；字段 `translateConfig.language` 可覆盖。不传或为空时回退到内置 12 种语言 |
+| `request`                | `DisguiseRequestClient`                            | 导入、导出使用的请求客户端                                                                       |
+| `fetchAllDictData`       | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值                                                   |
+| `uploadFile`             | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                                                                   |
+| `imageBaseUrl`           | `string`                                           | 相对图片路径要拼接的域名                                                                         |
+| `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                                                  |
+| `getAccessToken`         | `() => string`                                     | 导出请求附带的 token                                                                             |
+| `cardShadow`             | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                                                                  |
+| `userAvatarDrawerFields` | `UserAvatarDrawerField[]`                          | `UserAvatarInfo` 抽屉详情字段的全局配置，组件 `drawerFields` prop 优先于它                       |
+
+## 多语言表单
+
+在应用启动或语言接口返回后注入一次，`SchemaForm`、`CrudPage` 和 `DrawerFormPage` 中启用 `translateConfig` 的字段都会使用这份列表，包括语言 Tab、翻译源语言/目标语言选项及逐语言校验。
+
+```ts
+import { setupDisguise } from 'disguise-ui';
+
+setupDisguise({
+  translateLanguages: [
+    { code: 'zh_cn', label: '简体中文' },
+    { code: 'en', label: 'English' },
+  ],
+});
+```
+
+字段只需配置 `translateConfig: {}` 即可使用全局语言。单个字段配置非空的 `translateConfig.language` 时，会完全覆盖全局列表。优先级为：字段语言 > 全局语言 > 内置 12 种语言。空数组按未配置处理；再次调用 `setupDisguise` 可更新全局列表，未传此项则保留已注入的配置。
 
 ## 字典
 

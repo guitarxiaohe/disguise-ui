@@ -81,6 +81,7 @@ export const DEFAULT_TRANSLATE_LANGUAGES: TranslateLanguage[] = [
   { code: 'fr', label: 'French' },
 ];
 export type TranslateConfig = {
+  /** 覆盖 setupDisguise.translateLanguages；未传或为空时使用全局语言列表 */
   language?: TranslateLanguage[];
   /** 多语言输入布局；rich-text、text、textarea 默认都使用 tabs */
   layout?: 'grid' | 'tabs';
@@ -135,9 +136,9 @@ type BaseField<TProps extends Record<string, any> = Record<string, any>> = {
   prop: string;
   /** 渲染为纯文本而非输入控件 */
   readonly?: boolean;
-  /** 自动生成必填规则，与 rules 合并 */
+  /** 自动生成必填规则，与 rules 合并；多语言字段逐语言校验 */
   required?: FieldCondition;
-  /** validator 的第四个参数为当前 SchemaForm 的全量表单值 */
+  /** validator 的第四个参数为当前 SchemaForm 的全量表单值；多语言字段的 value 为当前语言的值 */
   rules?: FormItemRule[];
   /** 24 栅格占位，默认按表单的 columns 均分 */
   span?: number;

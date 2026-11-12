@@ -11,19 +11,28 @@ import type {
 
 import { computed, ref, watch } from 'vue';
 
-import { ElInput, ElMessage, ElTabPane, ElTabs } from 'element-plus';
+import {
+  ElInput,
+  ElMessage,
+  ElTabPane,
+  ElTabs,
+  useFormItem,
+} from 'element-plus';
+import { CircleAlert } from 'lucide-vue-next';
+import type { TranslateErrors } from './translate-validation';
 
 import { $t as t } from '@/runtime/i18n';
 
 import RichTextEditor from '../rich-text-editor/index.vue';
-import { DEFAULT_TRANSLATE_LANGUAGES } from './schema-form.type';
 import TranslateToolbar from './translate-toolbar.vue';
+import { translateLanguages, translateValues } from './translate-validation';
 
 const props = withDefaults(
   defineProps<{
     config?: TranslateConfig;
     context: FieldContext;
     disabled?: boolean;
+    errors?: TranslateErrors;
     field: ResolvedField;
     inputProps?: Record<string, any>;
     labelPosition?: 'left' | 'right' | 'top';
@@ -34,6 +43,7 @@ const props = withDefaults(
   {
     config: undefined,
     disabled: false,
+    errors: () => ({}),
     inputProps: () => ({}),
     labelPosition: 'top',
     modelValue: undefined,
@@ -47,10 +57,9 @@ const emit = defineEmits<{
 }>();
 
 const languages = computed<TranslateLanguage[]>(() =>
-  props.config?.language?.length
-    ? props.config.language
-    : DEFAULT_TRANSLATE_LANGUAGES,
+  translateLanguages(props.field),
 );
+const { formItem } = useFormItem();
 const languageCodes = computed(() => languages.value.map(({ code }) => code));
 const layout = computed(
   () =>
@@ -64,19 +73,9 @@ const activeLanguageLabel = computed(
     languages.value.find(({ code }) => code === activeLanguage.value)?.label ??
     '',
 );
-const values = computed<TranslateLanguageValues>(() => {
-  if (
-    props.modelValue &&
-    typeof props.modelValue === 'object' &&
-    !Array.isArray(props.modelValue)
-  ) {
-    return props.modelValue as TranslateLanguageValues;
-  }
-  if (typeof props.modelValue === 'string') {
-    return { [languages.value[0]?.code ?? 'en']: props.modelValue };
-  }
-  return {};
-});
+const values = computed(() =>
+  translateValues(props.modelValue, languages.value[0]?.code ?? 'en'),
+);
 const activeLanguage = ref('en');
 const sourceLanguage = ref('en');
 const targetLanguage = ref('all');
@@ -84,6 +83,22 @@ const translating = ref(false);
 const disabled = computed(
   () => props.disabled || props.readonly || translating.value,
 );
+
+// 富文本和翻译按钮不会触发 ElInput 的 change 校验，统一跟随模型更新。
+watch(
+  () => props.modelValue,
+  () => {
+    if (!props.readonly) void formItem?.validate('change').catch(() => {});
+  },
+  { deep: true, flush: 'post' },
+);
+
+function activateFirstError() {
+  const firstError = languages.value.find(({ code }) => props.errors[code]);
+  if (firstError) activeLanguage.value = firstError.code;
+}
+
+defineExpose({ activateFirstError });
 
 watch(
   languageCodes,
@@ -205,12 +220,30 @@ async function translate(command: TranslateCommand = 'translate') {
           :key="language.code"
           :label="language.label"
           :name="language.code"
-        />
+        >
+          <template #label>
+            <span
+              class="translate-field__tab-label"
+              :class="{
+                'translate-field__tab-label--error': errors[language.code],
+              }"
+            >
+              <CircleAlert
+                v-if="errors[language.code]"
+                :size="14"
+                aria-hidden="true"
+              />
+              {{ language.label }}
+            </span>
+          </template>
+        </ElTabPane>
       </ElTabs>
       <RichTextEditor
         v-if="field.type === 'rich-text'"
         v-bind="inputProps"
         :id="`${field.prop}-${activeLanguage}`"
+        :class="{ 'translate-field__input--error': errors[activeLanguage] }"
+        :aria-invalid="!!errors[activeLanguage]"
         :model-value="String(values[activeLanguage] ?? '')"
         :placeholder="placeholder || activeLanguageLabel"
         :editable="!disabled && inputProps.editable !== false"
@@ -236,6 +269,9 @@ async function translate(command: TranslateCommand = 'translate') {
         v-else
         v-bind="inputProps"
         :id="`${field.prop}-${activeLanguage}`"
+        :class="{ 'translate-field__input--error': errors[activeLanguage] }"
+        :aria-invalid="!!errors[activeLanguage]"
+        :validate-event="false"
         :model-value="getLanguageValue(activeLanguage)"
         :type="field.type === 'textarea' ? 'textarea' : 'text'"
         :rows="field.type === 'textarea' ? (inputProps.rows ?? 4) : undefined"
@@ -243,6 +279,13 @@ async function translate(command: TranslateCommand = 'translate') {
         :disabled="disabled"
         @update:model-value="updateLanguageValue(activeLanguage, $event)"
       />
+      <div
+        v-if="errors[activeLanguage]"
+        class="translate-field__error"
+        role="alert"
+      >
+        {{ errors[activeLanguage] }}
+      </div>
     </template>
 
     <div v-else class="translate-field__grid">
@@ -253,14 +296,23 @@ async function translate(command: TranslateCommand = 'translate') {
       >
         <label
           class="translate-field__label"
+          :class="{
+            'translate-field__tab-label--error': errors[language.code],
+          }"
           :for="`${field.prop}-${language.code}`"
         >
           {{ language.label }}
+          <CircleAlert
+            v-if="errors[language.code]"
+            :size="14"
+            aria-hidden="true"
+          />
         </label>
         <RichTextEditor
           v-if="field.type === 'rich-text'"
           v-bind="inputProps"
           :id="`${field.prop}-${language.code}`"
+          :class="{ 'translate-field__input--error': errors[language.code] }"
           :model-value="String(values[language.code] ?? '')"
           :placeholder="placeholder || language.label"
           :editable="!disabled && inputProps.editable !== false"
@@ -272,6 +324,9 @@ async function translate(command: TranslateCommand = 'translate') {
           v-else
           v-bind="inputProps"
           :id="`${field.prop}-${language.code}`"
+          :class="{ 'translate-field__input--error': errors[language.code] }"
+          :aria-invalid="!!errors[language.code]"
+          :validate-event="false"
           :model-value="getLanguageValue(language.code)"
           :type="field.type === 'textarea' ? 'textarea' : 'text'"
           :rows="field.type === 'textarea' ? (inputProps.rows ?? 4) : undefined"
@@ -279,6 +334,13 @@ async function translate(command: TranslateCommand = 'translate') {
           :disabled="disabled"
           @update:model-value="updateLanguageValue(language.code, $event)"
         />
+        <div
+          v-if="errors[language.code]"
+          class="translate-field__error"
+          role="alert"
+        >
+          {{ errors[language.code] }}
+        </div>
       </div>
     </div>
 
@@ -305,6 +367,24 @@ async function translate(command: TranslateCommand = 'translate') {
   &__tabs {
     width: 100%;
     margin-bottom: 12px;
+  }
+
+  &__tab-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  &__tab-label--error,
+  &__error {
+    color: var(--el-color-danger);
+  }
+
+  &__error {
+    width: 100%;
+    margin-top: 4px;
+    font-size: var(--el-form-error-font-size, 12px);
+    line-height: 1.2;
   }
 
   :deep(.el-tabs__nav-wrap) {
@@ -352,6 +432,11 @@ async function translate(command: TranslateCommand = 'translate') {
     text-align: right;
   }
 
+  &--label-left &__error,
+  &--label-right &__error {
+    grid-column: 2 / -1;
+  }
+
   &__standalone-toolbar {
     width: fit-content;
     max-width: 100%;
@@ -384,6 +469,12 @@ async function translate(command: TranslateCommand = 'translate') {
 
   :deep(.rich-text-editor) {
     min-width: 0;
+  }
+
+  &--plain-input :deep(.translate-field__input--error .el-input__wrapper),
+  &--plain-input :deep(.translate-field__input--error .el-textarea__inner),
+  :deep(.rich-text-editor.translate-field__input--error) {
+    border-color: var(--el-color-danger);
   }
 }
 

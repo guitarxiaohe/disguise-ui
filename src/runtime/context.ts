@@ -4,6 +4,7 @@ import { ref } from 'vue';
 
 import type { DictValueItem } from './dict';
 import type { DisguiseRequestClient } from './request';
+import type { TranslateLanguage } from '../components/schema-form/schema-form.type';
 
 /******************************** 宿主配置 ********************************/
 
@@ -49,6 +50,8 @@ export interface DisguiseOptions {
   locale?: string;
   /** 覆盖内置文案，key 路径与组件里的 t() 一致 */
   messages?: Record<string, Record<string, unknown>>;
+  /** 多语言表单的全局默认语言列表，字段 translateConfig.language 优先 */
+  translateLanguages?: TranslateLanguage[];
   /** 导入、导出使用的请求客户端 */
   request?: DisguiseRequestClient;
   /** 按字典编码返回字典项。不传时字典标签显示原始值 */
@@ -76,6 +79,7 @@ export interface DisguiseOptions {
 
 const locale = ref('zh-CN');
 const messages = ref<Record<string, Record<string, unknown>>>({});
+const translateLanguages = ref<TranslateLanguage[]>([]);
 const accessChecker = ref<(codes: string[]) => boolean>(() => true);
 const accessTokenReader = ref<() => string>(() => '');
 const cardShadow = ref<'always' | 'hover' | 'never'>('hover');
@@ -98,6 +102,9 @@ let imageBaseUrl = '';
 export function configureDisguise(options: DisguiseOptions) {
   if (options.locale) locale.value = options.locale;
   if (options.messages) messages.value = options.messages;
+  if (options.translateLanguages !== undefined) {
+    translateLanguages.value = options.translateLanguages;
+  }
   if (options.request) requestClient = options.request;
   if (options.fetchAllDictData) dictLoader = options.fetchAllDictData;
   if (options.uploadFile) fileUploader = options.uploadFile;
@@ -122,6 +129,10 @@ export function getLocale() {
 
 export function getExtraMessages() {
   return messages;
+}
+
+export function getTranslateLanguages(): Ref<TranslateLanguage[]> {
+  return translateLanguages;
 }
 
 export function getRequestClient() {

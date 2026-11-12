@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { AttachmentData } from '@/components/file-upload/file-upload.type';
 import type { AsyncSelectFetchParams } from '@/components/async-select/async-select.type';
+import type { FormItemInstance } from 'element-plus';
+import type { TranslateErrors } from './translate-validation';
 
 import type { FieldContext, ResolvedField } from './schema-form.type';
 
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, ref, watch } from 'vue';
 
 import { $t as t } from '@/runtime/i18n';
 import { formatDate, formatDateTime } from '@/runtime/utils';
@@ -30,6 +32,7 @@ import ReadonlyText from './readonly-text.vue';
 import { resolveSchemaFormComponent } from './schema-form-registry';
 import { resolvePlaceholder, resolveRules } from './schema-form.util';
 import TranslateField from './translate-field.vue';
+import { resolveTranslateRules } from './translate-validation';
 import { useFieldOptions } from './use-field-options';
 
 const props = defineProps<{
@@ -72,7 +75,31 @@ const resolvedProps = computed(() => {
   return props.field.props(propsContext.value);
 });
 
-const rules = computed(() => resolveRules(props.field, context.value));
+const formItemRef = ref<FormItemInstance>();
+const translateRef = ref<InstanceType<typeof TranslateField>>();
+const translateErrors = ref<TranslateErrors>({});
+const rules = computed(() => {
+  const currentContext = context.value;
+  return isTranslatedField.value
+    ? resolveTranslateRules(props.field, currentContext, (errors) => {
+        if (
+          context.value.values === currentContext.values &&
+          formItemRef.value?.validateState !== ''
+        ) {
+          translateErrors.value = errors;
+        }
+      })
+    : resolveRules(props.field, currentContext);
+});
+watch(
+  () => formItemRef.value?.validateState,
+  (state) => {
+    if (state === '') translateErrors.value = {};
+  },
+);
+defineExpose({
+  activateFirstError: () => translateRef.value?.activateFirstError(),
+});
 const placeholder = computed(() => resolvePlaceholder(props.field));
 const copyable = computed(() => props.field.copyable ?? !!props.field.readonly);
 const isTranslatedField = computed(
@@ -302,19 +329,23 @@ function fetchStaticOptions(params: {
 
 <template>
   <ElFormItem
+    ref="formItemRef"
     class="schema-form-item"
     :class="{ 'schema-form-item--bare': hideLabel }"
     :label="hideLabel ? undefined : field.label"
     :label-width="hideLabel ? '0' : undefined"
     :prop="field.prop"
     :rules="rules"
+    :show-message="!isTranslatedField"
   >
     <TranslateField
       v-if="isTranslatedField"
+      ref="translateRef"
       :config="field.translateConfig"
       :context="context"
       :disabled="disabled || readonly"
       :field="field"
+      :errors="translateErrors"
       :label-position="labelPosition"
       :input-props="resolvedProps"
       :model-value="modelValue"

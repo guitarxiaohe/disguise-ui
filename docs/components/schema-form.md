@@ -11,6 +11,8 @@ import Options from './demos/schema-form-options.vue'
 import optionsSource from './demos/schema-form-options.vue?raw'
 import RichText from './demos/schema-form-rich-text.vue'
 import richTextSource from './demos/schema-form-rich-text.vue?raw'
+import TranslateValidation from './demos/schema-form-translate-validation.vue'
+import translateValidationSource from './demos/schema-form-translate-validation.vue?raw'
 </script>
 
 ## 基础用法
@@ -148,8 +150,8 @@ import richTextSource from './demos/schema-form-rich-text.vue?raw'
 | `hideOnCreate` / `hideOnEdit` | `boolean`                                     | `false`         | 在对应模式隐藏，等价于判断 `ctx.mode`                                                                                                         |
 | `readonly`                    | `boolean`                                     | `false`         | 是否以纯文本呈现；`mode="view"` 时整表只读                                                                                                    |
 | `copyable`                    | `boolean`                                     | 跟随 `readonly` | 只读态是否显示复制按钮                                                                                                                        |
-| `required`                    | `boolean \| (context) => boolean`             | `false`         | 是否必填，自动生成规则并与 `rules` 合并                                                                                                       |
-| `rules`                       | `FormItemRule[]`                              | `[]`            | Element Plus 校验规则；`validator` 的第四个参数为整表值                                                                                       |
+| `required`                    | `boolean \| (context) => boolean`             | `false`         | 是否必填，自动生成规则并与 `rules` 合并；多语言字段逐语言校验                                                                                 |
+| `rules`                       | `FormItemRule[]`                              | `[]`            | Element Plus 校验规则；`validator` 的第四个参数为整表值，多语言字段的 `value` 为对应语言的值                                                  |
 | `placeholder`                 | `string`                                      | 自动生成        | 占位文字；选择类用「请选择 xxx」，输入类用「请输入 xxx」                                                                                      |
 | `props`                       | `Record \| (context) => Record`               | `{}`            | 透传给底层控件的属性；函数形态的 context 为 `{ mode, values, updateValue }`                                                                   |
 | `span`                        | `number`                                      | 按列数均分      | 24 栅格占位                                                                                                                                   |
@@ -165,13 +167,26 @@ import richTextSource from './demos/schema-form-rich-text.vue?raw'
 
 `translateConfig` 仅对 `text`、`textarea`、`rich-text` 生效：
 
-| 名称        | 类型                                       | 默认值                                                       | 说明                                                           |
-| ----------- | ------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------------------------- |
-| `language`  | `TranslateLanguage[]`（`{ code, label }`） | 12 种内置语言（`DEFAULT_TRANSLATE_LANGUAGES`）               | 多语言列表                                                     |
-| `layout`    | `'grid' \| 'tabs'`                         | `text` / `textarea` / `rich-text` 为 `'tabs'`，其余 `'grid'` | 多语言输入布局                                                 |
-| `translate` | `(ctx) => Partial<values> \| Promise`      | —                                                            | 翻译回调；不配置时为模拟翻译（把源文复制到目标语言并给出提示） |
+默认语言通过 `setupDisguise({ translateLanguages: [{ code: 'zh_cn', label: '简体中文' }, { code: 'en', label: 'English' }] })` 全局注入。字段配置 `translateConfig: {}` 即可使用，个别字段通过 `translateConfig.language` 覆盖。Tab、翻译工具和校验均使用最终解析的语言列表，详见[全局多语言配置](../guide/runtime.md#多语言表单)。
+
+| 名称        | 类型                                       | 默认值                                                            | 说明                                                           |
+| ----------- | ------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------------------- |
+| `language`  | `TranslateLanguage[]`（`{ code, label }`） | 全局 `setupDisguise.translateLanguages`，未配置时为内置 12 种语言 | 非空列表覆盖全局配置；未传或为空时使用全局语言列表             |
+| `layout`    | `'grid' \| 'tabs'`                         | `text` / `textarea` / `rich-text` 为 `'tabs'`，其余 `'grid'`      | 多语言输入布局                                                 |
+| `translate` | `(ctx) => Partial<values> \| Promise`      | —                                                                 | 翻译回调；不配置时为模拟翻译（把源文复制到目标语言并给出提示） |
 
 翻译回调的 `ctx`（`TranslateHandlerContext`）包含：`command`（`'polish' \| 'translate'`）、`fieldProp`、`fieldValue`、`sourceLanguage`、`sourceValue`、`targetLanguage`、`targetLanguages`、`before`（合并前的多语言值），以及表单的 `mode`、`values`。
+
+多语言字段按配置的语言列表逐语言校验：`required: true` 时每种语言都必须填写，富文本空段落不算有效内容。`rules` 也会逐语言执行，自定义 `validator` / `asyncValidator` 的 `value` 是对应语言的值，第四个参数仍是完整表单值。校验失败的语言 Tab 会显示红色文字和错误图标；提交失败时按配置顺序切换到第一个错误语言，并保留滚动到首个错误字段的行为。重新校验通过、`clearValidate()` 或 `resetFields()` 后会清除对应错误状态。`CrudPage` 和 `DrawerFormPage` 的表单同样适用。
+
+<ClientOnly>
+  <DemoBlock :source="translateValidationSource">
+    <TranslateValidation />
+    <template #description>
+      点击「校验多语言」，标题的德语和中文会标红，并按配置顺序切换到德语；描述的德语会触发自定义校验。填写通过后，对应语言的错误标记会清除。
+    </template>
+  </DemoBlock>
+</ClientOnly>
 
 `type: 'group'` 为分组容器，自身没有 `prop`，值仍由 `children` 平铺在表单对象里：
 
@@ -190,12 +205,12 @@ import richTextSource from './demos/schema-form-rich-text.vue?raw'
 
 ## 暴露方法
 
-| 名称              | 说明                                                    |
-| ----------------- | ------------------------------------------------------- |
-| `validate()`      | 校验并返回 `Promise<boolean>`，失败时滚动到首个错误字段 |
-| `clearValidate()` | 清除校验状态                                            |
-| `resetFields()`   | 重置字段                                                |
-| `getValues()`     | 获取当前可见字段值，自动排除隐藏字段                    |
+| 名称              | 说明                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| `validate()`      | 校验并返回 `Promise<boolean>`，失败时滚动到首个错误字段；多语言字段同时切换到第一个校验失败的语言 |
+| `clearValidate()` | 清除校验状态，多语言字段的逐语言错误标记一并清除                                                  |
+| `resetFields()`   | 重置字段，多语言字段的逐语言错误标记一并清除                                                      |
+| `getValues()`     | 获取当前可见字段值，自动排除隐藏字段                                                              |
 
 ## 富文本自定义工具
 

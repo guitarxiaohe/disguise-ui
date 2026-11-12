@@ -68,47 +68,11 @@ export function resolveRules(
 ): FormItemRule[] {
   const rules = field.rules ? [...field.rules] : [];
   if (evalCondition(field.required, context)) {
-    rules.unshift(
-      field.translateConfig &&
-        ['rich-text', 'text', 'textarea'].includes(field.type)
-        ? {
-            message: resolvePlaceholder(field),
-            trigger: 'change',
-            validator: (_rule, value) => {
-              const hasContent = (candidate: unknown): boolean => {
-                if (typeof candidate === 'string')
-                  return candidate.trim().length > 0;
-                if (
-                  typeof candidate === 'number' ||
-                  typeof candidate === 'boolean'
-                ) {
-                  return true;
-                }
-                if (Array.isArray(candidate)) {
-                  return candidate.some((item) => hasContent(item));
-                }
-                if (candidate && typeof candidate === 'object') {
-                  return Object.values(candidate).some((item) =>
-                    hasContent(item),
-                  );
-                }
-                return false;
-              };
-              const hasTranslatedContent =
-                value &&
-                typeof value === 'object' &&
-                Object.values(value).some((item) => hasContent(item));
-              return (
-                hasTranslatedContent || new Error(resolvePlaceholder(field))
-              );
-            },
-          }
-        : {
-            required: true,
-            message: resolvePlaceholder(field),
-            trigger: isChoiceField(field) ? 'change' : 'blur',
-          },
-    );
+    rules.unshift({
+      required: true,
+      message: resolvePlaceholder(field),
+      trigger: isChoiceField(field) ? 'change' : 'blur',
+    });
   }
   // Element Plus 会为每个 FormItem 单独创建校验器，因此 validator 的
   // 第四个参数默认只包含当前字段。这里统一替换为 SchemaForm 的完整模型。

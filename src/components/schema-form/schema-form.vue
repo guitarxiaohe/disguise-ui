@@ -44,6 +44,15 @@ const emit = defineEmits<{
 const model = defineModel<Record<string, any>>({ default: () => ({}) });
 
 const formRef = ref<FormInstance>();
+const fieldRefs = new Map<string, InstanceType<typeof SchemaFormItem>>();
+
+function setFieldRef(prop: string, instance: unknown) {
+  if (instance) {
+    fieldRefs.set(prop, instance as InstanceType<typeof SchemaFormItem>);
+  } else {
+    fieldRefs.delete(prop);
+  }
+}
 const scrollIntoViewOptions: ScrollIntoViewOptions = {
   behavior: 'smooth',
   block: 'center',
@@ -176,6 +185,7 @@ async function validate() {
       failedProps.values().next().value;
 
     if (firstFailedProp) {
+      for (const prop of failedProps) fieldRefs.get(prop)?.activateFirstError();
       await nextTick();
       formRef.value?.scrollToField(firstFailedProp);
     }
@@ -270,6 +280,7 @@ defineExpose({
                 <SchemaFormItem
                   v-for="child in visibleChildren(entry)"
                   :key="child.prop"
+                  :ref="(instance) => setFieldRef(child.prop, instance)"
                   :style="childStyle(child, entry.anchor)"
                   :hide-label="!entry.anchor"
                   :field="child"
@@ -293,6 +304,7 @@ defineExpose({
 
             <SchemaFormItem
               v-else
+              :ref="(instance) => setFieldRef(entry.prop, instance)"
               :field="entry"
               :context="context"
               :label-position="effectiveLabelPosition"
