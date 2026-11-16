@@ -9,7 +9,7 @@ import { mockUsers } from '../../.vitepress/mock';
 
 const rows = ref(mockUsers.map((item) => ({ ...item })));
 let nextId = rows.value.length + 1;
-
+const categoryOptions = ref([]);
 const fields: CrudPageField[] = [
   {
     prop: 'name',
@@ -91,11 +91,37 @@ const fields: CrudPageField[] = [
     form: false,
     table: { width: 180 },
   },
+  {
+    prop: 'category_id',
+    label: '分类',
+    type: 'cascader',
+    table: false,
+    props: () => ({
+      options: categoryOptions.value,
+      props: {
+        label: 'name',
+        value: 'id',
+        children: 'children',
+        emitPath: true,
+      },
+    }),
+    form: {
+      props: ({ mode }) => ({ clearable: mode === 'create' }),
+    },
+    search: {
+      defaultValue: '',
+      props: ({ updateValue }) => ({
+        clearable: true,
+        fitInputWidth: true,
+        onClear: () => updateValue(''),
+      }),
+    },
+  },
 ];
 
 const fetchList: TableEntityDataFetcher = async ({
-  current_page,
-  per_page,
+  pageNum,
+  pageSize,
   query,
 }) => {
   await new Promise((resolve) => setTimeout(resolve, 180));

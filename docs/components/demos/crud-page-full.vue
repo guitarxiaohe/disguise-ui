@@ -43,9 +43,9 @@ const fetchList: TableEntityDataFetcher = async ({
     const matchDept = query?.deptId == null || item.deptId === query.deptId;
     return matchName && matchStatus && matchJob && matchDept;
   });
-  const start = (current_page - 1) * per_page;
+  const start = (pageNum - 1) * pageSize;
   return {
-    rows: filtered.slice(start, start + per_page),
+    rows: filtered.slice(start, start + pageSize),
     total: filtered.length,
   };
 };

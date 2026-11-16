@@ -17,7 +17,7 @@ const fields: CrudPageField[] = [
     label: '名称',
     type: 'text',
     required: true,
-    search: true,
+    search: {},
     table: { width: 180 },
   },
   {
@@ -169,10 +169,49 @@ const fields: CrudPageField[] = [
 | ----------------- | ---------------------------------------------------------------------------- |
 | `table`           | 默认出现在表格。对象会合并进列配置，例如 `width`、`cellRenderer`、`sortable` |
 | `table: false`    | 不出现在表格                                                                 |
+| `form: { ... }`   | 覆盖抽屉表单字段配置，`props` 与顶层 `props` 合并                            |
 | `form: false`     | 不出现在抽屉表单                                                             |
 | `search: true`    | 复用字段配置生成搜索项                                                       |
 | `search: { ... }` | 覆盖搜索字段；不在搜索字段白名单里的键会合并进控件 `props`                   |
 | `type: 'group'`   | 只用于表单和搜索，不会生成表格列，且 `table` 只能为 `false`                  |
+
+顶层 `props`、`form.props` 和 `search.props` 都支持对象或 `({ mode, values, updateValue }) => ({ ... })`。函数在渲染时接收所属表单的当前上下文，`values` 是该表单的实时值，`updateValue` 回写当前字段。
+
+控件属性按浅合并处理：表单为「顶层 `props` → `form.props`」；搜索为「顶层 `props` → `search` 平铺控件属性 → `search.props`」，后者覆盖同名属性。`form` 的覆盖不会影响搜索。
+
+```ts
+const categoryOptions = ref([]);
+const fields: CrudPageField[] = [
+  {
+    prop: 'category_id',
+    label: '分类',
+    type: 'cascader',
+    table: false,
+    props: () => ({
+      options: categoryOptions.value,
+      props: {
+        label: 'name',
+        value: 'id',
+        children: 'children',
+        emitPath: true,
+      },
+    }),
+    form: {
+      props: ({ mode }) => ({ clearable: mode === 'create' }),
+    },
+    search: {
+      defaultValue: '',
+      props: ({ updateValue }) => ({
+        clearable: true,
+        fitInputWidth: true,
+        onClear: () => updateValue(''),
+      }),
+    },
+  },
+];
+```
+
+级联选项写成 `props: () => ({ options: categoryOptions.value })`，由外层函数追踪响应式数据；`options` 本身应为数组。
 
 搜索项不会继承表单上的 `hidden`、`readonly`、`required` 和 `rules`，需要在 `search` 对象里单独声明。
 

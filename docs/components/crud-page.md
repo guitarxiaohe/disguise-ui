@@ -62,12 +62,51 @@ const mockFile = { name: 'mock.ts', source: mockSource }
 | --------------- | -------------------------------------------------------------------------------------------------------------- |
 | `table`         | 默认出现在表格；对象会合并进列配置，`dataIndex` / `key` / `title` 缺省取 `prop` / `prop` / `label`             |
 | `table: false`  | 不出现在表格                                                                                                   |
+| `form: 对象`    | 覆盖抽屉表单字段配置，`props` 与顶层 `props` 合并                                                              |
 | `form: false`   | 不出现在抽屉表单                                                                                               |
 | `search: true`  | 复用字段配置生成搜索项；只有**顶层字段**参与搜索                                                               |
 | `search: 对象`  | 覆盖搜索项配置（`label`、`hidden`、`required`、`props`、`options` 等），未列入搜索配置的键会合并进控件 `props` |
 | `type: 'group'` | 只用于表单和搜索，不会生成表格列；分组配置 `search: true` 后组内子字段整体进入搜索区                           |
 
 `hidden`、`disabled`、`required`、`options` 和 `props` 都可以是函数，读取当前 `mode` 和 `values`。
+
+顶层 `props`、`form.props` 和 `search.props` 都支持对象或 `({ mode, values, updateValue }) => ({ ... })`。函数在渲染时接收所属表单的当前上下文，`values` 是该表单的实时值，`updateValue` 回写当前字段。
+
+控件属性按浅合并处理：表单为「顶层 `props` → `form.props`」；搜索为「顶层 `props` → `search` 平铺控件属性 → `search.props`」，后者覆盖同名属性。`form` 的覆盖不会影响搜索。
+
+```ts
+const categoryOptions = ref([]);
+const fields: CrudPageField[] = [
+  {
+    prop: 'category_id',
+    label: '分类',
+    type: 'cascader',
+    table: false,
+    props: () => ({
+      options: categoryOptions.value,
+      props: {
+        label: 'name',
+        value: 'id',
+        children: 'children',
+        emitPath: true,
+      },
+    }),
+    form: {
+      props: ({ mode }) => ({ clearable: mode === 'create' }),
+    },
+    search: {
+      defaultValue: '',
+      props: ({ updateValue }) => ({
+        clearable: true,
+        fitInputWidth: true,
+        onClear: () => updateValue(''),
+      }),
+    },
+  },
+];
+```
+
+级联选项写成 `props: () => ({ options: categoryOptions.value })`，由外层函数追踪响应式数据；`options` 本身应为数组。
 
 `searchFormProps` 调整搜索区布局，字段与 `SearchForm` 一致：`columns`、`collapsedRows`、`disabled`、`labelAlign`、`labelPosition`、`labelWidth`、`showActions`；其中 `schema` 传入后会完全接管搜索字段，不再由 `fields.search` 生成。
 

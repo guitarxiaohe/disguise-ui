@@ -2,9 +2,7 @@
 import type { RequestResponse } from '@/runtime/request';
 
 import type {
-  FieldPropsResolver,
-  SchemaFormField,
-  SchemaFormGroup,
+  SchemaFormItem,
   SchemaFormMode,
 } from '../schema-form/schema-form.type';
 import type {
@@ -33,6 +31,8 @@ import { ElButton, ElMessage, ElMessageBox } from 'element-plus';
 
 import { requestClient } from '@/runtime/request';
 import { $t as t } from '@/runtime/i18n';
+
+import { resolveFormField, resolveSearchField } from './field-schema';
 
 import BaseCard from '../card/index.vue';
 import { useDrawerFormPage } from '../drawer-form-page';
@@ -89,7 +89,9 @@ const searchValues = ref<SearchFormValues>({});
 const tableQuery = ref<SearchFormValues>({});
 
 const formFields = computed(() =>
-  props.fields.filter((field) => field.form !== false),
+  props.fields
+    .map(resolveFormField)
+    .filter((field): field is SchemaFormItem => !!field),
 );
 
 const searchFields = computed<SearchFormItem[]>(() => {
@@ -188,102 +190,6 @@ const resolvedSearchFormProps = computed(() => {
   const { schema, ...searchFormProps } = props.searchFormProps ?? {};
   return searchFormProps;
 });
-
-const SEARCH_FIELD_KEYS = new Set([
-  'apiOptions',
-  'component',
-  'copyable',
-  'defaultValue',
-  'dictCode',
-  'disabled',
-  'hidden',
-  'hideOnCreate',
-  'hideOnEdit',
-  'label',
-  'newRow',
-  'options',
-  'optionSource',
-  'placeholder',
-  'props',
-  'readonly',
-  'required',
-  'rules',
-  'span',
-  'tip',
-  'type',
-]);
-
-function resolveSearchField(
-  field: SchemaFormField | SchemaFormGroup,
-): null | SearchFormItem {
-  if (field.type === 'group') {
-    return resolveSearchGroup(field);
-  }
-  return resolveSearchItem(field);
-}
-
-function resolveSearchGroup(
-  field: SchemaFormGroup & { search?: boolean | Record<string, any> },
-): null | SearchFormItem {
-  const searchConfig = field.search;
-  if (!searchConfig) return null;
-  const override = typeof searchConfig === 'object' ? searchConfig : {};
-  const children = Array.isArray(override.children)
-    ? override.children
-    : field.children;
-  return {
-    ...field,
-    ...pickSearchFieldConfig(override),
-    children,
-    hidden: override.hidden ?? false,
-  } as SearchFormItem;
-}
-
-function resolveSearchItem(
-  field: SchemaFormField & { search?: boolean | Record<string, any> },
-): null | SearchFormItem {
-  const searchConfig = field.search;
-  if (!searchConfig) return null;
-
-  const override = typeof searchConfig === 'object' ? searchConfig : {};
-  const controlProps = omitSearchFieldConfig(override);
-  const fieldProps = mergeFieldProps(field.props, controlProps);
-  return {
-    ...field,
-    ...pickSearchFieldConfig(override),
-    props: fieldProps,
-    hidden: override.hidden ?? false,
-    readonly: override.readonly ?? false,
-    required: override.required ?? false,
-    rules: override.rules ?? [],
-  } as SearchFormItem;
-}
-
-function pickSearchFieldConfig(config: Record<string, any>) {
-  return Object.fromEntries(
-    Object.entries(config).filter(([key]) => SEARCH_FIELD_KEYS.has(key)),
-  );
-}
-
-function omitSearchFieldConfig(config: Record<string, any>) {
-  return Object.fromEntries(
-    Object.entries(config).filter(([key]) => !SEARCH_FIELD_KEYS.has(key)),
-  );
-}
-
-function mergeFieldProps(
-  baseProps: FieldPropsResolver | Record<string, any> | undefined,
-  searchProps: Record<string, any>,
-) {
-  if (Object.keys(searchProps).length === 0) return baseProps;
-  if (typeof baseProps === 'function') {
-    return ((ctx) => ({
-      ...baseProps(ctx),
-      ...searchProps,
-    })) as FieldPropsResolver;
-  }
-  return { ...(baseProps ?? {}), ...searchProps };
-}
 
 async function reloadWithSearchValues(values: SearchFormValues) {
   tableQuery.value = { ...values };

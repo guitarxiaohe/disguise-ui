@@ -9,6 +9,7 @@ import type { ImportDialogUrlConfig } from '../import-dialog/index.type';
 import type {
   SchemaFormField,
   SchemaFormGroup,
+  SchemaFormItem,
   SchemaFormMode,
 } from '../schema-form/schema-form.type';
 import type {
@@ -21,11 +22,16 @@ import type {
   TableEntityProps,
 } from '../table-entity/index.type';
 
-type CrudPageMeta = {
-  /** 是否出现在抽屉表单中，默认 true */
-  form?: boolean;
+type CrudPageMeta<T extends SchemaFormItem> = {
+  /** 默认出现在抽屉表单中；对象可覆盖字段配置，props 与顶层 props 合并 */
+  form?: boolean | Partial<Omit<T, 'prop'>>;
   /** 是否出现在搜索表单中，true 复用字段配置；对象可覆盖搜索字段或透传控件属性 */
-  search?: boolean | Record<string, any>;
+  search?:
+    | boolean
+    | (Partial<Omit<T, 'prop' | 'type'>> & {
+        type?: SchemaFormItem['type'];
+        [key: string]: unknown;
+      });
 };
 
 export type CrudPageSearchFormProps = {
@@ -48,13 +54,17 @@ export type CrudPageSearchSlotProps = {
   reset: (values?: SearchFormValues) => void;
 };
 
-export type CrudPageField =
-  | ({
+type CrudPageFormField<T = SchemaFormField> = T extends SchemaFormField
+  ? {
       /** 是否出现在表格中，默认 true；对象可补充表格列配置 */
       table?: boolean | Partial<ColumnsItem>;
-    } & CrudPageMeta &
-      SchemaFormField)
-  | (CrudPageMeta &
+    } & CrudPageMeta<T> &
+      T
+  : never;
+
+export type CrudPageField =
+  | CrudPageFormField
+  | (CrudPageMeta<SchemaFormGroup> &
       SchemaFormGroup & {
         table?: false;
       });
