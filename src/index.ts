@@ -48,6 +48,8 @@ export type {
   EntityFetchResult,
 } from './entities/index';
 export { setupDisguise } from './setup';
+export { USER_DATA_ALL_QUERY_KEY } from './runtime/user';
+export type { DisguiseUserData, UserLookupFields } from './runtime/user';
 export type {
   DisguiseOptions,
   DisguiseOptions as SetupDisguiseOptions,

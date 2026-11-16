@@ -93,8 +93,10 @@ function renderBuiltinCell(
   switch (column.type) {
     case 'avatar': {
       return h(UserCell, {
-        row: { ...rowData, ...cellProps },
-        value: value as any,
+        row: rowData,
+        value,
+        field: String(column.dataKey ?? column.dataIndex ?? column.key ?? ''),
+        cellProps,
       });
     }
     case 'file': {

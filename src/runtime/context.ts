@@ -1,9 +1,10 @@
 import type { CSSProperties, Component, Ref } from 'vue';
 
-import { ref } from 'vue';
+import { ref, shallowRef } from 'vue';
 
 import type { DictValueItem } from './dict';
 import type { DisguiseRequestClient } from './request';
+import type { DisguiseUserData, UserLookupFields } from './user';
 import type { TranslateLanguage } from '../components/schema-form/schema-form.type';
 
 /******************************** 宿主配置 ********************************/
@@ -60,6 +61,10 @@ export interface DisguiseOptions {
   request?: DisguiseRequestClient;
   /** 按字典编码返回字典项。不传时字典标签显示原始值 */
   fetchAllDictData?: () => Promise<Record<string, DictValueItem[]>>;
+  /** 返回允许当前账号查看的用户展示数据；头像列需要时才调用。null 可关闭查询。 */
+  fetchAllUserData?: (() => Promise<DisguiseUserData[]>) | null;
+  /** 头像列字段与用户匹配字段的映射；未配置的列仍读取行内用户信息。 */
+  userLookupFields?: UserLookupFields;
   /** 图片和附件上传 */
   uploadFile?: (
     file: File,
@@ -96,6 +101,9 @@ const paginationConfig = ref<PaginationConfig>({
   popperStyle: { zIndex: 4000 },
 });
 const userAvatarDrawerFields = ref<UserAvatarDrawerField[] | null>(null);
+const userDataLoader = shallowRef<DisguiseOptions['fetchAllUserData']>(null);
+const userDataSourceVersion = ref(0);
+const userLookupFields = ref<UserLookupFields>({});
 
 let requestClient: DisguiseRequestClient | null = null;
 let dictLoader: DisguiseOptions['fetchAllDictData'];
@@ -113,6 +121,16 @@ export function configureDisguise(options: DisguiseOptions) {
   }
   if (options.request) requestClient = options.request;
   if (options.fetchAllDictData) dictLoader = options.fetchAllDictData;
+  if (
+    options.fetchAllUserData !== undefined &&
+    options.fetchAllUserData !== userDataLoader.value
+  ) {
+    userDataLoader.value = options.fetchAllUserData;
+    userDataSourceVersion.value += 1;
+  }
+  if (options.userLookupFields !== undefined) {
+    userLookupFields.value = options.userLookupFields;
+  }
   if (options.uploadFile) fileUploader = options.uploadFile;
   if (options.imageBaseUrl !== undefined) imageBaseUrl = options.imageBaseUrl;
   if (options.hasAccess) accessChecker.value = options.hasAccess;
@@ -175,4 +193,16 @@ export function getUserAvatarDrawerFields(): Ref<
   UserAvatarDrawerField[] | null
 > {
   return userAvatarDrawerFields;
+}
+
+export function getUserDataLoader() {
+  return userDataLoader;
+}
+
+export function getUserDataSourceVersion() {
+  return userDataSourceVersion;
+}
+
+export function getUserLookupFields(): Ref<UserLookupFields> {
+  return userLookupFields;
 }

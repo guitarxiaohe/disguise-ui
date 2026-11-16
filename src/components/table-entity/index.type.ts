@@ -22,7 +22,7 @@ export type ColumnsItem = {
    * - dict：按字典编码展示标签
    * - picture：图片缩略图，值为 URL 字符串（可逗号分隔）、URL 数组或 `{ fileUrl }` 数组
    * - file：附件图标，值为 AttachmentData 或其数组
-   * - avatar：用户头像信息，读取整行的 userId / nickName / userName / avatar 等字段
+   * - avatar：用户头像信息，注入 userLookupFields 的列按当前值查用户，其余读取行内用户字段
    * - listExpand：折叠展示字符串或对象列表，参数通过 cellProps 配置
    */
   type?: TableEntityCellType;

@@ -130,6 +130,8 @@ const columns = [
 
 `picture` / `file` 可通过 `maxPreviewCount` 控制最多展示数量（默认 3），超出显示 `+N`。
 
+头像列可通过 `setupDisguise({ fetchAllUserData, userLookupFields: { createBy: 'userName', updateBy: 'userName' } })` 注入共享用户数据源，按当前列值自动查询用户，无需逐列写查询回调；未配置映射的列仍读取整行用户字段。显式 `cellProps` 优先，关联用户缺失时显示原始账号，详见[用户数据注入与缓存刷新](../../../docs/guide/runtime.md#头像列用户数据)。
+
 内置单元格支持通过 `cellProps`（或兼容写法 `props`）透传属性；`picture` 的属性会继续传给 `ImagesView`，例如：
 
 ```ts

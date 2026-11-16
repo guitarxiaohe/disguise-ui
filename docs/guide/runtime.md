@@ -11,6 +11,8 @@
 | `translateLanguages`     | `TranslateLanguage[]`（`{ code, label }`）         | 多语言表单默认语言列表；字段 `translateConfig.language` 可覆盖。不传或为空时回退到内置 12 种语言 |
 | `request`                | `DisguiseRequestClient`                            | 导入、导出使用的请求客户端                                                                       |
 | `fetchAllDictData`       | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值                                                   |
+| `fetchAllUserData`       | `(() => Promise<DisguiseUserData[]>) \| null`      | 头像列按需读取的用户展示数据；`null` 关闭查询。在挂载应用前注入，并安装 `VueQueryPlugin`         |
+| `userLookupFields`       | `Record<string, keyof DisguiseUserData>`           | 业务列字段到用户匹配字段的映射，如 `{ createBy: 'userName' }`；默认不解析关联用户                |
 | `uploadFile`             | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                                                                   |
 | `imageBaseUrl`           | `string`                                           | 相对图片路径要拼接的域名                                                                         |
 | `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                                                  |
@@ -65,6 +67,71 @@ setupDisguise({
   }),
 });
 ```
+
+## 头像列用户数据
+
+在应用挂载前注册用户数据源和字段映射，`TableEntity` 与 `CrudPage` 的 `avatar` 列就会按当前单元格值解析用户，无需在每一列的 `cellProps` 中调用查询 composable。
+
+```ts
+import { setupDisguise } from 'disguise-ui';
+
+setupDisguise({
+  fetchAllUserData: async () => {
+    const users = await fetchVisibleUsers();
+    return users.map((user) => ({
+      userId: user.userId,
+      userName: user.userName,
+      nickName: user.nickName,
+      avatar: user.avatar,
+      sex: user.sex,
+      email: user.email,
+      phone: user.phonenumber,
+      deptName: user.dept?.deptName,
+    }));
+  },
+  userLookupFields: {
+    createBy: 'userName',
+    updateBy: 'userName',
+    userId: 'userId',
+  },
+});
+```
+
+`fetchVisibleUsers` 由宿主实现，负责权限和后端分页，返回当前账号允许查看的用户；普通用户列表接口不一定有权限访问，也不保证单次请求返回全部用户。
+
+字段只需声明：
+
+```ts
+{
+  prop: 'createBy',
+  label: '创建人',
+  type: 'text',
+  form: false,
+  table: { type: 'avatar' },
+}
+```
+
+这里是用 `row.createBy` 匹配用户的 `userName`，并非匹配用户自身的 `createBy`。按用户名匹配保持大小写，用户 ID 的数字与字符串可互相匹配，`0` 也视为有效值。
+
+数据源按需触发，多个单元格共享查询与 30 分钟缓存，未使用的缓存 60 分钟后回收。列值变化会重新匹配用户，不重复建立查询订阅；替换数据源函数会切换到独立缓存。仅切换语言且继续使用同一个函数时保留缓存。
+
+显式 `cellProps` 优先于查询结果。未配置映射的列仍读取行内用户字段；映射字段与用户匹配字段相同（如 `userId → userId`）时，也保留行内信息作为补充。`createBy → userName` 这样的关联列不读取业务行的用户信息，避免误显示其他用户。加载中、查不到或请求失败时显示原始值，空值显示 `--`；没有用户详情时默认关闭详情抽屉。未注入数据源的纯行内头像不额外依赖 `VueQueryPlugin`。
+
+用户资料修改后，可用宿主已安装的 QueryClient 刷新共享缓存：
+
+```ts
+import { USER_DATA_ALL_QUERY_KEY } from 'disguise-ui';
+
+await queryClient.invalidateQueries({ queryKey: USER_DATA_ALL_QUERY_KEY });
+```
+
+登出、切换账号或查看用户的权限变化时，应立即重置共享缓存，清除旧展示数据并重新读取当前权限下的数据。数据源也应检查登录态与权限，无权限时返回空数组：
+
+```ts
+await queryClient.resetQueries({ queryKey: USER_DATA_ALL_QUERY_KEY });
+```
+
+`UserAvatarInfo` 本身保持纯展示，只接收 props；自动用户解析由表格头像单元格完成。再次调用 `setupDisguise` 时，未传用户配置会保留已有配置；`userLookupFields: {}` 清空映射，`fetchAllUserData: null` 关闭查询。
 
 ## 上传
 

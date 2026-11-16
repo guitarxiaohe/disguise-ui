@@ -38,14 +38,14 @@ const mockFile = { name: 'mock.ts', source: mockSource }
   </DemoBlock>
 </ClientOnly>
 
-| type         | 说明                                                                                                                        |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `dict`       | 配合 `dictCode` 展示字典标签                                                                                                |
-| `picture`    | 缩略图，点击预览，底层是 [ImagesView](/components/images-view)                                                              |
-| `file`       | 附件图标                                                                                                                    |
-| `avatar`     | 读取行上用户字段展示头像信息与详情抽屉，字段同 [UserAvatarInfo](/components/user-avatar-info) props，`cellProps` 可按行补充 |
-| `listExpand` | 超过条数后折叠，条数 / 单位通过 `cellProps`（`max`、`unit`、`labelKey`、`html`）配置                                        |
-| `price`      | 价格数值红色展示，可带划线原价；`cellProps` 支持 `unit`、`toFixed`、`style`、`oldPrice`（行内原价字段名）、`oldPriceStyle`  |
+| type         | 说明                                                                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dict`       | 配合 `dictCode` 展示字典标签                                                                                                                    |
+| `picture`    | 缩略图，点击预览，底层是 [ImagesView](/components/images-view)                                                                                  |
+| `file`       | 附件图标                                                                                                                                        |
+| `avatar`     | 注入 `userLookupFields` 后按列值查询用户；其余读取行内用户字段。字段同 [UserAvatarInfo](/components/user-avatar-info) props，`cellProps` 可覆盖 |
+| `listExpand` | 超过条数后折叠，条数 / 单位通过 `cellProps`（`max`、`unit`、`labelKey`、`html`）配置                                                            |
+| `price`      | 价格数值红色展示，可带划线原价；`cellProps` 支持 `unit`、`toFixed`、`style`、`oldPrice`（行内原价字段名）、`oldPriceStyle`                      |
 
 ## 树形拖动排序
 
@@ -86,6 +86,10 @@ const mockFile = { name: 'mock.ts', source: mockSource }
     <AsyncData />
   </DemoBlock>
 </ClientOnly>
+
+## 自动解析创建人 / 更新人
+
+通过 `setupDisguise({ fetchAllUserData, userLookupFields })` 注入用户源与映射后，列只需 `{ dataKey: 'createBy', title: '创建人', type: 'avatar' }`。多个头像单元格共享缓存，异步返回后自动更新；查不到时显示原始账号。具体配置、兼容行为与缓存刷新见[运行时注入](../guide/runtime.md#头像列用户数据)。
 
 ## Props
 
