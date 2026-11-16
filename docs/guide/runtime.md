@@ -16,7 +16,23 @@
 | `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                                                  |
 | `getAccessToken`         | `() => string`                                     | 导出请求附带的 token                                                                             |
 | `cardShadow`             | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                                                                  |
+| `paginationConfig`       | `PaginationConfig`                                 | 表格分页配置；支持 `pageSizes`、`pageNumField`、`pageSizeField` 等                               |
 | `userAvatarDrawerFields` | `UserAvatarDrawerField[]`                          | `UserAvatarInfo` 抽屉详情字段的全局配置，组件 `drawerFields` prop 优先于它                       |
+
+## 表格分页
+
+`TableEntity` 异步数据源和 `change` 事件默认收到 `pageNum`、`pageSize`。可通过 `paginationConfig` 注入后端使用的字段名；未配置字段分别回退为 `pageNum` 和 `pageSize`。
+
+```ts
+setupDisguise({
+  paginationConfig: {
+    pageNumField: 'current',
+    pageSizeField: 'size',
+  },
+});
+```
+
+配置后，异步数据源和分页/排序触发的 `change` 载荷都会带 `current`、`size`。`pageSizes`、`layout`、`background` 等 Element Plus 分页器选项仍可一起放在 `paginationConfig` 中。
 
 ## 多语言表单
 

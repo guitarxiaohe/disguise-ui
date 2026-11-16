@@ -25,6 +25,10 @@ export interface PaginationConfig {
   layout?: string;
   background?: boolean;
   pageSizes?: number[];
+  /** 异步取数和 change 事件中页码对应的参数名 */
+  pageNumField?: string;
+  /** 异步取数和 change 事件中每页条数对应的参数名 */
+  pageSizeField?: string;
   /** 分页条数下拉菜单的样式；默认层级高于 DialogList 弹窗 */
   popperStyle?: CSSProperties;
 }
@@ -87,6 +91,8 @@ const paginationConfig = ref<PaginationConfig>({
   layout: 'total, sizes, prev, pager, next, jumper',
   background: true,
   pageSizes: [10, 20, 50, 100],
+  pageNumField: 'pageNum',
+  pageSizeField: 'pageSize',
   popperStyle: { zIndex: 4000 },
 });
 const userAvatarDrawerFields = ref<UserAvatarDrawerField[] | null>(null);

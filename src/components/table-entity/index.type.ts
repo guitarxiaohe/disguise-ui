@@ -175,11 +175,6 @@ export type TableEntityProps<
   total?: number;
   per_page?: number;
   current_page?: number;
-  /** 异步数据源和 change 事件使用的分页参数名，默认 { pageNum: 'pageNum', pageSize: 'pageSize' } */
-  paginationFields?: {
-    pageNum?: string;
-    pageSize?: string;
-  };
   query?: TableEntityQueryParams;
   showPagination?: boolean;
   /** 是否显示内置操作列 */

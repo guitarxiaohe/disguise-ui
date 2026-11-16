@@ -79,7 +79,7 @@ const mockFile = { name: 'mock.ts', source: mockSource }
 
 ## 异步数据源
 
-`data` 传入函数时进入异步模式：分页、排序、工具栏刷新都会以 `{ pageNum, pageSize, query, sortField, sortOrder }` 调用该函数，返回 `{ rows, total }`，工具栏同时出现刷新按钮。分页字段名可通过 `paginationFields` 配置。
+`data` 传入函数时进入异步模式：分页、排序、工具栏刷新都会以 `{ pageNum, pageSize, query, sortField, sortOrder }` 调用该函数，返回 `{ rows, total }`，工具栏同时出现刷新按钮。分页字段名可通过 `setupDisguise({ paginationConfig })` 全局配置。
 
 <ClientOnly>
   <DemoBlock :source="asyncDataSource" source-name="table-entity-async.vue" :files="[mockFile]">
@@ -89,47 +89,46 @@ const mockFile = { name: 'mock.ts', source: mockSource }
 
 ## Props
 
-| 名称                     | 类型                                      | 默认值                                         | 说明                                                                                             |
-| ------------------------ | ----------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `data`                   | `Record[] \| TableEntityDataFetcher`      | `[]`                                           | 数组或异步取数                                                                                   |
-| `columns`                | `ColumnsItem[]`                           | `[]`                                           | 列配置                                                                                           |
-| `height`                 | `number`                                  | `630`                                          | 表格高度                                                                                         |
-| `rowHeight`              | `number`                                  | `40`                                           | 行高                                                                                             |
-| `cache`                  | `number`                                  | `1`                                            | 可视区外预渲染行数                                                                               |
-| `width`                  | `number`                                  | 容器宽度                                       | 表格宽度                                                                                         |
-| `rowKey`                 | `string`                                  | `'id'`                                         | 行唯一标识                                                                                       |
-| `selectable`             | `boolean`                                 | `true`                                         | 是否显示选择列                                                                                   |
-| `multiple`               | `boolean`                                 | `true`                                         | 是否多选                                                                                         |
-| `selectedKeys`           | `any[]`                                   | `[]`                                           | 受控选中主键                                                                                     |
-| `showPagination`         | `boolean`                                 | `true`                                         | 是否显示分页                                                                                     |
-| `per_page`               | `number`                                  | `100`                                          | 每页条数                                                                                         |
-| `current_page`           | `number`                                  | `1`                                            | 当前页码                                                                                         |
-| `paginationFields`       | `{ pageNum?: string, pageSize?: string }` | `{ pageNum: 'pageNum', pageSize: 'pageSize' }` | 异步取数和 `change` 事件中的分页字段名                                                           |
-| `total`                  | `number`                                  | 内部总数                                       | 外部控制总条数                                                                                   |
-| `query`                  | `Record<string, any>`                     | `{}`                                           | 异步数据源查询条件                                                                               |
-| `showActions`            | `boolean`                                 | `true`                                         | 是否显示操作列                                                                                   |
-| `actions`                | `TableEntityActionName[]`                 | `['edit','delete']`                            | 内置操作按钮                                                                                     |
-| `pushActions`            | `TableEntityPushAction[]`                 | `[]`                                           | 追加自定义行操作                                                                                 |
-| `actionColumnTitle`      | `string`                                  | `''`（内置“操作”文案）                         | 操作列标题                                                                                       |
-| `actionColumnWidth`      | `number`                                  | `50`                                           | 操作列宽度兼容配置；当前内部固定为 50px                                                          |
-| `maxVisibleActions`      | `number`                                  | —                                              | 已弃用的兼容属性；多个操作统一进入更多菜单                                                       |
-| `tree`                   | `boolean`                                 | `false`                                        | 树形表格                                                                                         |
-| `treeChildrenKey`        | `string`                                  | `'children'`                                   | 子节点字段名                                                                                     |
-| `expandColumnKey`        | `string`                                  | `''`                                           | 展开图标所在列的 key；为空时取第一列                                                             |
-| `expandedRowKeys`        | `TableEntityRowKey[]`                     | —                                              | 受控展开主键                                                                                     |
-| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                     | `[]`                                           | 默认展开主键                                                                                     |
-| `indentSize`             | `number`                                  | `12`                                           | 树节点缩进，单位 px                                                                              |
-| `iconSize`               | `number`                                  | `12`                                           | 展开图标尺寸，单位 px                                                                            |
-| `rowDraggable`           | `boolean`                                 | `false`                                        | 显示拖拽把手；树形时只允许同级节点排序                                                           |
-| `rowDragHandle`          | `string`                                  | —                                              | 自定义拖拽把手选择器                                                                             |
-| `rowDragDisabled`        | `(row) => boolean`                        | —                                              | 禁止指定行拖动                                                                                   |
-| `resizable`              | `boolean`                                 | `true`                                         | 是否允许拖动列宽                                                                                 |
-| `minColumnWidth`         | `number`                                  | `30`                                           | 最小列宽                                                                                         |
-| `showColumnSettings`     | `boolean`                                 | `true`                                         | 是否显示列设置                                                                                   |
-| `permissionCode`         | `string`                                  | `''`                                           | 操作权限前缀，拼成 `前缀:操作` 校验（`delete` → `remove`、`view` → `query`），无权限的按钮不渲染 |
-| `importDialog`           | `TableEntityImportDialogConfig`           | —                                              | 内置导入弹窗配置                                                                                 |
+| 名称                     | 类型                                 | 默认值                 | 说明                                                                                             |
+| ------------------------ | ------------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------------ |
+| `data`                   | `Record[] \| TableEntityDataFetcher` | `[]`                   | 数组或异步取数                                                                                   |
+| `columns`                | `ColumnsItem[]`                      | `[]`                   | 列配置                                                                                           |
+| `height`                 | `number`                             | `630`                  | 表格高度                                                                                         |
+| `rowHeight`              | `number`                             | `40`                   | 行高                                                                                             |
+| `cache`                  | `number`                             | `1`                    | 可视区外预渲染行数                                                                               |
+| `width`                  | `number`                             | 容器宽度               | 表格宽度                                                                                         |
+| `rowKey`                 | `string`                             | `'id'`                 | 行唯一标识                                                                                       |
+| `selectable`             | `boolean`                            | `true`                 | 是否显示选择列                                                                                   |
+| `multiple`               | `boolean`                            | `true`                 | 是否多选                                                                                         |
+| `selectedKeys`           | `any[]`                              | `[]`                   | 受控选中主键                                                                                     |
+| `showPagination`         | `boolean`                            | `true`                 | 是否显示分页                                                                                     |
+| `per_page`               | `number`                             | `100`                  | 每页条数                                                                                         |
+| `current_page`           | `number`                             | `1`                    | 当前页码                                                                                         |
+| `total`                  | `number`                             | 内部总数               | 外部控制总条数                                                                                   |
+| `query`                  | `Record<string, any>`                | `{}`                   | 异步数据源查询条件                                                                               |
+| `showActions`            | `boolean`                            | `true`                 | 是否显示操作列                                                                                   |
+| `actions`                | `TableEntityActionName[]`            | `['edit','delete']`    | 内置操作按钮                                                                                     |
+| `pushActions`            | `TableEntityPushAction[]`            | `[]`                   | 追加自定义行操作                                                                                 |
+| `actionColumnTitle`      | `string`                             | `''`（内置“操作”文案） | 操作列标题                                                                                       |
+| `actionColumnWidth`      | `number`                             | `50`                   | 操作列宽度兼容配置；当前内部固定为 50px                                                          |
+| `maxVisibleActions`      | `number`                             | —                      | 已弃用的兼容属性；多个操作统一进入更多菜单                                                       |
+| `tree`                   | `boolean`                            | `false`                | 树形表格                                                                                         |
+| `treeChildrenKey`        | `string`                             | `'children'`           | 子节点字段名                                                                                     |
+| `expandColumnKey`        | `string`                             | `''`                   | 展开图标所在列的 key；为空时取第一列                                                             |
+| `expandedRowKeys`        | `TableEntityRowKey[]`                | —                      | 受控展开主键                                                                                     |
+| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                | `[]`                   | 默认展开主键                                                                                     |
+| `indentSize`             | `number`                             | `12`                   | 树节点缩进，单位 px                                                                              |
+| `iconSize`               | `number`                             | `12`                   | 展开图标尺寸，单位 px                                                                            |
+| `rowDraggable`           | `boolean`                            | `false`                | 显示拖拽把手；树形时只允许同级节点排序                                                           |
+| `rowDragHandle`          | `string`                             | —                      | 自定义拖拽把手选择器                                                                             |
+| `rowDragDisabled`        | `(row) => boolean`                   | —                      | 禁止指定行拖动                                                                                   |
+| `resizable`              | `boolean`                            | `true`                 | 是否允许拖动列宽                                                                                 |
+| `minColumnWidth`         | `number`                             | `30`                   | 最小列宽                                                                                         |
+| `showColumnSettings`     | `boolean`                            | `true`                 | 是否显示列设置                                                                                   |
+| `permissionCode`         | `string`                             | `''`                   | 操作权限前缀，拼成 `前缀:操作` 校验（`delete` → `remove`、`view` → `query`），无权限的按钮不渲染 |
+| `importDialog`           | `TableEntityImportDialogConfig`      | —                      | 内置导入弹窗配置                                                                                 |
 
-异步数据源会收到 `pageNum`、`pageSize`、`query`、`sortField`、`sortOrder`。例如 `:pagination-fields="{ pageNum: 'current', pageSize: 'size' }"` 会将分页参数改为 `current` 和 `size`。组件控制属性 `current_page`、`per_page` 及对应更新事件保持不变。
+异步数据源会收到 `pageNum`、`pageSize`、`query`、`sortField`、`sortOrder`。通过 `setupDisguise({ paginationConfig: { pageNumField: 'current', pageSizeField: 'size' } })` 可将分页参数改为 `current` 和 `size`。组件控制属性 `current_page`、`per_page` 及对应更新事件保持不变。完整配置见[运行时注入](../guide/runtime.md#表格分页)。
 
 `row-sort` 事件的 `oldIndex`/`newIndex` 表示所在层级的数组位置；树形排序时 `rows` 返回完整的重排后树，`parentRowKey` 标明被排序节点的父节点 key（根节点时为 `null`）。
 

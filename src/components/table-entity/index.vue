@@ -71,7 +71,6 @@ const props = withDefaults(defineProps<TableEntityProps>(), {
   iconSize: 12,
   per_page: 100,
   current_page: 1,
-  paginationFields: () => ({ pageNum: 'pageNum', pageSize: 'pageSize' }),
   query: () => ({}),
   showPagination: true,
   columns: () => [],
@@ -135,6 +134,13 @@ const ACTION_LABEL_MAP: Record<
 };
 const total = ref(0);
 const paginationConfig = getPaginationConfig();
+const paginationProps = computed(() =>
+  Object.fromEntries(
+    Object.entries(paginationConfig.value).filter(
+      ([key]) => key !== 'pageNumField' && key !== 'pageSizeField',
+    ),
+  ),
+);
 const pageSizes = computed(() => {
   const normalized = (paginationConfig.value.pageSizes ?? [])
     .map((item) => Number(item))
@@ -162,8 +168,8 @@ const pagination = reactive({
 });
 
 const paginationFields = computed(() => ({
-  pageNum: props.paginationFields?.pageNum?.trim() || 'pageNum',
-  pageSize: props.paginationFields?.pageSize?.trim() || 'pageSize',
+  pageNum: paginationConfig.value.pageNumField?.trim() || 'pageNum',
+  pageSize: paginationConfig.value.pageSizeField?.trim() || 'pageSize',
 }));
 
 function getPaginationParams() {
@@ -1237,7 +1243,7 @@ defineExpose({
         :current-page="pagination.current_page"
         :page-size="pagination.per_page"
         :total="resolvedTotal"
-        v-bind="paginationConfig"
+        v-bind="paginationProps"
         :page-sizes="pageSizes"
         @size-change="handleSizeChange"
         @current-change="onPageChange"
