@@ -71,6 +71,7 @@ const props = withDefaults(defineProps<TableEntityProps>(), {
   iconSize: 12,
   per_page: 100,
   current_page: 1,
+  paginationFields: () => ({ pageNum: 'pageNum', pageSize: 'pageSize' }),
   query: () => ({}),
   showPagination: true,
   columns: () => [],
@@ -159,6 +160,18 @@ const pagination = reactive({
   current_page: props.current_page,
   per_page: props.per_page,
 });
+
+const paginationFields = computed(() => ({
+  pageNum: props.paginationFields?.pageNum?.trim() || 'pageNum',
+  pageSize: props.paginationFields?.pageSize?.trim() || 'pageSize',
+}));
+
+function getPaginationParams() {
+  return {
+    [paginationFields.value.pageNum]: pagination.current_page,
+    [paginationFields.value.pageSize]: pagination.per_page,
+  };
+}
 
 const resolvedTableWidth = computed(() =>
   Math.max(1, Math.floor(props.width ?? viewportWidth.value)),
@@ -260,9 +273,7 @@ function handleColumnSort(column: ColumnsItem) {
 
 function emitChange() {
   emit('change', {
-    current_page: pagination.current_page,
-    page: pagination.current_page,
-    per_page: pagination.per_page,
+    ...getPaginationParams(),
     sortField: sortState.value.field,
     sortOrder: sortState.value.order,
   });
@@ -908,9 +919,7 @@ async function loadData() {
   loading.value = true;
   try {
     const response = await props.data({
-      current_page: pagination.current_page,
-      page: pagination.current_page,
-      per_page: pagination.per_page,
+      ...getPaginationParams(),
       query: props.query,
       sortField: sortState.value.field,
       sortOrder: sortState.value.order,

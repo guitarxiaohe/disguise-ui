@@ -37,11 +37,11 @@ const fields: CrudPageField[] = [
 ];
 
 const fetchList: TableEntityDataFetcher = async ({
-  current_page,
-  per_page,
+  pageNum,
+  pageSize,
   query,
 }) => {
-  const res = await getListApi({ page: current_page, per_page, ...query });
+  const res = await getListApi({ pageNum, pageSize, ...query });
   return { rows: res.list, total: res.total };
 };
 

@@ -27,37 +27,38 @@ const data = ref([
 
 ## Props
 
-| 名称                     | 类型                                     | 默认值                            | 说明                                                                   |
-| ------------------------ | ---------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
-| `data`                   | `Record[] \| () => Promise<ApiResponse>` | `[]`                              | 表格数据，支持直接传数组或异步函数                                     |
-| `columns`                | `ColumnsItem[]`                          | `[]`                              | 列配置，类型同 Element Plus Column                                     |
-| `height`                 | `number`                                 | `400`                             | 表格高度                                                               |
-| `rowHeight`              | `number`                                 | `40`                              | 行高                                                                   |
-| `width`                  | `number`                                 | —                                 | 表格宽度，不传则自适应容器                                             |
-| `rowKey`                 | `string`                                 | `'id'`                            | 行唯一标识字段                                                         |
-| `selectable`             | `boolean`                                | `true`                            | 是否显示选择列                                                         |
-| `multiple`               | `boolean`                                | `true`                            | 选择模式：`true` 多选，`false` 单选                                    |
-| `selectedKeys`           | `any[]`                                  | `[]`                              | 已选行 key 数组（v-model）                                             |
-| `tree`                   | `boolean`                                | `false`                           | 是否展示为树形表格                                                     |
-| `treeChildrenKey`        | `string`                                 | `'children'`                      | 子节点字段名                                                           |
-| `rowDraggable`           | `boolean`                                | `false`                           | 显示拖拽把手并允许行排序；树形模式只允许同级节点排序，不会改变父子关系 |
-| `rowDragHandle`          | `string`                                 | —                                 | 自定义拖拽把手 CSS 选择器；默认自动添加拖拽列                          |
-| `rowDragDisabled`        | `(row) => boolean`                       | —                                 | 返回 `true` 时该节点不能拖动，也不能作为放置目标                       |
-| `expandColumnKey`        | `string`                                 | —                                 | 树形展开按钮所在列 key，默认第一列                                     |
-| `expandedRowKeys`        | `TableEntityRowKey[]`                    | —                                 | 展开行 keys（受控）                                                    |
-| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                    | `[]`                              | 默认展开行 keys                                                        |
-| `indentSize`             | `number`                                 | `12`                              | 树形缩进尺寸                                                           |
-| `iconSize`               | `number`                                 | `12`                              | 展开图标尺寸                                                           |
-| `showPagination`         | `boolean`                                | `true`                            | 是否显示分页                                                           |
-| `total`                  | `number`                                 | —                                 | 总条数，默认取 data 长度                                               |
-| `per_page`               | `number`                                 | `100`                             | 每页条数                                                               |
-| `current_page`           | `number`                                 | `1`                               | 当前页                                                                 |
-| `showActions`            | `boolean`                                | `false`                           | 是否显示内置操作列                                                     |
-| `actions`                | `TableEntityActionName[]`                | `['view','edit','copy','delete']` | 需要显示的内置操作按钮                                                 |
-| `maxVisibleActions`      | `number`                                 | —                                 | 已废弃，仅为兼容保留；操作超过一个时统一收进 `...` 下拉菜单            |
-| `actionColumnWidth`      | `number`                                 | `50`                              | 兼容保留，操作列固定为 50px                                            |
-| `actionColumnTitle`      | `string`                                 | `'操作'`                          | 操作列标题                                                             |
-| `pushActions`            | `TableEntityPushAction[]`                | `[]`                              | 追加的自定义操作按钮                                                   |
+| 名称                     | 类型                                      | 默认值                                         | 说明                                                                   |
+| ------------------------ | ----------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| `data`                   | `Record[] \| () => Promise<ApiResponse>`  | `[]`                                           | 表格数据，支持直接传数组或异步函数                                     |
+| `columns`                | `ColumnsItem[]`                           | `[]`                                           | 列配置，类型同 Element Plus Column                                     |
+| `height`                 | `number`                                  | `400`                                          | 表格高度                                                               |
+| `rowHeight`              | `number`                                  | `40`                                           | 行高                                                                   |
+| `width`                  | `number`                                  | —                                              | 表格宽度，不传则自适应容器                                             |
+| `rowKey`                 | `string`                                  | `'id'`                                         | 行唯一标识字段                                                         |
+| `selectable`             | `boolean`                                 | `true`                                         | 是否显示选择列                                                         |
+| `multiple`               | `boolean`                                 | `true`                                         | 选择模式：`true` 多选，`false` 单选                                    |
+| `selectedKeys`           | `any[]`                                   | `[]`                                           | 已选行 key 数组（v-model）                                             |
+| `tree`                   | `boolean`                                 | `false`                                        | 是否展示为树形表格                                                     |
+| `treeChildrenKey`        | `string`                                  | `'children'`                                   | 子节点字段名                                                           |
+| `rowDraggable`           | `boolean`                                 | `false`                                        | 显示拖拽把手并允许行排序；树形模式只允许同级节点排序，不会改变父子关系 |
+| `rowDragHandle`          | `string`                                  | —                                              | 自定义拖拽把手 CSS 选择器；默认自动添加拖拽列                          |
+| `rowDragDisabled`        | `(row) => boolean`                        | —                                              | 返回 `true` 时该节点不能拖动，也不能作为放置目标                       |
+| `expandColumnKey`        | `string`                                  | —                                              | 树形展开按钮所在列 key，默认第一列                                     |
+| `expandedRowKeys`        | `TableEntityRowKey[]`                     | —                                              | 展开行 keys（受控）                                                    |
+| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                     | `[]`                                           | 默认展开行 keys                                                        |
+| `indentSize`             | `number`                                  | `12`                                           | 树形缩进尺寸                                                           |
+| `iconSize`               | `number`                                  | `12`                                           | 展开图标尺寸                                                           |
+| `showPagination`         | `boolean`                                 | `true`                                         | 是否显示分页                                                           |
+| `total`                  | `number`                                  | —                                              | 总条数，默认取 data 长度                                               |
+| `per_page`               | `number`                                  | `100`                                          | 每页条数                                                               |
+| `current_page`           | `number`                                  | `1`                                            | 当前页                                                                 |
+| `paginationFields`       | `{ pageNum?: string, pageSize?: string }` | `{ pageNum: 'pageNum', pageSize: 'pageSize' }` | 异步取数和 `change` 事件中页码、每页条数对应的参数名                   |
+| `showActions`            | `boolean`                                 | `false`                                        | 是否显示内置操作列                                                     |
+| `actions`                | `TableEntityActionName[]`                 | `['view','edit','copy','delete']`              | 需要显示的内置操作按钮                                                 |
+| `maxVisibleActions`      | `number`                                  | —                                              | 已废弃，仅为兼容保留；操作超过一个时统一收进 `...` 下拉菜单            |
+| `actionColumnWidth`      | `number`                                  | `50`                                           | 兼容保留，操作列固定为 50px                                            |
+| `actionColumnTitle`      | `string`                                  | `'操作'`                                       | 操作列标题                                                             |
+| `pushActions`            | `TableEntityPushAction[]`                 | `[]`                                           | 追加的自定义操作按钮                                                   |
 
 列配置支持服务端排序：
 
@@ -85,18 +86,30 @@ const columns = [
 
 ## Events
 
-| 事件                   | 载荷                                                 | 说明                                                                                                   |
-| ---------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `action`               | `{ action: string, row: Record }`                    | 操作列按钮点击                                                                                         |
-| `selection-change`     | `Record[]`                                           | 选中行变化                                                                                             |
-| `update:selectedKeys`  | `any[]`                                              | 选中 keys 变化                                                                                         |
-| `expanded-rows-change` | `TableEntityRowKey[]`                                | 展开行变化                                                                                             |
-| `row-expand`           | `{ expanded, rowData, rowIndex, rowKey }`            | 单行展开/折叠                                                                                          |
-| `row-sort`             | `{ oldIndex, newIndex, rows, parentRowKey? }`        | 拖拽排序完成；树模式的索引属于同级数组，`rows` 为重排后的完整树，根节点排序时 `parentRowKey` 为 `null` |
-| `page-change`          | `number`                                             | 页码变化                                                                                               |
-| `update:current_page`  | `number`                                             | 当前页变化                                                                                             |
-| `update:per_page`      | `number`                                             | 每页条数变化                                                                                           |
-| `change`               | `{ current_page, per_page, sortField?, sortOrder? }` | 分页或排序变化时触发                                                                                   |
+| 事件                   | 载荷                                               | 说明                                                                                                   |
+| ---------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `action`               | `{ action: string, row: Record }`                  | 操作列按钮点击                                                                                         |
+| `selection-change`     | `Record[]`                                         | 选中行变化                                                                                             |
+| `update:selectedKeys`  | `any[]`                                            | 选中 keys 变化                                                                                         |
+| `expanded-rows-change` | `TableEntityRowKey[]`                              | 展开行变化                                                                                             |
+| `row-expand`           | `{ expanded, rowData, rowIndex, rowKey }`          | 单行展开/折叠                                                                                          |
+| `row-sort`             | `{ oldIndex, newIndex, rows, parentRowKey? }`      | 拖拽排序完成；树模式的索引属于同级数组，`rows` 为重排后的完整树，根节点排序时 `parentRowKey` 为 `null` |
+| `page-change`          | `number`                                           | 页码变化                                                                                               |
+| `update:current_page`  | `number`                                           | 当前页变化                                                                                             |
+| `update:per_page`      | `number`                                           | 每页条数变化                                                                                           |
+| `change`               | `{ [分页字段名]: number, sortField?, sortOrder? }` | 分页或排序变化时触发；默认分页字段为 `pageNum` 和 `pageSize`                                           |
+
+异步数据源的分页参数和 `change` 事件载荷默认使用 `pageNum`、`pageSize`。通过 `paginationFields` 可按接口要求改名：
+
+```vue
+<TableEntity
+  :data="fetchRows"
+  :pagination-fields="{ pageNum: 'current', pageSize: 'size' }"
+  @change="handleChange"
+/>
+```
+
+此时取数函数和 `change` 事件都会收到 `{ current, size, ... }`。分页控件属性 `current_page`、`per_page` 以及对应的 `update:` 事件保持原样。
 
 ## 列插槽
 

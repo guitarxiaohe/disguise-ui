@@ -18,8 +18,8 @@ const columns: ColumnsItem[] = [
 ];
 
 const fetchUsers: TableEntityDataFetcher = async ({
-  current_page,
-  per_page,
+  pageNum,
+  pageSize,
   sortField,
   sortOrder,
 }) => {
@@ -35,9 +35,9 @@ const fetchUsers: TableEntityDataFetcher = async ({
     });
   }
 
-  const start = (current_page - 1) * per_page;
+  const start = (pageNum - 1) * pageSize;
   return {
-    rows: rows.slice(start, start + per_page),
+    rows: rows.slice(start, start + pageSize),
     total: rows.length,
   };
 };

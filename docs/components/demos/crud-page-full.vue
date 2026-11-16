@@ -30,8 +30,8 @@ const rows = ref(
 let nextId = rows.value.length + 1;
 
 const fetchList: TableEntityDataFetcher = async ({
-  current_page,
-  per_page,
+  pageNum,
+  pageSize,
   query,
 }) => {
   await new Promise((resolve) => setTimeout(resolve, 160));
