@@ -13,6 +13,7 @@
 | `fetchAllDictData`       | `() => Promise<Record<string, DictValueItem[]>>`   | 按字典编码返回字典项。不传时字典标签显示原始值                                                   |
 | `fetchAllUserData`       | `(() => Promise<DisguiseUserData[]>) \| null`      | 头像列按需读取的用户展示数据；`null` 关闭查询。在挂载应用前注入，并安装 `VueQueryPlugin`         |
 | `userLookupFields`       | `Record<string, keyof DisguiseUserData>`           | 业务列字段到用户匹配字段的映射，如 `{ createBy: 'userName' }`；默认不解析关联用户                |
+| `userOnline`             | `MaybeRefOrGetter<readonly (string \| number)[]>`  | 在线用户 ID 列表，支持数组、Vue `ref` 或 getter；WebSocket 更新后所有头像自动同步                |
 | `uploadFile`             | `(file, options?) => Promise<{ url, cache_url? }>` | 图片和附件上传                                                                                   |
 | `imageBaseUrl`           | `string`                                           | 相对图片路径要拼接的域名                                                                         |
 | `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                                                  |
@@ -131,7 +132,29 @@ await queryClient.invalidateQueries({ queryKey: USER_DATA_ALL_QUERY_KEY });
 await queryClient.resetQueries({ queryKey: USER_DATA_ALL_QUERY_KEY });
 ```
 
-`UserAvatarInfo` 本身保持纯展示，只接收 props；自动用户解析由表格头像单元格完成。再次调用 `setupDisguise` 时，未传用户配置会保留已有配置；`userLookupFields: {}` 清空映射，`fetchAllUserData: null` 关闭查询。
+`UserAvatarInfo` 的用户资料来自 props，在线状态来自全局注入；自动用户解析由表格头像单元格完成。再次调用 `setupDisguise` 时，未传用户配置会保留已有配置；`userLookupFields: {}` 清空映射，`fetchAllUserData: null` 关闭查询。
+
+## 在线用户状态
+
+在应用初始化时注入一个响应式在线用户 ID 列表，所有 `UserAvatarInfo` 和表格头像列都会按 `userId` 自动匹配在线状态：
+
+```ts
+import { ref } from 'vue';
+import { setupDisguise } from 'disguise-ui';
+
+const userOnline = ref<(string | number)[]>([]);
+setupDisguise({ userOnline });
+
+// 在宿主 WebSocket 消息处理函数里更新完整列表
+userOnline.value = [1, 2, 3];
+
+// 登出时清空
+userOnline.value = [];
+```
+
+注入 `ref` 本身即可保留后续更新。也支持 `setupDisguise({ userOnline: () => userStore.onlineIds })`，便于直接使用 Pinia 状态。普通数组可通过再次调用 `setupDisguise({ userOnline: ids })` 替换；未传此配置时保留原来的数据源。默认列表为空，数字和字符串 ID 可互相匹配。
+
+WebSocket 连接、消息解析和增量合并由宿主负责，详细消息处理示例见 [UserAvatarInfo 在线状态](../components/user-avatar-info.md#在线状态)。
 
 ## 上传
 

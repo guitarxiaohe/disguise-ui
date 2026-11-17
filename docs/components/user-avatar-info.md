@@ -23,6 +23,41 @@ import drawerFieldsSource from './demos/user-avatar-info-drawer-fields.vue?raw'
 
 触发区展示头像（`avatar` 插槽或名称首字）、名称和副标题。名称取 `nickName || name`，副标题取 `subtitle || deptName`；副标题溢出时 hover 显示全文。
 
+## 在线状态
+
+通过 `setupDisguise({ userOnline })` 全局注入在线用户 ID 列表，支持数组、Vue `ref` 或 getter。所有头像（含表格头像列）自动读取同一份列表，组件只需传 `userId`。
+
+```ts
+// 应用初始化时注入一次
+import { ref } from 'vue';
+import { setupDisguise } from 'disguise-ui';
+
+const userOnline = ref<(string | number)[]>([]);
+setupDisguise({ userOnline });
+
+// 接入宿主已有 WebSocket，假设消息内容为完整在线 ID 数组 [1, 2, 3]
+socket.addEventListener('message', (event) => {
+  const ids: unknown = JSON.parse(event.data);
+  if (Array.isArray(ids)) {
+    userOnline.value = ids.filter(
+      (id): id is string | number =>
+        typeof id === 'string' || typeof id === 'number',
+    );
+  }
+});
+```
+
+```vue
+<template>
+  <UserAvatarInfo :user-id="1" name="张三" />
+  <UserAvatarInfo :user-id="4" name="李四" />
+</template>
+```
+
+当在线列表是 `[1, 2, 3]` 时，张三显示绿色在线角标，李四显示离线角标。数字 `1` 与字符串 `'1'` 视为同一用户；未传有效 `userId` 时不展示角标。
+
+注入时传 `ref` 本身（`setupDisguise({ userOnline })`），WebSocket 收到完整列表后更新 `userOnline.value`，所有角标自动同步，无需再次调用 `setupDisguise`。使用 Pinia 时可传 getter，例如 `setupDisguise({ userOnline: () => userStore.onlineIds })`。登出时将列表设为 `[]`。组件库不创建 WebSocket 连接；消息解析、增量合并及连接生命周期由宿主管理。
+
 ## 详情抽屉
 
 `enableDrawer` 开启时点击头像区域（或聚焦后按 Enter / 空格）打开详情抽屉，显隐可用 `v-model:drawerVisible` 外部控制。提供 `default` 插槽后，抽屉正文由调用方完整接管。
@@ -124,4 +159,4 @@ import drawerFieldsSource from './demos/user-avatar-info-drawer-fields.vue?raw'
 | `openDrawer()`  | 打开详情抽屉 |
 | `closeDrawer()` | 关闭详情抽屉 |
 
-当前版本在线状态角标恒为离线样式。
+未通过 `setupDisguise` 注入 `userOnline` 时，在线状态角标默认为离线样式。

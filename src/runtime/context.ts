@@ -1,6 +1,6 @@
-import type { CSSProperties, Component, Ref } from 'vue';
+import type { CSSProperties, Component, MaybeRefOrGetter, Ref } from 'vue';
 
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, toValue } from 'vue';
 
 import type { DictValueItem } from './dict';
 import type { DisguiseRequestClient } from './request';
@@ -65,6 +65,8 @@ export interface DisguiseOptions {
   fetchAllUserData?: (() => Promise<DisguiseUserData[]>) | null;
   /** 头像列字段与用户匹配字段的映射；未配置的列仍读取行内用户信息。 */
   userLookupFields?: UserLookupFields;
+  /** 在线用户 ID 列表，支持 ref 或 getter，宿主通过 WebSocket 更新后所有头像同步展示。 */
+  userOnline?: MaybeRefOrGetter<readonly (string | number)[]>;
   /** 图片和附件上传 */
   uploadFile?: (
     file: File,
@@ -104,6 +106,13 @@ const userAvatarDrawerFields = ref<UserAvatarDrawerField[] | null>(null);
 const userDataLoader = shallowRef<DisguiseOptions['fetchAllUserData']>(null);
 const userDataSourceVersion = ref(0);
 const userLookupFields = ref<UserLookupFields>({});
+const userOnlineSource = shallowRef<{
+  source: NonNullable<DisguiseOptions['userOnline']>;
+}>({ source: [] });
+// 全部头像共享一次 ID 归一化，避免每个单元格重复扫描在线用户列表。
+const onlineUserIds = computed<ReadonlySet<string>>(
+  () => new Set(toValue(userOnlineSource.value.source).map(String)),
+);
 
 let requestClient: DisguiseRequestClient | null = null;
 let dictLoader: DisguiseOptions['fetchAllDictData'];
@@ -130,6 +139,9 @@ export function configureDisguise(options: DisguiseOptions) {
   }
   if (options.userLookupFields !== undefined) {
     userLookupFields.value = options.userLookupFields;
+  }
+  if (options.userOnline !== undefined) {
+    userOnlineSource.value = { source: options.userOnline };
   }
   if (options.uploadFile) fileUploader = options.uploadFile;
   if (options.imageBaseUrl !== undefined) imageBaseUrl = options.imageBaseUrl;
@@ -205,4 +217,8 @@ export function getUserDataSourceVersion() {
 
 export function getUserLookupFields(): Ref<UserLookupFields> {
   return userLookupFields;
+}
+
+export function getOnlineUserIds() {
+  return onlineUserIds;
 }

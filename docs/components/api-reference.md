@@ -396,3 +396,5 @@
 | `drawerVisible`    | `boolean`                 | `false`  | 详情抽屉显隐模型                                                               |
 
 事件：`update:drawerVisible`。插槽：`avatar`、`name`、`subtitle`、`default`、`drawer-avatar`、`drawer-name`。暴露方法：`openDrawer()`、`closeDrawer()`。 `UserAvatarDrawerField`：`{ key, label?, icon?, value? }`，用于配置抽屉详情卡片字段，也可通过 `setupDisguise({ userAvatarDrawerFields })` 全局注入。
+
+在线状态通过 `setupDisguise({ userOnline })` 全局注入，支持在线用户 ID 数组、Vue `ref` 或 getter。组件按 `userId` 自动匹配，详见 [在线状态](./user-avatar-info.md#在线状态)。

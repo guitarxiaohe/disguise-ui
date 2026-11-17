@@ -13,7 +13,7 @@ import {
 import { ElAvatar, ElDrawer, ElTooltip } from 'element-plus';
 import { useI18n } from '@/runtime/i18n';
 import type { UserAvatarDrawerField } from '@/runtime/context';
-import { getUserAvatarDrawerFields } from '@/runtime/context';
+import { getOnlineUserIds, getUserAvatarDrawerFields } from '@/runtime/context';
 
 import { useImageUrl } from '@/composables/use-image-url';
 import {
@@ -120,7 +120,7 @@ function onDrawerClosed() {
 const { t } = useI18n();
 const slots = useSlots();
 
-/** ****************************** 展示数据（全部来自 props） ********************************/
+/** ****************************** 用户资料（来自 props） ********************************/
 const displayName = computed(() => props.nickName || props.name || '');
 const displaySubtitle = computed(() => props.subtitle || props.deptName || '');
 const displayAge = computed(() => props.age);
@@ -190,8 +190,12 @@ const showPresenceBadge = computed(
   () => props.userId != null && String(props.userId) !== '',
 );
 
-/** 无远程在线状态，保持离线态展示 */
-const isUserOnline = computed(() => false);
+/** 在线状态读取 setupDisguise 注入的共享列表。 */
+const onlineUserIds = getOnlineUserIds();
+const isUserOnline = computed(
+  () =>
+    showPresenceBadge.value && onlineUserIds.value.has(String(props.userId)),
+);
 
 const genderIconSize = computed(() =>
   Math.max(10, Math.min(16, Math.round(props.size * 0.36))),
