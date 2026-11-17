@@ -164,8 +164,8 @@ const themeClass = computed(() =>
 
 // 触发器性别文字颜色
 const metaClass = computed(() => ({
-  '!text-blue-600': genderSource.value === 'male',
-  '!text-pink-500': genderSource.value === 'female',
+  'user-avatar-info__meta--male': genderSource.value === 'male',
+  'user-avatar-info__meta--female': genderSource.value === 'female',
 }));
 
 const drawerGenderLabel = computed(() => {
@@ -351,14 +351,11 @@ defineExpose({ openDrawer, closeDrawer });
 </script>
 
 <template>
-  <div class="inline-block max-w-full">
+  <div class="user-avatar-info">
     <!-- Trigger -->
     <div
-      class="inline-flex items-center min-w-0 max-w-full gap-2 outline-none rounded-md"
-      :class="{
-        'cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-100':
-          enableDrawer,
-      }"
+      class="user-avatar-info__trigger"
+      :class="{ 'user-avatar-info__trigger--interactive': enableDrawer }"
       :role="enableDrawer ? 'button' : undefined"
       :tabindex="enableDrawer ? 0 : undefined"
       :aria-label="triggerAriaLabel"
@@ -366,19 +363,16 @@ defineExpose({ openDrawer, closeDrawer });
       @click="onTriggerClick"
       @keydown="onTriggerKeydown"
     >
-      <div class="relative flex-shrink-0 w-fit">
-        <ElAvatar
-          class="inline-flex flex-shrink-0 items-center justify-center align-middle"
-          v-bind="mergedAvatarProps"
-        >
+      <div class="user-avatar-info__avatar-wrap">
+        <ElAvatar class="user-avatar-info__avatar" v-bind="mergedAvatarProps">
           <slot name="avatar">{{ displayName?.slice(0, 1) }}</slot>
         </ElAvatar>
 
         <!-- Gender Badge -->
         <span
           v-if="showGenderBadge"
-          class="absolute -top-0.5 -right-0.5 z-[1] box-border inline-flex items-center justify-center w-3 h-3 pointer-events-none rounded-full border-2 border-white bg-white"
-          :class="genderSource === 'male' ? 'text-blue-600' : 'text-pink-500'"
+          class="user-avatar-info__gender-badge"
+          :class="themeClass"
           aria-hidden="true"
         >
           <Mars
@@ -392,39 +386,37 @@ defineExpose({ openDrawer, closeDrawer });
         <!-- Presence Badge -->
         <span
           v-if="showPresenceBadge"
-          class="absolute right-0 bottom-0 z-[1] box-border w-2.5 h-2.5 pointer-events-none rounded-full border-2 border-white"
-          :class="isUserOnline ? 'bg-emerald-500' : 'bg-gray-300'"
+          class="user-avatar-info__presence-badge"
+          :class="{ 'user-avatar-info__presence-badge--online': isUserOnline }"
           aria-hidden="true"
         ></span>
       </div>
 
-      <div
-        class="flex flex-col flex-1 justify-center min-w-0 text-sm leading-[1.35]"
-        :class="metaClass"
-      >
-        <div
-          class="overflow-hidden text-ellipsis text-[13px] font-medium whitespace-nowrap"
-        >
+      <div class="user-avatar-info__meta" :class="metaClass">
+        <div class="user-avatar-info__name">
           <slot name="name">{{ displayName }}</slot>
         </div>
-        <div v-if="displaySubtitle || $slots.subtitle" class="w-full min-w-0">
+        <div
+          v-if="displaySubtitle || $slots.subtitle"
+          class="user-avatar-info__subtitle-wrap"
+        >
           <ElTooltip
             placement="top"
             :disabled="!subtitleOverflow"
             :show-after="200"
-            popper-class="max-w-[min(90vw,380px)]"
+            popper-class="user-avatar-info-tooltip"
           >
             <template #content>
-              <div
-                class="max-w-[min(90vw,360px)] text-[10px] leading-[1.45] break-words whitespace-normal"
-              >
+              <div class="user-avatar-info-tooltip__content">
                 <slot name="subtitle">{{ displaySubtitle }}</slot>
               </div>
             </template>
             <div
               ref="subtitleRef"
-              class="min-w-0 overflow-hidden text-ellipsis text-[10px] whitespace-nowrap"
-              :class="subtitleOverflow ? 'cursor-help' : ''"
+              class="user-avatar-info__subtitle"
+              :class="{
+                'user-avatar-info__subtitle--overflow': subtitleOverflow,
+              }"
             >
               <slot name="subtitle">{{ displaySubtitle }}</slot>
             </div>
@@ -444,84 +436,64 @@ defineExpose({ openDrawer, closeDrawer });
       @closed="onDrawerClosed"
     >
       <template #header>
-        <div class="flex items-center w-full min-h-[24px] gap-3">
-          <span class="flex-1 font-semibold text-gray-900">{{
+        <div class="user-avatar-info-drawer__header">
+          <span class="user-avatar-info-drawer__title">{{
             drawerTitleText
           }}</span>
         </div>
       </template>
 
-      <div v-if="hasDrawerDefaultSlot" class="text-sm text-gray-900">
+      <div
+        v-if="hasDrawerDefaultSlot"
+        class="user-avatar-info-drawer__custom-content"
+      >
         <slot></slot>
       </div>
 
-      <div v-else class="flex flex-col gap-5 pt-2.5">
+      <div v-else class="user-avatar-info-drawer__content">
         <!-------------------------- 用户摘要 (Hero) -------------------------->
         <!-- 背景动态切换：男性浅蓝，女性浅粉 -->
-        <section
-          class="relative flex flex-col items-center sm:flex-row gap-5 min-h-[140px] p-6 overflow-hidden rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
-          :class="
-            isFemaleTheme
-              ? 'bg-gradient-to-br from-pink-50 to-rose-100'
-              : 'bg-gradient-to-br from-sky-50 to-indigo-100'
-          "
-        >
+        <section class="user-avatar-info-drawer__hero">
           <!-- 装饰光晕 -->
-          <div
-            class="absolute top-[-50%] right-[-10%] w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0)_70%)] rounded-full pointer-events-none"
-          ></div>
+          <div class="user-avatar-info-drawer__glow"></div>
 
-          <div class="relative z-[1] flex-shrink-0">
+          <div class="user-avatar-info-drawer__avatar-wrap">
             <slot name="drawer-avatar">
               <!-- 头像动态切换：粉色渐变/蓝色渐变 -->
               <ElAvatar
                 :size="props.drawerAvatarSize"
                 :src="mergedAvatarProps.src"
-                class="!text-[24px] !font-semibold !text-white !border-[3px] !border-white"
-                :class="
-                  isFemaleTheme
-                    ? '!bg-gradient-to-br !from-pink-400 !to-rose-500 !shadow-[0_4px_12px_rgba(244,63,94,0.2)]'
-                    : '!bg-gradient-to-br !from-blue-400 !to-blue-500 !shadow-[0_4px_12px_rgba(59,130,246,0.2)]'
-                "
+                class="user-avatar-info-drawer__avatar"
               >
                 {{ drawerName?.slice(0, 1) }}
               </ElAvatar>
             </slot>
           </div>
 
-          <div class="relative z-[1] min-w-0 text-center sm:text-left">
-            <div class="flex flex-col sm:flex-row items-center gap-3">
+          <div class="user-avatar-info-drawer__summary">
+            <div class="user-avatar-info-drawer__name-row">
               <slot name="drawer-name">
-                <strong
-                  class="text-xl font-semibold text-slate-800 tracking-wide"
-                >
+                <strong class="user-avatar-info-drawer__name">
                   {{ drawerName || t('components.userAvatarInfo.nameEmpty') }}
                 </strong>
               </slot>
               <!-- 标签动态切换 -->
               <span
                 v-if="drawerShowGenderBadge"
-                class="px-2.5 py-0.5 text-xs font-medium leading-5 rounded-xl"
-                :class="
-                  isFemaleTheme
-                    ? 'text-pink-600 bg-pink-600/10'
-                    : 'text-blue-600 bg-blue-600/10'
-                "
+                class="user-avatar-info-drawer__gender"
               >
                 {{ drawerGenderLabel }}
               </span>
             </div>
 
-            <div
-              class="flex flex-wrap justify-center sm:justify-start gap-3 mt-2.5 text-[13px] text-slate-500"
-            >
-              <span
-                v-if="drawerUserId"
-                class="flex items-center px-2 py-0.5 font-mono bg-white/60 rounded-md"
-              >
+            <div class="user-avatar-info-drawer__meta">
+              <span v-if="drawerUserId" class="user-avatar-info-drawer__id">
                 {{ t('components.userAvatarInfo.fieldId') }}: {{ drawerUserId }}
               </span>
-              <span v-if="drawerDepartment" class="flex items-center">
+              <span
+                v-if="drawerDepartment"
+                class="user-avatar-info-drawer__department"
+              >
                 {{ drawerDepartment }}
               </span>
             </div>
@@ -529,29 +501,19 @@ defineExpose({ openDrawer, closeDrawer });
         </section>
 
         <!-------------------------- 信息卡片 (Grid) -------------------------->
-        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <section class="user-avatar-info-drawer__grid">
           <div
             v-for="item in drawerDetailItems"
             :key="item.key"
-            class="group flex items-center gap-4 min-w-0 p-4 sm:p-5 bg-white border border-slate-200/80 rounded-xl shadow-sm transition-all duration-200"
+            class="user-avatar-info-drawer__card"
           >
             <!-- 图标底色动态切换 -->
-            <div
-              class="flex flex-shrink-0 items-center justify-center w-10 h-10 rounded-[10px] transition-colors"
-              :class="
-                isFemaleTheme
-                  ? 'text-pink-500 bg-pink-50 group-hover:bg-pink-100'
-                  : 'text-blue-500 bg-blue-50 group-hover:bg-blue-100'
-              "
-            >
+            <div class="user-avatar-info-drawer__icon">
               <component :is="item.icon" :size="18" :stroke-width="2" />
             </div>
-            <div class="flex flex-col gap-1 min-w-0">
-              <div class="text-xs text-slate-400">{{ item.label }}</div>
-              <div
-                class="overflow-hidden text-ellipsis text-sm font-semibold text-slate-800 whitespace-nowrap"
-                :title="item.value"
-              >
+            <div class="user-avatar-info-drawer__field">
+              <div class="user-avatar-info-drawer__label">{{ item.label }}</div>
+              <div class="user-avatar-info-drawer__value" :title="item.value">
                 {{ item.value }}
               </div>
             </div>
@@ -563,45 +525,419 @@ defineExpose({ openDrawer, closeDrawer });
 </template>
 
 <style lang="scss">
-/*
-  由于 ElDrawer 挂载在 body 下，需要保留全局覆盖样式
-*/
-.user-avatar-info-drawer .el-drawer__header {
-  display: flex;
-  gap: 12px;
+/* 样式随组件发布，不依赖宿主生成 Tailwind utilities。抽屉和 tooltip 会传送至 body。 */
+.user-avatar-info {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.user-avatar-info__trigger {
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  min-height: 32px;
-  padding: 18px 24px 10px;
-  margin: 0;
-  color: #1e293b;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 6px;
+  outline: none;
 }
 
-.user-avatar-info-drawer .el-drawer__body {
-  padding: 16px 24px 24px;
-  background-color: #f8fafc;
+.user-avatar-info__trigger--interactive {
+  cursor: pointer;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px oklch(93.2% 0.032 255.585);
+  }
 }
 
-.user-avatar-info-drawer .el-drawer {
-  background: #f8fafc;
+.user-avatar-info__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: fit-content;
 }
 
-.user-avatar-info-drawer .el-avatar > img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
+.user-avatar-info__avatar.el-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
 }
 
-/* 卡片悬停效果：通过 CSS 变量动态控制边框和阴影颜色 */
-.user-avatar-info-drawer.theme-male .group:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px -4px rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
+.user-avatar-info__gender-badge,
+.user-avatar-info__presence-badge {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 2px solid #fff;
+  border-radius: 50%;
 }
 
-.user-avatar-info-drawer.theme-female .group:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px -4px rgba(244, 63, 94, 0.15);
-  border-color: rgba(244, 63, 94, 0.3);
+.user-avatar-info__gender-badge {
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+
+  &.theme-male {
+    color: oklch(54.6% 0.245 262.881);
+  }
+
+  &.theme-female {
+    color: oklch(65.6% 0.241 354.308);
+  }
+}
+
+.user-avatar-info__presence-badge {
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  background: oklch(87.2% 0.01 258.338);
+
+  &--online {
+    background: #10b981;
+  }
+}
+
+.user-avatar-info__meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.35;
+
+  &--male {
+    color: oklch(54.6% 0.245 262.881);
+  }
+
+  &--female {
+    color: oklch(65.6% 0.241 354.308);
+  }
+}
+
+.user-avatar-info__name,
+.user-avatar-info__subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-avatar-info__name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.user-avatar-info__subtitle-wrap {
+  width: 100%;
+  min-width: 0;
+}
+
+.user-avatar-info__subtitle {
+  min-width: 0;
+  font-size: 10px;
+
+  &--overflow {
+    cursor: help;
+  }
+}
+
+.user-avatar-info-tooltip.el-popper {
+  max-width: min(90vw, 380px);
+}
+
+.user-avatar-info-tooltip__content {
+  max-width: min(90vw, 360px);
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.user-avatar-info-drawer {
+  --user-avatar-accent: oklch(62.3% 0.214 259.815);
+  --user-avatar-strong: oklch(54.6% 0.245 262.881);
+  --user-avatar-soft: oklch(97% 0.014 254.604);
+  --user-avatar-hover: oklch(93.2% 0.032 255.585);
+  --user-avatar-hero-from: oklch(97.7% 0.013 236.62);
+  --user-avatar-hero-to: oklch(93% 0.034 272.788);
+  --user-avatar-from: oklch(70.7% 0.165 254.624);
+  --user-avatar-to: oklch(62.3% 0.214 259.815);
+  --user-avatar-shadow: 59, 130, 246;
+
+  &.theme-female {
+    --user-avatar-accent: oklch(65.6% 0.241 354.308);
+    --user-avatar-strong: oklch(59.2% 0.249 0.584);
+    --user-avatar-soft: oklch(97.1% 0.014 343.198);
+    --user-avatar-hover: oklch(94.8% 0.028 342.258);
+    --user-avatar-hero-from: oklch(97.1% 0.014 343.198);
+    --user-avatar-hero-to: oklch(94.1% 0.03 12.58);
+    --user-avatar-from: oklch(71.8% 0.202 349.761);
+    --user-avatar-to: oklch(64.5% 0.246 16.439);
+    --user-avatar-shadow: 244, 63, 94;
+  }
+
+  &.el-drawer {
+    line-height: 1.5;
+  }
+
+  .el-drawer__header {
+    display: flex;
+    box-sizing: border-box;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 32px;
+    padding: 18px 24px 10px;
+    margin: 0;
+    color: #1e293b;
+  }
+
+  .el-drawer__body {
+    padding: 16px 24px 24px;
+    background-color: #f8fafc;
+  }
+
+  .el-avatar > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+  }
+}
+
+.user-avatar-info-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 24px;
+}
+
+.user-avatar-info-drawer__title {
+  flex: 1;
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-avatar-info-drawer__custom-content {
+  font-size: 14px;
+  color: #111827;
+}
+
+.user-avatar-info-drawer__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 10px;
+}
+
+.user-avatar-info-drawer__hero {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-height: 140px;
+  padding: 24px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(
+    to bottom right in oklab,
+    var(--user-avatar-hero-from),
+    var(--user-avatar-hero-to)
+  );
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+.user-avatar-info-drawer__glow {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 80%) 0%,
+    rgb(255 255 255 / 0%) 70%
+  );
+}
+
+.user-avatar-info-drawer__avatar-wrap {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.user-avatar-info-drawer .user-avatar-info-drawer__avatar.el-avatar {
+  box-sizing: border-box;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  border: 3px solid #fff;
+  background: linear-gradient(
+    to bottom right in oklab,
+    var(--user-avatar-from),
+    var(--user-avatar-to)
+  );
+  box-shadow: 0 4px 12px rgba(var(--user-avatar-shadow), 0.2);
+}
+
+.user-avatar-info-drawer__summary {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.user-avatar-info-drawer__name-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar-info-drawer__name {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: oklch(27.9% 0.041 260.031);
+}
+
+.user-avatar-info-drawer__gender {
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--user-avatar-strong);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--user-avatar-strong) 10%, transparent);
+}
+
+.user-avatar-info-drawer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: oklch(55.4% 0.046 257.417);
+}
+
+.user-avatar-info-drawer__id,
+.user-avatar-info-drawer__department {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar-info-drawer__id {
+  padding: 2px 8px;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 60%);
+}
+
+.user-avatar-info-drawer__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.user-avatar-info-drawer__card {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid oklch(92.9% 0.013 255.508 / 80%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow:
+    0 1px 3px 0 #0000001a,
+    0 1px 2px -1px #0000001a;
+  transition:
+    transform 200ms,
+    border-color 200ms,
+    box-shadow 200ms;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(var(--user-avatar-shadow), 0.3);
+    box-shadow: 0 6px 16px -4px rgba(var(--user-avatar-shadow), 0.15);
+  }
+}
+
+.user-avatar-info-drawer__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--user-avatar-accent);
+  border-radius: 10px;
+  background: var(--user-avatar-soft);
+  transition: background-color 150ms;
+
+  .user-avatar-info-drawer__card:hover & {
+    background: var(--user-avatar-hover);
+  }
+}
+
+.user-avatar-info-drawer__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.user-avatar-info-drawer__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: oklch(70.4% 0.04 256.788);
+}
+
+.user-avatar-info-drawer__value {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: oklch(27.9% 0.041 260.031);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .user-avatar-info-drawer__hero,
+  .user-avatar-info-drawer__name-row {
+    flex-direction: row;
+  }
+
+  .user-avatar-info-drawer__summary {
+    text-align: left;
+  }
+
+  .user-avatar-info-drawer__meta {
+    justify-content: flex-start;
+  }
+
+  .user-avatar-info-drawer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .user-avatar-info-drawer__card {
+    padding: 20px;
+  }
 }
 </style>

@@ -2,6 +2,8 @@
 
 展示头像、名称和部门摘要，支持点击打开用户详情抽屉。
 
+头像角标、姓名配色和详情抽屉的样式随 `disguise-ui/style.css` 发布。引入组件库样式及 Element Plus 样式后，本组件无需宿主额外配置 Tailwind 扫描。
+
 <script setup>
 import Basic from './demos/user-avatar-info-basic.vue'
 import source from './demos/user-avatar-info-basic.vue?raw'
