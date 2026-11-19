@@ -123,7 +123,10 @@ export const useMultipleFileUpload = (
   const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
     // 检查文件数量限制（仅在 maxCount 大于 1 时生效）
     if (options.maxCount?.value && options.maxCount.value > 1) {
-      const currentCount = fileList.value.length + uploadItems.value.size;
+      const activeCount = [...uploadItems.value.values()].filter(
+        (item) => item.status === 'uploading' || item.status === 'pending',
+      ).length;
+      const currentCount = fileList.value.length + activeCount;
       if (currentCount >= options.maxCount.value) {
         ElMessage.error(
           t('components.fileUpload.maxCountExceeded', {
@@ -300,6 +303,19 @@ export const useMultipleFileUpload = (
     options.onRemove?.(file);
   };
 
+  /** 删除上传失败的本地记录，不改动已上传的附件列表。 */
+  const handleRemoveUploadItem = (fileId: string) => {
+    const item = uploadItems.value.get(fileId);
+    if (!item || item.status !== 'error') return;
+
+    uploadItems.value.delete(fileId);
+    options.onRemove?.({
+      name: item.file.name,
+      type: item.file.type,
+      size: item.file.size,
+    });
+  };
+
   /**
    * 预览文件
    */
@@ -379,6 +395,7 @@ export const useMultipleFileUpload = (
     beforeUpload,
     handleUpload,
     handleRemove,
+    handleRemoveUploadItem,
     handlePreview,
     handleDownload,
     getUploadItem,

@@ -65,12 +65,9 @@ const { t } = useI18n();
 /**
  * 文件操作按钮组件
  */
-const FileActions = (componentProps: {
-  file?: AttachmentData;
-  isError?: boolean;
-}) => {
+const FileActions = () => {
   return h('div', { class: 'file-actions' }, [
-    props.showPreview && !componentProps.isError && !props.disabled
+    props.showPreview && props.status === 'success' && !props.disabled
       ? h(
           ElTooltip,
           {
@@ -85,7 +82,7 @@ const FileActions = (componentProps: {
                   class: 'file-action-icon',
                   onClick: (e: Event) => {
                     e.stopPropagation();
-                    props.onPreview?.(componentProps.file);
+                    props.onPreview?.(props.file);
                   },
                 },
                 { default: () => h(View) },
@@ -93,7 +90,7 @@ const FileActions = (componentProps: {
           },
         )
       : null,
-    props.showDownload && !props.disabled
+    props.showDownload && props.status === 'success' && !props.disabled
       ? h(
           ElTooltip,
           {
@@ -108,7 +105,7 @@ const FileActions = (componentProps: {
                   class: 'file-action-icon',
                   onClick: (e: Event) => {
                     e.stopPropagation();
-                    props.onDownload?.(componentProps.file);
+                    props.onDownload?.(props.file);
                   },
                 },
                 { default: () => h(Download) },
@@ -131,7 +128,7 @@ const FileActions = (componentProps: {
                   class: 'file-action-icon',
                   onClick: (e: Event) => {
                     e.stopPropagation();
-                    props.onRemove?.(componentProps.file);
+                    props.onRemove?.(props.file);
                   },
                 },
                 { default: () => h(Delete) },
@@ -182,7 +179,7 @@ const FileActions = (componentProps: {
       </div>
     </div>
 
-    <component :is="FileActions" :file="file" :is-error="true" />
+    <component :is="FileActions" />
 
     <div v-if="errorMessage" class="file-error-message">
       {{ errorMessage }}
@@ -200,7 +197,7 @@ const FileActions = (componentProps: {
       </div>
     </div>
 
-    <component :is="FileActions" :file="file" />
+    <component :is="FileActions" />
   </div>
 </template>
 

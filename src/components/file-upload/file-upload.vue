@@ -341,6 +341,7 @@ const handleFileRemove = (file?: AttachmentData) => {
           :icon-svg="getCurrentFileIconSvg()"
           :progress="singleFileUpload.uploadProgress.value"
           :progress-text="singleFileUpload.progressText.value"
+          :error-message="singleFileUpload.displayErrorMessage.value"
           :show-preview="showPreview"
           :show-download="showDownload"
           :show-remove="showRemove"
@@ -392,7 +393,7 @@ const handleFileRemove = (file?: AttachmentData) => {
           :show-remove="showRemove"
           :on-preview="handleFilePreview"
           :on-download="handleFileDownload"
-          :on-remove="handleFileRemove"
+          :on-remove="() => multipleFileUpload.handleRemoveUploadItem(fileId)"
         />
       </div>
       <!-- 已上传的文件 -->
