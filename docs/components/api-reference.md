@@ -322,44 +322,44 @@
 
 ## TableEntity
 
-| 属性                     | 类型                                 | 默认值               | 说明               |
-| ------------------------ | ------------------------------------ | -------------------- | ------------------ |
-| `columns`                | `ColumnsItem[]`                      | `[]`                 | 列配置             |
-| `data`                   | `Record[] \| TableEntityDataFetcher` | `[]`                 | 数据或异步取数函数 |
-| `height`                 | `number`                             | `630`                | 表格高度           |
-| `rowHeight`              | `number`                             | `40`                 | 行高               |
-| `cache`                  | `number`                             | `1`                  | 可视区外预渲染行数 |
-| `width`                  | `number`                             | 容器宽度             | 表格宽度           |
-| `selectable`             | `boolean`                            | `true`               | 是否可选择         |
-| `multiple`               | `boolean`                            | `true`               | 是否多选           |
-| `rowKey`                 | `string`                             | `'id'`               | 行唯一字段         |
-| `selectedKeys`           | `any[]`                              | `[]`                 | 已选 key           |
-| `tree`                   | `boolean`                            | `false`              | 是否树形表格       |
-| `treeChildrenKey`        | `string`                             | `'children'`         | 子节点字段         |
-| `expandColumnKey`        | `string`                             | `''`                 | 展开列字段         |
-| `expandedRowKeys`        | `TableEntityRowKey[]`                | —                    | 受控展开行         |
-| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                | `[]`                 | 默认展开行         |
-| `indentSize`             | `number`                             | `12`                 | 树节点缩进         |
-| `iconSize`               | `number`                             | `12`                 | 展开图标尺寸       |
-| `total`                  | `number`                             | 异步结果或 `0`       | 总条数             |
-| `per_page`               | `number`                             | `100`                | 每页条数           |
-| `current_page`           | `number`                             | `1`                  | 当前页             |
-| `query`                  | `Record<string, any>`                | `{}`                 | 异步查询条件       |
-| `showPagination`         | `boolean`                            | `true`               | 是否显示分页       |
-| `showActions`            | `boolean`                            | `true`               | 是否显示操作列     |
-| `maxVisibleActions`      | `number`                             | —                    | 已废弃兼容属性     |
-| `actionColumnWidth`      | `number`                             | —                    | 操作列宽配置       |
-| `actionColumnTitle`      | `string`                             | `''`                 | 操作列标题         |
-| `actions`                | `TableEntityActionName[]`            | `['edit', 'delete']` | 内置操作           |
-| `pushActions`            | `TableEntityPushAction[]`            | `[]`                 | 追加操作           |
-| `rowDraggable`           | `boolean`                            | `false`              | 是否可拖动排序     |
-| `rowDragHandle`          | `string`                             | —                    | 拖动把手选择器     |
-| `rowDragDisabled`        | `(row) => boolean`                   | —                    | 禁止拖动判断       |
-| `resizable`              | `boolean`                            | `true`               | 是否可调整列宽     |
-| `minColumnWidth`         | `number`                             | `30`                 | 最小列宽           |
-| `showColumnSettings`     | `boolean`                            | `true`               | 是否显示列设置     |
-| `permissionCode`         | `string`                             | `''`                 | 权限编码前缀       |
-| `importDialog`           | `TableEntityImportDialogConfig`      | —                    | 内置导入弹窗配置   |
+| 属性                     | 类型                                 | 默认值               | 说明                                                                 |
+| ------------------------ | ------------------------------------ | -------------------- | -------------------------------------------------------------------- |
+| `columns`                | `ColumnsItem[]`                      | `[]`                 | 列配置                                                               |
+| `data`                   | `Record[] \| TableEntityDataFetcher` | `[]`                 | 数据或异步取数函数                                                   |
+| `height`                 | `number \| \`${number}%\``           | `'100%'`             | 表格高度；百分比按表格起始位置到视口底部的可用空间计算，例如 `'50%'` |
+| `rowHeight`              | `number`                             | `40`                 | 行高                                                                 |
+| `cache`                  | `number`                             | `1`                  | 可视区外预渲染行数                                                   |
+| `width`                  | `number`                             | 容器宽度             | 表格宽度                                                             |
+| `selectable`             | `boolean`                            | `true`               | 是否可选择                                                           |
+| `multiple`               | `boolean`                            | `true`               | 是否多选                                                             |
+| `rowKey`                 | `string`                             | `'id'`               | 行唯一字段                                                           |
+| `selectedKeys`           | `any[]`                              | `[]`                 | 已选 key                                                             |
+| `tree`                   | `boolean`                            | `false`              | 是否树形表格                                                         |
+| `treeChildrenKey`        | `string`                             | `'children'`         | 子节点字段                                                           |
+| `expandColumnKey`        | `string`                             | `''`                 | 展开列字段                                                           |
+| `expandedRowKeys`        | `TableEntityRowKey[]`                | —                    | 受控展开行                                                           |
+| `defaultExpandedRowKeys` | `TableEntityRowKey[]`                | `[]`                 | 默认展开行                                                           |
+| `indentSize`             | `number`                             | `12`                 | 树节点缩进                                                           |
+| `iconSize`               | `number`                             | `12`                 | 展开图标尺寸                                                         |
+| `total`                  | `number`                             | 异步结果或 `0`       | 总条数                                                               |
+| `per_page`               | `number`                             | `100`                | 每页条数                                                             |
+| `current_page`           | `number`                             | `1`                  | 当前页                                                               |
+| `query`                  | `Record<string, any>`                | `{}`                 | 异步查询条件                                                         |
+| `showPagination`         | `boolean`                            | `true`               | 是否显示分页                                                         |
+| `showActions`            | `boolean`                            | `true`               | 是否显示操作列                                                       |
+| `maxVisibleActions`      | `number`                             | —                    | 已废弃兼容属性                                                       |
+| `actionColumnWidth`      | `number`                             | —                    | 操作列宽配置                                                         |
+| `actionColumnTitle`      | `string`                             | `''`                 | 操作列标题                                                           |
+| `actions`                | `TableEntityActionName[]`            | `['edit', 'delete']` | 内置操作                                                             |
+| `pushActions`            | `TableEntityPushAction[]`            | `[]`                 | 追加操作                                                             |
+| `rowDraggable`           | `boolean`                            | `false`              | 是否可拖动排序                                                       |
+| `rowDragHandle`          | `string`                             | —                    | 拖动把手选择器                                                       |
+| `rowDragDisabled`        | `(row) => boolean`                   | —                    | 禁止拖动判断                                                         |
+| `resizable`              | `boolean`                            | `true`               | 是否可调整列宽                                                       |
+| `minColumnWidth`         | `number`                             | `30`                 | 最小列宽                                                             |
+| `showColumnSettings`     | `boolean`                            | `true`               | 是否显示列设置                                                       |
+| `permissionCode`         | `string`                             | `''`                 | 权限编码前缀                                                         |
+| `importDialog`           | `TableEntityImportDialogConfig`      | —                    | 内置导入弹窗配置                                                     |
 
 ### ColumnsItem 扩展属性
 

@@ -28,7 +28,11 @@ import { getPaginationConfig } from '@/runtime/context';
 
 import ImportDialog from '@/components/import-dialog/index';
 import { Lock, Rank, Refresh, Setting } from '@element-plus/icons-vue';
-import { useElementSize } from '@vueuse/core';
+import {
+  useElementBounding,
+  useElementSize,
+  useWindowSize,
+} from '@vueuse/core';
 import {
   ElButton,
   ElDrawer,
@@ -55,7 +59,7 @@ import { applyColumnSlots } from './utils/column-slots';
 import { listExpandColumnKey, listExpandStateKey } from './utils/list-expand';
 
 const props = withDefaults(defineProps<TableEntityProps>(), {
-  height: 630,
+  height: '100%',
   rowHeight: 40,
   cache: 1,
   selectable: true,
@@ -160,7 +164,23 @@ const internalExpandedRowKeys = ref<TableEntityRowKey[]>([
   ...(props.defaultExpandedRowKeys ?? []),
 ]);
 const tableViewportRef = ref<HTMLElement>();
-const { width: viewportWidth } = useElementSize(tableViewportRef);
+const paginationRef = ref<HTMLElement>();
+const { width: viewportWidth, top: viewportTop } =
+  useElementBounding(tableViewportRef);
+const { height: paginationHeight } = useElementSize(paginationRef);
+const { height: windowHeight } = useWindowSize();
+const resolvedTableHeight = computed(() => {
+  if (typeof props.height === 'number') return props.height;
+
+  const match = props.height.match(/^(\d+(?:\.\d+)?)%$/);
+  if (!match) return 630;
+
+  const availableHeight = Math.max(
+    1,
+    windowHeight.value - viewportTop.value - paginationHeight.value - 12,
+  );
+  return Math.max(1, Math.round((availableHeight * Number(match[1])) / 100));
+});
 
 const pagination = reactive({
   current_page: props.current_page,
@@ -1192,7 +1212,7 @@ defineExpose({
         :columns="applyColumnHeaderAlign(displayColumns)"
         :data="renderedTableData"
         :width="resolvedTableWidth"
-        :height="props.height"
+        :height="resolvedTableHeight"
         :row-height="props.rowHeight"
         :row-class="dragRowClass"
         :row-props="dragRowProps"
@@ -1221,6 +1241,7 @@ defineExpose({
 
     <div
       v-if="props.showPagination"
+      ref="paginationRef"
       class="table-entity__pagination flex items-center justify-between"
     >
       <!-- 选择了多少 -->

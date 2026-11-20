@@ -156,7 +156,7 @@ export type TableEntityProps<
 > = {
   columns?: ColumnsItem[];
   data?: TRecord[] | TableEntityDataFetcher<TRecord>;
-  height?: number;
+  height?: number | `${number}%`;
   rowHeight?: number;
   /** 虚拟列表在可视区外预渲染的行数，值越小滚动渲染压力越低 */
   cache?: number;
