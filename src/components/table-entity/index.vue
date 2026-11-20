@@ -165,8 +165,10 @@ const internalExpandedRowKeys = ref<TableEntityRowKey[]>([
 ]);
 const tableViewportRef = ref<HTMLElement>();
 const paginationRef = ref<HTMLElement>();
-const { width: viewportWidth, top: viewportTop } =
-  useElementBounding(tableViewportRef);
+const { width: viewportWidth, top: viewportTop } = useElementBounding(
+  tableViewportRef,
+  { windowScroll: false },
+);
 const { height: paginationHeight } = useElementSize(paginationRef);
 const { height: windowHeight } = useWindowSize();
 const resolvedTableHeight = computed(() => {
@@ -179,7 +181,10 @@ const resolvedTableHeight = computed(() => {
     1,
     windowHeight.value - viewportTop.value - paginationHeight.value - 12,
   );
-  return Math.max(1, Math.round((availableHeight * Number(match[1])) / 100));
+  return Math.max(
+    1,
+    Math.round((availableHeight * Number(match[1])) / 100) - 10,
+  );
 });
 
 const pagination = reactive({
