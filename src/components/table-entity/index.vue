@@ -18,6 +18,7 @@ import {
   reactive,
   ref,
   resolveDirective,
+  toRef,
   useSlots,
   watch,
   withDirectives,
@@ -55,12 +56,11 @@ import { useColumnResize } from './composables/use-column-resize';
 import { useColumnSettings } from './composables/use-column-settings';
 import { moveTableRow, useRowDrag } from './composables/use-row-drag';
 import { useTableSelection } from './composables/use-table-selection';
+import { useTablePersistence } from './composables/use-table-persistence';
 import { applyColumnSlots } from './utils/column-slots';
 import { listExpandColumnKey, listExpandStateKey } from './utils/list-expand';
 
 const props = withDefaults(defineProps<TableEntityProps>(), {
-  height: '100%',
-  rowHeight: 40,
   cache: 1,
   selectable: true,
   multiple: true,
@@ -172,9 +172,9 @@ const { width: viewportWidth, top: viewportTop } = useElementBounding(
 const { height: paginationHeight } = useElementSize(paginationRef);
 const { height: windowHeight } = useWindowSize();
 const resolvedTableHeight = computed(() => {
-  if (typeof props.height === 'number') return props.height;
+  if (typeof tableHeight.value === 'number') return tableHeight.value;
 
-  const match = props.height.match(/^(\d+(?:\.\d+)?)%$/);
+  const match = tableHeight.value.match(/^(\d+(?:\.\d+)?)%$/);
   if (!match) return 630;
 
   const availableHeight = Math.max(
@@ -325,12 +325,29 @@ const resetColumnFixed = columnFixed.reset;
 function resetColumnSettings() {
   columnSettings.reset();
   columnFixed.reset();
+  columnResize.reset();
 }
 
 /** ****************************** 列宽拖拽 ********************************/
 
+const columnResize = useColumnResize(props.minColumnWidth);
 const { applyColumnWidths, resizeLineStyle, onViewportMouseDown } =
-  useColumnResize(props.minColumnWidth);
+  columnResize;
+const { height: tableHeight, rowHeight } = useTablePersistence({
+  storageKey: toRef(props, 'storageKey'),
+  height: toRef(props, 'height'),
+  rowHeight: toRef(props, 'rowHeight'),
+  columns: businessColumns,
+  settings: columnSettings,
+  fixed: columnFixed,
+  resize: columnResize,
+});
+const columnSettingsItems = computed(() =>
+  columnSettings.orderedSettings.value.map((setting) => ({
+    ...setting,
+    column: applyColumnWidths([setting.column])[0]!,
+  })),
+);
 
 /** 应用列设置（排序/显隐）、列冻结与宽度覆盖 */
 const resizedBusinessColumns = computed(() => {
@@ -577,7 +594,7 @@ const {
   },
   getHandle: () => props.rowDragHandle || `.${dragHandleClass}`,
   getRoot: () => tableViewportRef.value,
-  getRowHeight: () => props.rowHeight,
+  getRowHeight: () => rowHeight.value,
   getRows: () => rowDragRows.value,
   isEnabled: () => rowDragEnabled.value,
   isTree: () => props.tree,
@@ -1115,7 +1132,7 @@ defineExpose({
   <div
     class="table-entity"
     :class="{
-      'table-entity--large-row': props.rowHeight > 40,
+      'table-entity--large-row': rowHeight > 40,
       'table-entity--dynamic-row': listExpandEnabled,
     }"
   >
@@ -1169,12 +1186,12 @@ defineExpose({
           size="640px"
         >
           <ColumnSettingsPanel
-            :settings="columnSettings.orderedSettings.value"
+            :settings="columnSettingsItems"
             :fixed-items="columnFixedItems"
             @toggle="columnSettings.toggleColumn"
             @set-header-align="columnSettings.setHeaderAlign"
             @set-content-align="columnSettings.setContentAlign"
-            @set-width="columnSettings.setWidth"
+            @set-width="columnResize.setWidth"
             @set-fixed="setColumnFixed"
             @reset="resetColumnSettings"
             @update:settings="columnSettings.reorderSettings"
@@ -1218,11 +1235,11 @@ defineExpose({
         :data="renderedTableData"
         :width="resolvedTableWidth"
         :height="resolvedTableHeight"
-        :row-height="props.rowHeight"
+        :row-height="rowHeight"
         :row-class="dragRowClass"
         :row-props="dragRowProps"
         :cache="props.cache"
-        :estimated-row-height="listExpandEnabled ? props.rowHeight : undefined"
+        :estimated-row-height="listExpandEnabled ? rowHeight : undefined"
         :row-key="listExpandEnabled ? '__measureKey' : props.rowKey"
         :expand-column-key="resolvedExpandColumnKey"
         :expanded-row-keys="resolvedExpandedRowKeys"

@@ -19,6 +19,7 @@
 | `hasAccess`              | `(codes: string[]) => boolean`                     | 返回 `false` 时隐藏对应权限按钮。不传时全部显示                                                  |
 | `getAccessToken`         | `() => string`                                     | 导出请求附带的 token                                                                             |
 | `cardShadow`             | `'always' \| 'hover' \| 'never'`                   | `BaseCard` 阴影                                                                                  |
+| `storageKey`             | `MaybeRefOrGetter<string>`                         | 表格本地持久化的全局存储前缀；按页面路径和列标识自动隔离，空字符串关闭全局持久化                 |
 | `paginationConfig`       | `PaginationConfig`                                 | 表格分页配置；支持 `pageSizes`、`pageNumField`、`pageSizeField` 等                               |
 | `userAvatarDrawerFields` | `UserAvatarDrawerField[]`                          | `UserAvatarInfo` 抽屉详情字段的全局配置，组件 `drawerFields` prop 优先于它                       |
 
@@ -36,6 +37,26 @@ setupDisguise({
 ```
 
 配置后，异步数据源和分页/排序触发的 `change` 载荷都会带 `current`、`size`。`pageSizes`、`layout`、`background` 等 Element Plus 分页器选项仍可一起放在 `paginationConfig` 中。
+
+## 表格持久化
+
+在注入入口配置 `storageKey`，所有 `TableEntity`（包括 `CrudPage`、弹窗中的表格）都会自动通过 `localStorage` 保存高度、行高和列设置：
+
+```ts
+setupDisguise({
+  storageKey: 'my-admin',
+});
+```
+
+存储会按表格挂载时的页面路径与首次非空列标识区分，兼容 hash 路由。也支持 ref 或 getter，方便在切换账号时切换到独立缓存：
+
+```ts
+setupDisguise({
+  storageKey: () => `my-admin:${userStore.userId}`,
+});
+```
+
+默认不启用。注入空字符串关闭全局持久化，未传此项保留已有配置。单表 `storage-key` 可覆盖全局自动标识，传空字符串则关闭该表持久化。同页同列的多表需分别指定单表标识；需要跨列结构变更保留配置时也可指定稳定标识。完整的恢复、重置和优先级规则见 [TableEntity 本地持久化](../components/table-entity.md#本地持久化)。
 
 ## 多语言表单
 

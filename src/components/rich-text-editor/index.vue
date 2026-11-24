@@ -30,6 +30,16 @@ import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import {
+  ElButton,
+  ElDialog,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElOption,
+  ElSelect,
+} from 'element-plus';
+import type { InputInstance } from 'element-plus';
+import {
   AlignCenter,
   AlignJustify,
   AlignLeft,
@@ -106,6 +116,12 @@ const sourceValue = ref(props.modelValue);
 const sourceMode = ref(false);
 const fullscreen = ref(false);
 const editorVersion = ref(0);
+const linkDialogVisible = ref(false);
+const linkUrlInput = ref<InputInstance>();
+const linkError = ref('');
+const linkForm = ref({ url: '', text: '', title: '', target: '_self' });
+let linkSelection: { from: number; to: number } | undefined;
+let originalLinkText = '';
 
 const resolvedPlaceholder = computed(
   () => props.placeholder || t('components.richTextEditor.placeholder'),
@@ -117,6 +133,8 @@ const editor = useEditor({
   extensions: [
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
+      link: false,
+      underline: false,
     }),
     TextStyle,
     Color,
@@ -142,22 +160,33 @@ const editor = useEditor({
       inline: true,
     }),
     Link.configure({
-      HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
-      openOnClick: true,
+      HTMLAttributes: { rel: 'noopener noreferrer', target: '_self' },
+      openOnClick: 'whenNotEditable',
     }),
   ],
   editorProps: {
     attributes: {
       class: 'tiptap-editor-content',
     },
+    handleClick(view, _pos, event) {
+      const link = (event.target as HTMLElement).closest('a');
+      if (!link || !props.editable || event.ctrlKey || event.metaKey)
+        return false;
+      event.preventDefault();
+      editor.value?.commands.setTextSelection({
+        from: view.posAtDOM(link, 0),
+        to: view.posAtDOM(link, link.childNodes.length),
+      });
+      addLink();
+      return true;
+    },
   },
-  onSelectionUpdate: () => {
+  onTransaction: () => {
     editorVersion.value += 1;
   },
   onUpdate: ({ editor }) => {
     const html = editor.getHTML();
     sourceValue.value = html;
-    editorVersion.value += 1;
     emit('update:modelValue', html);
   },
 });
@@ -319,27 +348,84 @@ function toggleSourceMode() {
 }
 
 function addLink() {
-  if (editingDisabled.value) return;
-  const currentHref = editor.value?.getAttributes('link').href as
-    string | undefined;
-  const url = window.prompt(
-    t('components.richTextEditor.linkPrompt'),
-    currentHref ?? '',
-  );
-  if (url === null) return;
+  const currentEditor = editor.value;
+  if (!currentEditor || editingDisabled.value || sourceMode.value) return;
+  currentEditor.commands.extendMarkRange('link');
+  const { from, to } = currentEditor.state.selection;
+  linkSelection = { from, to };
+  originalLinkText = currentEditor.state.doc.textBetween(from, to, '\n');
+  const attributes = currentEditor.getAttributes('link');
+  linkForm.value = {
+    url: attributes.href ?? '',
+    text: originalLinkText,
+    title: attributes.title ?? '',
+    target: attributes.target === '_blank' ? '_blank' : '_self',
+  };
+  linkError.value = '';
+  linkDialogVisible.value = true;
+}
 
-  const nextUrl = url.trim();
-  if (!nextUrl) {
-    editor.value?.chain().focus().extendMarkRange('link').unsetLink().run();
+function saveLink() {
+  const currentEditor = editor.value;
+  if (
+    !currentEditor ||
+    !linkSelection ||
+    editingDisabled.value ||
+    sourceMode.value
+  )
+    return;
+  const url = linkForm.value.url.trim();
+  const attributes = {
+    href: normalizeUrl(url),
+    title: linkForm.value.title.trim() || null,
+    target: linkForm.value.target,
+    rel: 'noopener noreferrer',
+  };
+  if (!url || !currentEditor.can().setLink(attributes)) {
+    linkError.value = t('components.richTextEditor.linkUrlInvalid');
+    linkUrlInput.value?.focus();
     return;
   }
 
+  const text = linkForm.value.text || url;
+  const chain = currentEditor.chain().focus().setTextSelection(linkSelection);
+  if (text === originalLinkText && linkSelection.from !== linkSelection.to) {
+    chain.setLink(attributes).run();
+  } else {
+    const marks = currentEditor.state.doc
+      .resolve(linkSelection.from)
+      .marks()
+      .filter((mark) => mark.type.name !== 'link')
+      .map((mark) => mark.toJSON());
+    chain
+      .insertContent({
+        type: 'text',
+        text,
+        marks: [...marks, { type: 'link', attrs: attributes }],
+      })
+      .command(({ tr }) => {
+        tr.removeStoredMark(currentEditor.schema.marks.link!);
+        tr.setMeta('preventAutolink', true);
+        return true;
+      })
+      .run();
+  }
+  linkDialogVisible.value = false;
+}
+
+function removeLink() {
+  if (!linkSelection || editingDisabled.value || sourceMode.value) return;
   editor.value
     ?.chain()
     .focus()
-    .extendMarkRange('link')
-    .setLink({ href: normalizeUrl(nextUrl) })
+    .setTextSelection(linkSelection)
+    .unsetLink()
     .run();
+  linkDialogVisible.value = false;
+}
+
+function preserveToolbarSelection(event: MouseEvent) {
+  if ((event.target as HTMLElement).closest('button')) event.preventDefault();
 }
 
 function addImage() {
@@ -351,7 +437,7 @@ function addImage() {
 }
 
 function normalizeUrl(url: string) {
-  if (/^(https?:|mailto:|tel:)/i.test(url)) return url;
+  if (/^(?:[a-z][a-z\d+.-]*:|[/?#])/i.test(url)) return url;
   return 'https://' + url;
 }
 
@@ -444,7 +530,7 @@ defineExpose({ editor, clearFormat });
     class="rich-text-editor"
     :class="{ 'is-fullscreen': fullscreen, 'is-source': sourceMode }"
   >
-    <div class="rich-text-toolbar" @mousedown.prevent>
+    <div class="rich-text-toolbar" @mousedown="preserveToolbarSelection">
       <button
         type="button"
         :title="t('components.richTextEditor.undo')"
@@ -539,6 +625,7 @@ defineExpose({ editor, clearFormat });
 
       <select
         v-model="fontFamily"
+        :aria-label="t('components.richTextEditor.fontFamily')"
         class="rich-text-select rich-text-select--font"
         :disabled="editingDisabled"
       >
@@ -552,6 +639,7 @@ defineExpose({ editor, clearFormat });
       </select>
       <select
         v-model="fontSize"
+        :aria-label="t('components.richTextEditor.fontSize')"
         class="rich-text-select rich-text-select--size"
         :disabled="editingDisabled"
       >
@@ -659,6 +747,8 @@ defineExpose({ editor, clearFormat });
       <button
         type="button"
         :title="t('components.richTextEditor.insertLink')"
+        :class="{ 'is-active': isActive('link') }"
+        :disabled="editingDisabled || sourceMode"
         @click="addLink"
       >
         <Link2 :size="17" />
@@ -778,6 +868,63 @@ defineExpose({ editor, clearFormat });
       :editor="editor"
       :style="{ '--rich-text-max-height': maxHeight }"
     />
+    <ElDialog
+      v-model="linkDialogVisible"
+      :title="t('components.richTextEditor.linkDialogTitle')"
+      width="min(480px, 92vw)"
+      append-to-body
+      destroy-on-close
+      :z-index="fullscreen ? 3100 : undefined"
+      :close-on-click-modal="false"
+      @opened="linkUrlInput?.focus()"
+    >
+      <ElForm label-position="top" @submit.prevent="saveLink">
+        <ElFormItem
+          :label="t('components.richTextEditor.linkUrl')"
+          :error="linkError"
+        >
+          <ElInput
+            ref="linkUrlInput"
+            v-model="linkForm.url"
+            @input="linkError = ''"
+          />
+        </ElFormItem>
+        <ElFormItem :label="t('components.richTextEditor.linkText')">
+          <ElInput v-model="linkForm.text" />
+        </ElFormItem>
+        <ElFormItem :label="t('components.richTextEditor.linkTitle')">
+          <ElInput v-model="linkForm.title" />
+        </ElFormItem>
+        <ElFormItem :label="t('components.richTextEditor.linkTarget')">
+          <ElSelect v-model="linkForm.target" style="width: 100%">
+            <ElOption
+              value="_self"
+              :label="t('components.richTextEditor.linkCurrentWindow')"
+            />
+            <ElOption
+              value="_blank"
+              :label="t('components.richTextEditor.linkNewWindow')"
+            />
+          </ElSelect>
+        </ElFormItem>
+        <button type="submit" hidden></button>
+      </ElForm>
+      <template #footer>
+        <ElButton v-if="isActive('link')" @click="removeLink">
+          {{ t('components.richTextEditor.removeLink') }}
+        </ElButton>
+        <ElButton @click="linkDialogVisible = false">
+          {{ t('common.cancel') }}
+        </ElButton>
+        <ElButton
+          type="primary"
+          :disabled="editingDisabled || sourceMode"
+          @click="saveLink"
+        >
+          {{ t('components.richTextEditor.save') }}
+        </ElButton>
+      </template>
+    </ElDialog>
   </div>
 </template>
 

@@ -15,6 +15,16 @@ export function useColumnResize(minWidth = 50) {
   /** 各列宽度覆盖值 (px)，key 为列的 data-key */
   const widthOverrides = reactive<Record<string, number>>({});
 
+  function setWidth(key: string, width: number) {
+    if (key && Number.isFinite(width) && width > 0) {
+      widthOverrides[key] = Math.max(minWidth, width);
+    }
+  }
+
+  function reset() {
+    for (const key of Object.keys(widthOverrides)) delete widthOverrides[key];
+  }
+
   const state = reactive({
     active: false,
     colKey: null as null | string,
@@ -27,7 +37,7 @@ export function useColumnResize(minWidth = 50) {
     if (!state.active || !state.colKey) return;
     const delta = e.clientX - state.startX;
     const newWidth = Math.max(minWidth, state.startWidth + delta);
-    widthOverrides[state.colKey] = newWidth;
+    setWidth(state.colKey, newWidth);
     state.currentX = e.clientX;
   }
 
@@ -114,6 +124,8 @@ export function useColumnResize(minWidth = 50) {
 
   return {
     widthOverrides,
+    setWidth,
+    reset,
     resizeState: state,
     onViewportMouseDown,
     applyColumnWidths,

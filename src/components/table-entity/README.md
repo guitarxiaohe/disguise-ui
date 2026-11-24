@@ -33,6 +33,7 @@ const data = ref([
 | `columns`                | `ColumnsItem[]`                          | `[]`                              | 列配置，类型同 Element Plus Column                                     |
 | `height`                 | `number \| \`${number}%\``               | `'100%'`                          | 表格高度；百分比按表格起始位置到视口底部的可用空间计算，例如 `'50%'`   |
 | `rowHeight`              | `number`                                 | `40`                              | 行高                                                                   |
+| `storageKey`             | `string`                                 | —                                 | 覆盖全局持久化标识；不传使用注入配置，空字符串关闭当前表               |
 | `width`                  | `number`                                 | —                                 | 表格宽度，不传则自适应容器                                             |
 | `rowKey`                 | `string`                                 | `'id'`                            | 行唯一标识字段                                                         |
 | `selectable`             | `boolean`                                | `true`                            | 是否显示选择列                                                         |
@@ -58,6 +59,22 @@ const data = ref([
 | `actionColumnWidth`      | `number`                                 | `50`                              | 兼容保留，操作列固定为 50px                                            |
 | `actionColumnTitle`      | `string`                                 | `'操作'`                          | 操作列标题                                                             |
 | `pushActions`            | `TableEntityPushAction[]`                | `[]`                              | 追加的自定义操作按钮                                                   |
+
+## 本地持久化
+
+在注入入口统一开启，无需给每张表传 `storage-key`：
+
+```ts
+setupDisguise({ storageKey: 'my-admin' });
+// 按账号隔离，也可传 ref 或 getter：
+setupDisguise({ storageKey: () => `my-admin:${userStore.userId}` });
+```
+
+全局配置使用 `localStorage`，以存储前缀、挂载时的页面路径（兼容 hash 路由）和首次非空列标识自动隔离表格。保存列显隐、顺序、表头和内容对齐、固定位置、列宽及高度 / 行高。全局未配置或设为空字符串时不开启；再次注入时未传此项会保留原配置。
+
+单表 `storage-key="user-list"` 优先于全局配置，对应存储键 `disguise-ui:table-entity:user-list`；`storage-key=""` 关闭当前表持久化。相同页面、相同列标识的多张表需要分别指定单表标识。自动标识在初始列集合变化后会更新，如需跨版本列结构变更保留配置，请指定稳定的单表标识。`CrudPage` 可通过 `:table-props="{ storageKey: 'user-list' }"` 覆盖。
+
+显式传入的 `height`、`rowHeight` 优先于缓存，并保存最新值；未传时读取缓存，没有缓存则使用默认值。百分比高度保存原始百分比，并按当前视口重新计算。列需使用稳定且唯一的 `key` 或 `dataKey`（兼容 `dataIndex`）。异步列加载后会恢复设置，同次挂载新增列追加到末尾且默认可见，已删除列的配置被忽略。“恢复默认”同时清除列宽调整，并保存默认列配置。浏览器存储不可用或缓存损坏时不影响表格使用。
 
 列配置支持服务端排序：
 

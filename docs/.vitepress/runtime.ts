@@ -7,6 +7,7 @@ export function setupDocsRuntime() {
     locale: 'zh-CN',
     imageBaseUrl: '',
     cardShadow: 'hover',
+    storageKey: 'disguise-ui-docs',
     hasAccess: () => true,
     getAccessToken: () => '',
     fetchAllDictData: async () => mockDictData,

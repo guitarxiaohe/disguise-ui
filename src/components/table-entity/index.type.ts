@@ -158,6 +158,8 @@ export type TableEntityProps<
   data?: TRecord[] | TableEntityDataFetcher<TRecord>;
   height?: number | `${number}%`;
   rowHeight?: number;
+  /** 覆盖全局持久化配置的唯一标识；不传则使用注入配置，空字符串关闭当前表持久化 */
+  storageKey?: string;
   /** 虚拟列表在可视区外预渲染的行数，值越小滚动渲染压力越低 */
   cache?: number;
   width?: number;

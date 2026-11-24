@@ -82,6 +82,13 @@ export function useColumnFixed(columns: Ref<ColumnsItem[]>) {
     fixedMap.value = buildInitialMap(columns.value);
   }
 
+  function restoreState(state: Record<string, ColumnFixedValue>) {
+    reset();
+    for (const key of Object.keys(fixedMap.value)) {
+      if (Object.hasOwn(state, key)) setFixed(key, state[key]!);
+    }
+  }
+
   function applyFixed(cols: ColumnsItem[]): ColumnsItem[] {
     return cols.map((col) => {
       const key = resolveColumnKey(col);
@@ -96,6 +103,8 @@ export function useColumnFixed(columns: Ref<ColumnsItem[]>) {
     setFixed,
     reset,
     applyFixed,
+    getState: () => ({ ...fixedMap.value }),
+    restoreState,
   };
 }
 

@@ -84,6 +84,9 @@ export interface DisguiseOptions {
   /** TableEntity 分页器的全局配置 */
   paginationConfig?: PaginationConfig;
 
+  /** 表格本地配置的全局存储前缀；支持 ref/getter，空字符串关闭全局持久化 */
+  storageKey?: MaybeRefOrGetter<string>;
+
   /** UserAvatarInfo 抽屉详情字段的全局配置，组件 drawerFields prop 优先于它 */
   userAvatarDrawerFields?: UserAvatarDrawerField[];
 }
@@ -103,6 +106,10 @@ const paginationConfig = ref<PaginationConfig>({
   popperStyle: { zIndex: 4000 },
 });
 const userAvatarDrawerFields = ref<UserAvatarDrawerField[] | null>(null);
+const storageKeySource = shallowRef<{
+  source: NonNullable<DisguiseOptions['storageKey']>;
+}>({ source: '' });
+const storageKey = computed(() => toValue(storageKeySource.value.source));
 const userDataLoader = shallowRef<DisguiseOptions['fetchAllUserData']>(null);
 const userDataSourceVersion = ref(0);
 const userLookupFields = ref<UserLookupFields>({});
@@ -154,6 +161,9 @@ export function configureDisguise(options: DisguiseOptions) {
       ...options.paginationConfig,
     };
   }
+  if (options.storageKey !== undefined) {
+    storageKeySource.value = { source: options.storageKey };
+  }
   if (options.userAvatarDrawerFields !== undefined) {
     userAvatarDrawerFields.value = options.userAvatarDrawerFields;
   }
@@ -200,6 +210,9 @@ export function getCardShadow() {
 }
 export function getPaginationConfig(): Ref<PaginationConfig> {
   return paginationConfig;
+}
+export function getStorageKey() {
+  return storageKey;
 }
 export function getUserAvatarDrawerFields(): Ref<
   UserAvatarDrawerField[] | null

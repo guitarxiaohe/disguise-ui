@@ -115,7 +115,19 @@
     "deleteRow": "删除行",
     "deleteTable": "删除表格",
     "fullscreen": "全屏",
-    "sourceCode": "源码视图"
+    "sourceCode": "源码视图",
+    "fontFamily": "字体",
+    "fontSize": "字号",
+    "linkDialogTitle": "插入/编辑链接",
+    "linkUrl": "URL",
+    "linkText": "显示文字",
+    "linkTitle": "标题",
+    "linkTarget": "打开方式",
+    "linkCurrentWindow": "当前窗口",
+    "linkNewWindow": "新窗口",
+    "linkUrlInvalid": "请输入有效的链接地址",
+    "removeLink": "移除链接",
+    "save": "保存"
   },
   "asyncSelect": {
     "placeholder": "请选择",

@@ -1,6 +1,6 @@
 # RichTextEditor 富文本
 
-基于 Tiptap 的编辑器，支持标题、对齐、颜色、表格和图片。
+基于 Tiptap 的编辑器，支持字体、字号、标题、对齐、颜色、链接、表格和图片。
 
 <script setup>
 import Basic from './demos/rich-text-editor-basic.vue'
@@ -18,6 +18,10 @@ import toolsSource from './demos/rich-text-editor-tools.vue?raw'
 </ClientOnly>
 
 插入图片通过弹窗输入图片地址，组件本身不会上传文件。建议在业务侧先接好上传接口，拿到 URL 后再写入编辑器，避免 blob 地址存库后失效。
+
+点击工具栏的链接按钮可配置 URL、显示文字、标题及打开方式（当前窗口或新窗口）。选中文字后插入链接会保留原有格式；未选中文字时，会在光标处插入显示文字，留空时使用 URL。点击编辑区中的已有链接，或将光标放在链接内再点击链接按钮，可回填并修改配置，也可移除链接。取消弹窗不会修改内容。
+
+字体与字号下拉框作用于当前选区；没有选区时作用于接下来输入的文字。选择 `System Font` 可恢复默认字体。
 
 ## Props
 

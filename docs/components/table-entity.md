@@ -99,6 +99,7 @@ const mockFile = { name: 'mock.ts', source: mockSource }
 | `columns`                | `ColumnsItem[]`                      | `[]`                   | 列配置                                                                                           |
 | `height`                 | `number \| \`${number}%\``           | `'100%'`               | 表格高度；百分比按表格起始位置到视口底部的可用空间计算，例如 `'50%'`                             |
 | `rowHeight`              | `number`                             | `40`                   | 行高                                                                                             |
+| `storageKey`             | `string`                             | —                      | 覆盖全局持久化标识；不传使用注入配置，空字符串关闭当前表                                         |
 | `cache`                  | `number`                             | `1`                    | 可视区外预渲染行数                                                                               |
 | `width`                  | `number`                             | 容器宽度               | 表格宽度                                                                                         |
 | `rowKey`                 | `string`                             | `'id'`                 | 行唯一标识                                                                                       |
@@ -135,6 +136,36 @@ const mockFile = { name: 'mock.ts', source: mockSource }
 异步数据源会收到 `pageNum`、`pageSize`、`query`、`sortField`、`sortOrder`。通过 `setupDisguise({ paginationConfig: { pageNumField: 'current', pageSizeField: 'size' } })` 可将分页参数改为 `current` 和 `size`。组件控制属性 `current_page`、`per_page` 及对应更新事件保持不变。完整配置见[运行时注入](../guide/runtime.md#表格分页)。
 
 `row-sort` 事件的 `oldIndex`/`newIndex` 表示所在层级的数组位置；树形排序时 `rows` 返回完整的重排后树，`parentRowKey` 标明被排序节点的父节点 key（根节点时为 `null`）。
+
+## 本地持久化
+
+在应用的注入入口统一配置 `storageKey`，`TableEntity`、`CrudPage` 以及弹窗中的表格都会自动保存配置，表格无需逐个传参。文档站已在运行时注入中开启。
+
+```ts
+import { setupDisguise } from 'disguise-ui';
+
+setupDisguise({
+  storageKey: 'my-admin',
+});
+```
+
+全局 `storageKey` 是存储前缀，内部使用 `localStorage`，按表格挂载时的页面路径与首次非空列标识自动隔离，兼容 hash 路由。保存内容包括列显隐、顺序、表头和内容对齐、固定位置、列宽及 `height` / `rowHeight`。
+
+支持传入 ref 或 getter，以便按账号隔离：
+
+```ts
+setupDisguise({
+  storageKey: () => `my-admin:${userStore.userId}`,
+});
+```
+
+单表可通过 `storage-key="user-list"` 指定稳定的独立标识，优先于全局配置；`storage-key=""` 关闭当前表的持久化。相同页面下列标识完全相同的多张表，应分别指定单表标识。全局自动标识包含初始列集合，列结构在版本升级后变化时会使用新的配置；需要跨列结构变更保留配置的表格，可指定固定的单表标识。`CrudPage` 通过 `:table-props="{ storageKey: 'user-list' }"` 覆盖。
+
+全局未配置或配置为空字符串时，未指定单表标识的表格不持久化。再次调用 `setupDisguise` 可更新全局配置，未传此项则保留已有配置。单表标识对应的存储键为 `disguise-ui:table-entity:<storageKey>`，全局自动标识会追加页面路径与列标识。
+
+显式传入的 `height`、`rowHeight` 优先于缓存，并会保存最新值；未传时使用缓存，首次使用则分别为 `'100%'` 和 `40`。百分比高度保存百分比配置，恢复后按当前视口重新计算。
+
+列需要稳定且唯一的 `key` 或 `dataKey`（也兼容 `dataIndex`）。异步加载列后会恢复已有配置，同次挂载中新增列默认可见并追加到末尾，已删除的列配置会被忽略。“恢复默认”会清除列显隐、顺序、对齐、固定和宽度调整，并保存默认列配置。缓存损坏或浏览器存储不可用时，表格继续正常使用。
 
 ## 列配置 ColumnsItem
 

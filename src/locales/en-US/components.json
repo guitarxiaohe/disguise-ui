@@ -115,7 +115,19 @@
     "deleteRow": "Delete row",
     "deleteTable": "Delete table",
     "fullscreen": "Fullscreen",
-    "sourceCode": "Source code"
+    "sourceCode": "Source code",
+    "fontFamily": "Font family",
+    "fontSize": "Font size",
+    "linkDialogTitle": "Insert/Edit Link",
+    "linkUrl": "URL",
+    "linkText": "Text to display",
+    "linkTitle": "Title",
+    "linkTarget": "Open link in...",
+    "linkCurrentWindow": "Current window",
+    "linkNewWindow": "New window",
+    "linkUrlInvalid": "Enter a valid link URL",
+    "removeLink": "Remove link",
+    "save": "Save"
   },
   "asyncSelect": {
     "placeholder": "Please select",

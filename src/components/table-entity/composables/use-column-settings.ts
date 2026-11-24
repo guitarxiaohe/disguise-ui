@@ -21,6 +21,13 @@ export type ColumnSettingItem = {
 
 export type ColumnAlignValue = 'center' | 'left' | 'right';
 
+export interface ColumnSettingsState {
+  orderedKeys: string[];
+  hiddenKeys: string[];
+  headerAlign: Record<string, ColumnAlignValue>;
+  contentAlign: Record<string, ColumnAlignValue>;
+}
+
 /**
  * 管理列的可见性与排序。
  *
@@ -196,11 +203,6 @@ export function useColumnSettings(columns: Ref<ColumnsItem[]>) {
     userContentAlignKeys.add(key);
   }
 
-  function setWidth(key: string, value: number) {
-    const column = columns.value.find((item) => resolveColumnKey(item) === key);
-    if (column) column.width = value;
-  }
-
   /** 全部显示 */
   function showAll() {
     hiddenKeys.value = new Set();
@@ -248,6 +250,41 @@ export function useColumnSettings(columns: Ref<ColumnsItem[]>) {
     });
   }
 
+  function getState(): ColumnSettingsState {
+    return {
+      orderedKeys: [...orderedKeys.value],
+      hiddenKeys: [...hiddenKeys.value],
+      headerAlign: Object.fromEntries(
+        Object.entries(headerAlignMap.value).filter(([key]) =>
+          userHeaderAlignKeys.has(key),
+        ),
+      ),
+      contentAlign: Object.fromEntries(
+        Object.entries(contentAlignMap.value).filter(([key]) =>
+          userContentAlignKeys.has(key),
+        ),
+      ),
+    };
+  }
+
+  function restoreState(state: ColumnSettingsState) {
+    reset();
+    const keys = buildInitialKeys(columns.value);
+    const validKeys = new Set(keys);
+    orderedKeys.value = [...new Set([...state.orderedKeys, ...keys])].filter(
+      (key) => validKeys.has(key),
+    );
+    hiddenKeys.value = new Set(
+      state.hiddenKeys.filter((key) => validKeys.has(key)),
+    );
+    for (const [key, align] of Object.entries(state.headerAlign)) {
+      if (validKeys.has(key)) setHeaderAlign(key, align);
+    }
+    for (const [key, align] of Object.entries(state.contentAlign)) {
+      if (validKeys.has(key)) setContentAlign(key, align);
+    }
+  }
+
   return {
     orderedKeys,
     hiddenKeys,
@@ -258,15 +295,15 @@ export function useColumnSettings(columns: Ref<ColumnsItem[]>) {
     reorderSettings,
     setHeaderAlign,
     setContentAlign,
-    setWidth,
     applyAlign,
+    getState,
+    restoreState,
     showAll,
     reset,
   };
 }
 
-function getColumnAlign(column?: ColumnsItem | null): ColumnAlignValue {
-  const align = column?.align;
+function getColumnAlign(align: unknown): ColumnAlignValue {
   return align === 'center' || align === 'right' ? align : 'left';
 }
 
