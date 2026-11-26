@@ -9,6 +9,7 @@ import type {
 
 import { computed, ref, watch } from 'vue';
 
+import { Extension, Node, mergeAttributes } from '@tiptap/core';
 import Color from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Highlight from '@tiptap/extension-highlight';
@@ -29,12 +30,14 @@ import {
 import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
+import { uploadFileApi } from '@/runtime/upload';
 import {
   ElButton,
   ElDialog,
   ElForm,
   ElFormItem,
   ElInput,
+  ElMessage,
   ElOption,
   ElSelect,
 } from 'element-plus';
@@ -120,6 +123,9 @@ const linkDialogVisible = ref(false);
 const linkUrlInput = ref<InputInstance>();
 const linkError = ref('');
 const linkForm = ref({ url: '', text: '', title: '', target: '_self' });
+const imageInput = ref<HTMLInputElement>();
+const uploadingImages = ref(0);
+let pendingImagePosition: number | undefined;
 let linkSelection: { from: number; to: number } | undefined;
 let originalLinkText = '';
 
@@ -127,16 +133,115 @@ const resolvedPlaceholder = computed(
   () => props.placeholder || t('components.richTextEditor.placeholder'),
 );
 
+const StyledDiv = Node.create({
+  name: 'styledDiv',
+  group: 'block',
+  content: 'block*',
+  defining: true,
+  addAttributes() {
+    return {
+      class: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+      },
+      style: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('style'),
+      },
+    };
+  },
+  parseHTML() {
+    return [{ tag: 'div' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes), 0];
+  },
+});
+
+const PreserveBlockAttributes = Extension.create({
+  name: 'preserveBlockAttributes',
+  addGlobalAttributes() {
+    return [
+      {
+        types: [
+          'paragraph',
+          'heading',
+          'blockquote',
+          'bulletList',
+          'orderedList',
+          'listItem',
+          'table',
+          'tableRow',
+          'tableCell',
+          'tableHeader',
+        ],
+        attributes: {
+          class: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+          },
+          style: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute('style'),
+          },
+        },
+      },
+    ];
+  },
+});
+
+const StyledImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      class: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+      },
+      style: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('style'),
+      },
+      alt: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('alt'),
+      },
+      title: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('title'),
+      },
+    };
+  },
+});
+
+const StyledLink = Link.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      class: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('class'),
+      },
+      style: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('style'),
+      },
+    };
+  },
+});
+
 const editor = useEditor({
   content: props.modelValue,
   editable: props.editable,
   extensions: [
     StarterKit.configure({
-      heading: { levels: [1, 2, 3] },
+      heading: { levels: [1, 2, 3, 4, 5, 6] },
       link: false,
       underline: false,
     }),
     TextStyle,
+    StyledDiv,
+    PreserveBlockAttributes,
     Color,
     BackgroundColor,
     FontSize,
@@ -155,11 +260,11 @@ const editor = useEditor({
     Placeholder.configure({
       placeholder: resolvedPlaceholder.value,
     }),
-    Image.configure({
+    StyledImage.configure({
       allowBase64: true,
       inline: true,
     }),
-    Link.configure({
+    StyledLink.configure({
       HTMLAttributes: { rel: 'noopener noreferrer', target: '_self' },
       openOnClick: 'whenNotEditable',
     }),
@@ -178,6 +283,26 @@ const editor = useEditor({
         to: view.posAtDOM(link, link.childNodes.length),
       });
       addLink();
+      return true;
+    },
+    handlePaste(view, event) {
+      const files = getClipboardImageFiles(event.clipboardData);
+      if (!files.length) return false;
+      void uploadAndInsertImages(files, view.state.selection.from);
+      return true;
+    },
+    handleDrop(view, event) {
+      const files = Array.from(event.dataTransfer?.files ?? []).filter((file) =>
+        file.type.startsWith('image/'),
+      );
+      if (!files.length) return false;
+      void uploadAndInsertImages(
+        files,
+        view.posAtCoords({
+          left: event.clientX,
+          top: event.clientY,
+        })?.pos ?? view.state.selection.from,
+      );
       return true;
     },
   },
@@ -430,10 +555,65 @@ function preserveToolbarSelection(event: MouseEvent) {
 
 function addImage() {
   if (editingDisabled.value) return;
-  const url = window.prompt(t('components.richTextEditor.imagePrompt'));
-  if (url) {
-    editor.value?.chain().focus().setImage({ src: url.trim() }).run();
+  pendingImagePosition = editor.value?.state.selection.from;
+  imageInput.value?.click();
+}
+
+function getClipboardImageFiles(data: DataTransfer | null) {
+  if (!data) return [];
+  const files = Array.from(data.files).filter((file) =>
+    file.type.startsWith('image/'),
+  );
+  for (const item of Array.from(data.items)) {
+    if (!item.type.startsWith('image/')) continue;
+    const file = item.getAsFile();
+    if (
+      file &&
+      !files.some(
+        (existing) =>
+          existing.name === file.name &&
+          existing.size === file.size &&
+          existing.type === file.type,
+      )
+    ) {
+      files.push(file);
+    }
   }
+  return files;
+}
+
+async function uploadAndInsertImages(files: File[], position?: number) {
+  const currentEditor = editor.value;
+  if (!currentEditor || editingDisabled.value) return;
+  uploadingImages.value += files.length;
+  let insertAt = position;
+  for (const file of files) {
+    try {
+      const { url } = await uploadFileApi(file, { baseFolder: 'rich-text' });
+      const chain = currentEditor.chain();
+      if (insertAt === undefined) chain.focus();
+      else
+        chain.insertContentAt(insertAt, {
+          type: 'image',
+          attrs: { src: url },
+        });
+      if (insertAt === undefined) chain.setImage({ src: url });
+      chain.run();
+      if (insertAt !== undefined) insertAt += 1;
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : '图片上传失败');
+    } finally {
+      uploadingImages.value = Math.max(0, uploadingImages.value - 1);
+    }
+  }
+}
+
+function onImageFilesSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  input.value = '';
+  if (files.length) void uploadAndInsertImages(files, pendingImagePosition);
+  pendingImagePosition = undefined;
 }
 
 function normalizeUrl(url: string) {
@@ -550,11 +730,21 @@ defineExpose({ editor, clearFormat });
 
       <button
         type="button"
+        :disabled="editingDisabled || uploadingImages > 0"
         :title="t('components.richTextEditor.insertImage')"
         @click="addImage"
       >
-        <ImageIcon :size="17" />
+        <ImageIcon v-if="uploadingImages === 0" :size="17" />
+        <span v-else class="rich-text-uploading">{{ uploadingImages }}</span>
       </button>
+      <input
+        ref="imageInput"
+        class="rich-text-file-input"
+        type="file"
+        accept="image/*"
+        multiple
+        @change="onImageFilesSelected"
+      />
       <label
         class="rich-text-select-wrap rich-text-select-wrap--line"
         :title="t('components.richTextEditor.lineHeight')"
@@ -866,6 +1056,7 @@ defineExpose({ editor, clearFormat });
     <EditorContent
       v-else
       :editor="editor"
+      class="rich-text-content"
       :style="{ '--rich-text-max-height': maxHeight }"
     />
     <ElDialog
@@ -945,12 +1136,35 @@ defineExpose({ editor, clearFormat });
     flex-direction: column;
     box-shadow: var(--el-box-shadow-dark);
 
-    :deep(.tiptap-editor-content),
     .rich-text-source {
       flex: 1;
+      min-height: 0;
       max-height: none;
+      overflow-y: auto;
+    }
+
+    :deep(.rich-text-content) {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    :deep(.tiptap-editor-content) {
+      min-height: 100%;
+      max-height: none;
+      overflow: visible;
     }
   }
+}
+
+.rich-text-file-input {
+  display: none;
+}
+
+.rich-text-uploading {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .rich-text-toolbar {
